@@ -1,0 +1,22 @@
+<div class="page-shell">
+  <section class="page-hero">
+    <span class="section-badge">Blog</span>
+    <h1>Nos articles sur le recrutement</h1>
+    <p>Conseils, tendances et bonnes pratiques pour les recruteurs et les candidats.</p>
+    <div class="breadcrumb">
+      <a routerLink="/home">Accueil</a>
+      <span>/</span>
+      <strong>Blog</strong>
+    </div>
+  </section>
+
+  <section class="blog-grid">
+    <article class="blog-card" *ngFor="let post of posts">
+      <span>{{ post.date }}</span>
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.excerpt }}</p>
+      <small>{{ post.author }}</small>
+      <a [routerLink]="['/blog-details', post.id]">Lire l'article</a>
+    </article>
+  </section>
+</div>

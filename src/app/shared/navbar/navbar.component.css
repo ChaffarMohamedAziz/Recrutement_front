@@ -1,0 +1,236 @@
+:host {
+  display: block;
+}
+
+.navbar-area {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1200;
+}
+
+.mobile-nav,
+.main-nav {
+  width: 100%;
+}
+
+.mobile-nav {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(214, 224, 244, 0.9);
+}
+
+.main-nav {
+  padding: 18px 24px 0;
+}
+
+.container {
+  width: min(1320px, 100%);
+  margin: 0 auto;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 40px rgba(18, 31, 59, 0.08);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(214, 224, 244, 0.9);
+}
+
+.navbar-brand,
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #1b2a47;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px 5px 1px 5px;
+  background: linear-gradient(135deg, #19335f, #597aa9);
+  transform: rotate(45deg);
+}
+
+.logo-text {
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 20px;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 14px;
+  border-radius: 12px;
+  color: #324768;
+  text-decoration: none;
+  font-size: 0.96rem;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: #eef3fb;
+  color: #19335f;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 220px;
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  border-radius: 18px;
+  background: rgba(16, 18, 24, 0.98);
+  box-shadow: 0 18px 36px rgba(4, 10, 24, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.has-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.dropdown-menu .nav-link {
+  display: flex;
+  width: 100%;
+  padding: 11px 12px;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.dropdown-menu .nav-link:hover,
+.dropdown-menu .nav-link.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.common-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  background: linear-gradient(135deg, #19335f, #2f5faa);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(25, 51, 95, 0.2);
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  transform: translateY(-1px);
+}
+
+.mobile-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mobile-toggle span {
+  width: 22px;
+  height: 2px;
+  border-radius: 999px;
+  background: #1b2a47;
+}
+
+@media (max-width: 1040px) {
+  .mobile-nav {
+    display: flex;
+  }
+
+  .main-nav {
+    display: none;
+    padding: 0;
+  }
+
+  .main-nav.open {
+    display: block;
+  }
+
+  .navbar {
+    margin: 0 14px 14px;
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .navbar-brand {
+    display: none;
+  }
+
+  .navbar-menu,
+  .navbar-nav,
+  .common-btn {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dropdown-menu {
+    position: static;
+    min-width: 100%;
+    margin-top: 8px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    box-shadow: none;
+    background: rgba(19, 40, 77, 0.06);
+  }
+
+  .nav-link,
+  .logout-btn {
+    width: 100%;
+  }
+}

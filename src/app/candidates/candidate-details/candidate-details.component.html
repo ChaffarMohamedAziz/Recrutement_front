@@ -1,0 +1,32 @@
+<div class="details-shell">
+  <div class="details-card">
+    <div class="hero-panel">
+      <div class="avatar-box">{{ candidate.name.slice(0, 1) }}</div>
+      <div>
+        <span class="section-badge">Detail candidat</span>
+        <h1>{{ candidate.name }}</h1>
+        <p>{{ candidate.title }} · {{ candidate.location }} · {{ candidate.experience }} ans d'experience</p>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <section class="content-card">
+        <h2>Profil</h2>
+        <p>{{ candidate.summary }}</p>
+      </section>
+
+      <section class="content-card">
+        <h2>Disponibilite</h2>
+        <p>{{ candidate.availability }}</p>
+        <div class="score-pill">Score de correspondance {{ candidate.score }}%</div>
+      </section>
+    </div>
+
+    <section class="content-card">
+      <h2>Competences</h2>
+      <div class="tag-row">
+        <span class="tag" *ngFor="let skill of candidate.skills">{{ skill }}</span>
+      </div>
+    </section>
+  </div>
+</div>

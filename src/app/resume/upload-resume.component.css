@@ -1,0 +1,184 @@
+:host {
+  display: block;
+}
+
+.resume-shell {
+  min-height: 100vh;
+  padding: 112px 28px 28px;
+  background:
+    radial-gradient(circle at top left, rgba(70, 103, 191, 0.12), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(118, 152, 222, 0.1), transparent 20%),
+    linear-gradient(180deg, #f6f8fc 0%, #ffffff 100%);
+  font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-title-area,
+.resume-card {
+  width: min(1320px, 100%);
+  margin: 0 auto 24px;
+}
+
+.page-title-card,
+.upload-panel {
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 22px 55px rgba(37, 59, 104, 0.08);
+}
+
+.page-title-card {
+  padding: 42px;
+  background:
+    linear-gradient(135deg, rgba(11, 21, 40, 0.92), rgba(29, 48, 82, 0.84)),
+    linear-gradient(140deg, #16233f 0%, #22365d 100%);
+  color: #fff;
+}
+
+.page-badge,
+.section-badge {
+  display: inline-flex;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.page-title-text h1 {
+  margin: 18px 0 14px;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+
+.page-title-text ul {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.page-title-text a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.upload-panel {
+  padding: 24px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff, #f7f9fc);
+  border: 1px solid #e4ebf7;
+}
+
+.single-upload {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.section-badge {
+  background: #eef2f8;
+  color: #294976;
+}
+
+.upload-panel h2 {
+  margin: 18px 0 12px;
+  color: #18234d;
+}
+
+.upload-panel p {
+  margin: 0 0 20px;
+  color: #62708f;
+  line-height: 1.85;
+}
+
+.upload-drop {
+  min-height: 300px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+  border: 1px dashed #b7c7e3;
+  border-radius: 24px;
+  background: #f9fbff;
+  cursor: pointer;
+}
+
+.upload-drop input {
+  display: none;
+}
+
+.upload-icon {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #19335f, #2f5faa);
+  color: #fff;
+  font-size: 1.7rem;
+  font-weight: 900;
+}
+
+.upload-drop strong,
+.upload-drop span,
+.upload-drop small {
+  display: block;
+}
+
+.upload-drop strong {
+  margin-bottom: 8px;
+  color: #1d2a48;
+}
+
+.upload-drop span {
+  color: #6d7a94;
+}
+
+.upload-drop small {
+  margin-top: 12px;
+  color: #294976;
+  font-weight: 800;
+}
+
+.upload-feedback {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #edf4ff;
+  color: #294976;
+  line-height: 1.7;
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-weight: 800;
+  border: 0;
+  background: linear-gradient(135deg, #19335f, #2f5faa);
+  color: #fff;
+  cursor: pointer;
+}
+
+.large-btn {
+  margin-top: 22px;
+  min-width: 220px;
+}
+
+@media (max-width: 640px) {
+  .resume-shell {
+    padding: 92px 14px 14px;
+  }
+
+  .page-title-card,
+  .upload-panel {
+    padding: 22px;
+    border-radius: 22px;
+  }
+}

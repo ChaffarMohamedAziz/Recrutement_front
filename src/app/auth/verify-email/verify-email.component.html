@@ -1,0 +1,18 @@
+<div class="verify-shell">
+  <div class="verify-card">
+    <span class="verify-badge">Smart Recruit</span>
+
+    <h1 *ngIf="isLoading">Activation du compte</h1>
+    <h1 *ngIf="!isLoading && isSuccess">Compte active</h1>
+    <h1 *ngIf="!isLoading && !isSuccess">Activation impossible</h1>
+
+    <p>{{ message }}</p>
+
+    <div class="status-dot" [class.success]="isSuccess" [class.loading]="isLoading"></div>
+
+    <div class="action-row" *ngIf="!isLoading">
+      <button type="button" class="primary-btn" (click)="goToLogin()">Aller a la connexion</button>
+      <a routerLink="/register" class="ghost-btn">Retour inscription</a>
+    </div>
+  </div>
+</div>

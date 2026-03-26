@@ -1,0 +1,62 @@
+<div class="page-shell">
+  <section class="page-hero">
+    <span class="section-badge">A propos</span>
+    <h1>Une plateforme de recrutement plus claire et plus efficace</h1>
+    <p>
+      Smart Recruit connecte les entreprises, les recruteurs et les candidats dans un environnement moderne,
+      fluide et oriente resultats.
+    </p>
+    <div class="breadcrumb">
+      <a routerLink="/home">Accueil</a>
+      <span>/</span>
+      <strong>A propos</strong>
+    </div>
+  </section>
+
+  <section class="story-grid">
+    <article class="story-card highlight">
+      <span class="card-badge">Notre mission</span>
+      <h2>Faciliter la rencontre entre talents et entreprises</h2>
+      <p>
+        Nous proposons une experience plus professionnelle que les formulaires disperses et les suivis manuels:
+        tableau ATS, recherche intelligente et mise en avant des profils les plus pertinents.
+      </p>
+    </article>
+
+    <article class="story-card" *ngFor="let value of values">
+      <h3>{{ value.title }}</h3>
+      <p>{{ value.description }}</p>
+    </article>
+  </section>
+
+  <section class="stat-grid">
+    <article class="stat-card" *ngFor="let stat of stats">
+      <strong>{{ stat.value }}</strong>
+      <span>{{ stat.label }}</span>
+    </article>
+  </section>
+
+  <section class="spotlight-grid">
+    <article class="spotlight-card">
+      <span class="section-badge muted">Entreprises</span>
+      <h2>Entreprises mises en avant</h2>
+      <div class="mini-list">
+        <a class="mini-item" *ngFor="let company of featuredCompanies" [routerLink]="['/company-details', company.id]">
+          <strong>{{ company.name }}</strong>
+          <span>{{ company.industry }} - {{ company.location }}</span>
+        </a>
+      </div>
+    </article>
+
+    <article class="spotlight-card">
+      <span class="section-badge muted">Candidats</span>
+      <h2>Profils a fort potentiel</h2>
+      <div class="mini-list">
+        <a class="mini-item" *ngFor="let candidate of featuredCandidates" [routerLink]="['/candidate-details', candidate.id]">
+          <strong>{{ candidate.name }}</strong>
+          <span>{{ candidate.title }} - score {{ candidate.score }}%</span>
+        </a>
+      </div>
+    </article>
+  </section>
+</div>

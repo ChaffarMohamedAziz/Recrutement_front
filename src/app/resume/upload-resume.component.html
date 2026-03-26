@@ -1,0 +1,35 @@
+<div class="resume-shell">
+  <section class="page-title-area">
+    <div class="page-title-card">
+      <div class="page-title-text">
+        <span class="page-badge">CV</span>
+        <h1>Deposer votre CV</h1>
+        <ul>
+          <li><a routerLink="/home">Accueil</a></li>
+          <li>/</li>
+          <li>Deposer votre CV</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="resume-card">
+    <div class="upload-panel single-upload">
+      <span class="section-badge">Televersement</span>
+      <h2>Ajoutez uniquement votre CV</h2>
+      <p>Choisissez votre fichier puis cliquez sur le bouton pour le deposer.</p>
+
+      <label class="upload-drop">
+        <input type="file" accept=".pdf,.doc,.docx" (change)="onFileSelected($event)" />
+        <div class="upload-icon">+</div>
+        <strong>Choisir un fichier CV</strong>
+        <span>Formats acceptes : PDF, DOC, DOCX</span>
+        <small *ngIf="selectedFileName">{{ selectedFileName }}</small>
+      </label>
+
+      <button type="button" class="primary-btn large-btn" (click)="submitResume()">Deposer un CV</button>
+
+      <p class="upload-feedback" *ngIf="uploadMessage">{{ uploadMessage }}</p>
+    </div>
+  </section>
+</div>

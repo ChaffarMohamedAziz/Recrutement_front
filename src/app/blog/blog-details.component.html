@@ -1,0 +1,41 @@
+<div class="page-shell">
+  <section class="page-hero">
+    <span class="section-badge">Article</span>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.excerpt }}</p>
+    <div class="breadcrumb">
+      <a routerLink="/home">Accueil</a>
+      <span>/</span>
+      <a routerLink="/blog">Blog</a>
+      <span>/</span>
+      <strong>Details</strong>
+    </div>
+  </section>
+
+  <section class="content-grid">
+    <article class="content-card article-card">
+      <span class="meta">{{ post.date }} - {{ post.author }}</span>
+      <h2>Analyse et bonnes pratiques</h2>
+      <p>
+        Le recrutement moderne exige une vision plus structuree du parcours candidat:
+        sourcing, qualification, entretiens et decision finale doivent etre visibles et faciles a piloter.
+      </p>
+      <p>
+        Une bonne plateforme aide les recruteurs a gagner du temps, mais aussi a mieux communiquer avec les candidats,
+        a reduire les pertes d'information et a maintenir une image employeur plus forte.
+      </p>
+      <p>
+        Smart Recruit s'inscrit dans cette logique avec une interface orientee lisibilite, ATS leger et mise en avant
+        des profils les plus pertinents.
+      </p>
+    </article>
+
+    <aside class="content-card side-card">
+      <h2>Articles similaires</h2>
+      <a class="related-item" *ngFor="let item of relatedPosts" [routerLink]="['/blog-details', item.id]">
+        <strong>{{ item.title }}</strong>
+        <span>{{ item.date }}</span>
+      </a>
+    </aside>
+  </section>
+</div>

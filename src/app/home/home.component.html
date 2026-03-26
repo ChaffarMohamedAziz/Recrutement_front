@@ -1,0 +1,212 @@
+<div class="home-shell">
+  <section class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-inner">
+      <span class="hero-kicker">Plateforme de recrutement moderne</span>
+      <h1>Trouvez le <span>poste ideal</span></h1>
+      <p>Offres, entreprises et candidats reunis dans une interface claire, rapide et professionnelle.</p>
+
+      <form class="hero-search-panel" (ngSubmit)="searchJobs()">
+        <div class="search-field">
+          <label>Titre du poste</label>
+          <input type="text" [(ngModel)]="jobTitleQuery" name="jobTitleQuery" placeholder="Ex: Developpeur Angular" />
+        </div>
+
+        <div class="search-field">
+          <label>Ville ou region</label>
+          <input type="text" [(ngModel)]="locationQuery" name="locationQuery" placeholder="Ex: Tunis, Sfax, Remote" />
+        </div>
+
+        <div class="search-field">
+          <label>Categorie</label>
+          <select [(ngModel)]="selectedCategory" name="selectedCategory">
+            <option>Toutes les categories</option>
+            <option *ngFor="let category of categories">{{ category.title }}</option>
+          </select>
+        </div>
+
+        <button type="submit" class="hero-search-btn">Rechercher</button>
+      </form>
+
+      <div class="hero-actions">
+        <a routerLink="/profile" class="hero-primary-btn">Creer votre profil</a>
+        <a routerLink="/submit-resume" class="hero-secondary-btn">Deposer votre CV</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="registration-flash" *ngIf="registration">
+    <strong>Inscription recente :</strong>
+    {{ registration.nom }} - {{ registration.message }}
+  </section>
+
+  <section class="account-steps">
+    <article class="step-card" *ngFor="let step of accountSteps">
+      <span>{{ step.index }}</span>
+      <h2>{{ step.title }}</h2>
+      <p>{{ step.description }}</p>
+    </article>
+  </section>
+
+  <section class="categories-section">
+    <div class="section-head">
+      <span class="section-badge">Categories</span>
+      <h2>Choisissez votre domaine de predilection</h2>
+      <p>Explorez les secteurs les plus actifs du marche et trouvez rapidement le bon univers de recrutement.</p>
+    </div>
+
+    <div class="category-grid">
+      <article class="category-card" *ngFor="let category of categories" [attr.data-accent]="category.accent">
+        <div class="category-icon"></div>
+        <h3>{{ category.title }}</h3>
+        <p>{{ category.subtitle }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="portal-section">
+    <div class="portal-media">
+      <div class="media-block tall">
+        <div class="media-stat">
+          <strong>87%</strong>
+          <span>Matching moyen sur les profils analyses</span>
+        </div>
+      </div>
+      <div class="media-stack">
+        <div class="media-block">
+          <div class="media-mini-card">
+            <strong>{{ companies[0].name }}</strong>
+            <span>{{ companies[0].openJobs }} postes ouverts</span>
+          </div>
+        </div>
+        <div class="media-block small">
+          <div class="media-mini-card">
+            <strong>{{ candidates[0].score }}%</strong>
+            <span>Score candidat vedette</span>
+          </div>
+        </div>
+      </div>
+      <div class="trusted-pill">100% fiable</div>
+    </div>
+
+    <div class="portal-copy">
+      <span class="section-badge muted">Portail de confiance</span>
+      <h2>Un portail emploi moderne et fiable</h2>
+      <p>
+        Une experience plus proche des plateformes job board modernes:
+        recherche rapide, cartes lisibles, profils visibles et parcours candidat mieux structure.
+      </p>
+      <ul class="portal-points">
+        <li>Recherche centralisee par poste, region et categorie</li>
+        <li>Visibilite immediate sur les entreprises actives</li>
+        <li>Navigation simple entre profils, offres et details</li>
+      </ul>
+      <div class="portal-actions">
+        <a routerLink="/company-list" class="primary-link">Voir les entreprises</a>
+        <a routerLink="/candidate-list" class="ghost-link dark">Explorer les profils</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="jobs-section" id="jobs-section">
+    <div class="section-head">
+      <span class="section-badge">Offres recentes</span>
+      <h2>Offres recentes</h2>
+      <p>{{ filteredJobs.length }} resultat(s) selon vos criteres de recherche.</p>
+    </div>
+
+    <div class="job-grid">
+      <article class="job-card" *ngFor="let job of filteredJobs">
+        <div class="job-top">
+          <div>
+            <h3>{{ job.title }}</h3>
+            <a [routerLink]="['/company-details', job.companyId]">{{ job.companyName }}</a>
+          </div>
+          <span>{{ job.contractType }}</span>
+        </div>
+
+        <p>{{ job.summary }}</p>
+
+        <ul>
+          <li>{{ job.salary }}</li>
+          <li>{{ job.location }}</li>
+          <li>{{ job.category }}</li>
+        </ul>
+
+        <div class="job-actions">
+          <a routerLink="/register">Postuler</a>
+          <a [routerLink]="['/company-details', job.companyId]" class="secondary">Entreprise</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="counter-strip">
+    <article class="counter-card" *ngFor="let stat of heroStats">
+      <strong>{{ stat.value }}</strong>
+      <span>{{ stat.label }}</span>
+    </article>
+    <article class="counter-card">
+      <strong>{{ candidates.length }}</strong>
+      <span>Profils mis en avant</span>
+    </article>
+  </section>
+
+  <section class="companies-section">
+    <div class="section-head">
+      <span class="section-badge">Entreprises</span>
+      <h2>Entreprises populaires</h2>
+      <p>Decouvrez les entreprises actives qui recrutent actuellement sur la plateforme.</p>
+    </div>
+
+    <div class="companies-grid">
+      <article class="company-card" *ngFor="let company of companies">
+        <div class="company-logo">{{ company.name.slice(0, 2).toUpperCase() }}</div>
+        <h3>{{ company.name }}</h3>
+        <span>{{ company.location }}</span>
+        <p>{{ company.summary }}</p>
+        <div class="chip-row">
+          <span class="info-chip">{{ company.industry }}</span>
+          <span class="info-chip">{{ company.openJobs }} postes</span>
+        </div>
+        <a [routerLink]="['/company-details', company.id]">Voir details</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="profiles-section">
+    <div class="section-head">
+      <span class="section-badge">Profils</span>
+      <h2>Profils mis en avant</h2>
+      <p>Visualisez rapidement les candidats les plus pertinents et leur niveau de compatibilite.</p>
+    </div>
+
+    <div class="profile-grid">
+      <article class="profile-card" *ngFor="let candidate of candidates">
+        <div class="profile-avatar">{{ candidate.name.slice(0, 1) }}</div>
+        <h3>{{ candidate.name }}</h3>
+        <span>{{ candidate.title }}</span>
+        <p>{{ candidate.summary }}</p>
+        <div class="score-pill">Score {{ candidate.score }}%</div>
+        <a [routerLink]="['/candidate-details', candidate.id]">Voir le profil</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="blog-section">
+    <div class="section-head">
+      <span class="section-badge">Blog</span>
+      <h2>Nos derniers articles</h2>
+      <p>Conseils recrutement, talent acquisition et candidate experience.</p>
+    </div>
+
+    <div class="blog-grid">
+      <article class="blog-card" *ngFor="let blog of blogs">
+        <span>{{ blog.date }}</span>
+        <h3>{{ blog.title }}</h3>
+        <p>{{ blog.excerpt }}</p>
+        <small>{{ blog.author }}</small>
+      </article>
+    </div>
+  </section>
+</div>

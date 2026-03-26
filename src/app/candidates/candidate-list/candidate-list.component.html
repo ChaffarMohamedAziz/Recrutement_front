@@ -1,0 +1,27 @@
+<div class="directory-shell">
+  <div class="directory-hero">
+    <span class="section-badge">Candidats</span>
+    <h1>Profils candidats a la une</h1>
+    <p>Consultez les profils candidats, leurs competences, leur experience et leur disponibilite.</p>
+  </div>
+
+  <div class="directory-grid">
+    <article class="directory-card" *ngFor="let candidate of candidates">
+      <div class="avatar-box">{{ candidate.name.slice(0, 1) }}</div>
+      <h2>{{ candidate.name }}</h2>
+      <span>{{ candidate.title }} · {{ candidate.location }}</span>
+      <p>{{ candidate.summary }}</p>
+
+      <div class="pill-row">
+        <span class="pill">{{ candidate.experience }} ans</span>
+        <span class="pill">{{ candidate.score }}%</span>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag" *ngFor="let skill of candidate.skills">{{ skill }}</span>
+      </div>
+
+      <a [routerLink]="['/candidate-details', candidate.id]">Voir profil</a>
+    </article>
+  </div>
+</div>

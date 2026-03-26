@@ -1,0 +1,201 @@
+<div class="profile-shell">
+  <section class="page-title-area">
+    <div class="page-title-card">
+      <div class="page-title-text">
+        <span class="page-badge">Profil candidat</span>
+        <h1>Creer votre profil</h1>
+        <ul>
+          <li><a routerLink="/home">Accueil</a></li>
+          <li>/</li>
+          <li>Creer votre profil</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="profile-content">
+    <section class="profile-top-card">
+      <div class="already-create">
+        <span>Vous avez deja un compte ?</span>
+        <a routerLink="/login">Se connecter</a>
+      </div>
+
+      <div class="top-card-grid" [formGroup]="identityGroup">
+        <div class="photo-panel">
+          <div class="photo-drop">
+            <div class="photo-icon">+</div>
+            <strong>Photo de profil</strong>
+            <span>Ajoutez une photo professionnelle</span>
+            <input type="file" />
+          </div>
+        </div>
+
+        <div class="identity-panel">
+          <div class="form-group">
+            <input type="text" formControlName="fullName" placeholder="Votre nom complet" />
+          </div>
+
+          <div class="form-group">
+            <input type="text" formControlName="profession" placeholder="Votre profession" />
+          </div>
+
+          <div class="text-right">
+            <button type="button" class="small-btn" (click)="saveProfile()">Valider</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <section class="content-card" [formGroup]="identityGroup">
+        <div class="section-head">
+          <h2>Informations de base</h2>
+          <div class="section-actions">
+            <button type="button" class="ghost-btn">Ajouter une photo de couverture</button>
+            <button type="button" class="ghost-btn">Ajouter votre CV</button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom complet</label>
+            <input type="text" formControlName="fullName" />
+          </div>
+
+          <div class="form-group">
+            <label>Adresse e-mail</label>
+            <input type="email" formControlName="email" />
+          </div>
+
+          <div class="form-group">
+            <label>Date de naissance</label>
+            <input type="date" formControlName="birthDate" />
+          </div>
+
+          <div class="form-group">
+            <label>Telephone</label>
+            <input type="text" formControlName="phone" />
+          </div>
+
+          <div class="form-group">
+            <label>Intitule du poste</label>
+            <input type="text" formControlName="jobTitle" />
+          </div>
+
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" formControlName="address" />
+          </div>
+
+          <div class="form-group full-width">
+            <div class="gender-area">
+              <span>Genre</span>
+              <label><input type="radio" formControlName="gender" value="homme" /> Homme</label>
+              <label><input type="radio" formControlName="gender" value="femme" /> Femme</label>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Description</label>
+            <textarea rows="7" formControlName="description" placeholder="Presentez votre profil, votre experience et vos objectifs."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-card">
+        <div class="section-head">
+          <h2>Formation</h2>
+          <div class="section-actions">
+            <button type="button" class="ghost-btn" (click)="addEducation()">Ajouter une formation</button>
+          </div>
+        </div>
+
+        <div formArrayName="education" class="stack-grid">
+          <div class="inline-grid" *ngFor="let educationGroup of educationArray.controls; let index = index" [formGroupName]="index">
+            <div class="form-group">
+              <label>Titre</label>
+              <input type="text" formControlName="title" placeholder="Ex: Informatique" />
+            </div>
+
+            <div class="form-group">
+              <label>Diplome</label>
+              <input type="text" formControlName="degree" placeholder="Ex: Master" />
+            </div>
+
+            <div class="form-group">
+              <label>Etablissement</label>
+              <input type="text" formControlName="institute" placeholder="Ex: ESSTHS" />
+            </div>
+
+            <div class="form-group">
+              <label>Annee</label>
+              <input type="text" formControlName="year" placeholder="Ex: 2025" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-card">
+        <div class="section-head">
+          <h2>Competences</h2>
+          <div class="section-actions">
+            <button type="button" class="ghost-btn" (click)="addSkill()">Ajouter une competence</button>
+          </div>
+        </div>
+
+        <div formArrayName="skills" class="stack-grid">
+          <div class="skill-grid" *ngFor="let skillGroup of skillsArray.controls; let index = index" [formGroupName]="index">
+            <div class="form-group">
+              <label>Competence</label>
+              <input type="text" formControlName="title" placeholder="Ex: Angular" />
+            </div>
+
+            <div class="skill-range">
+              <div class="range-head">
+                <span>Pourcentage</span>
+                <strong>{{ skillGroup.get('percentage')?.value }}%</strong>
+              </div>
+              <input type="range" min="0" max="100" formControlName="percentage" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-card" formGroupName="socialLinks">
+        <div class="section-head">
+          <h2>Liens sociaux</h2>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Facebook</label>
+            <input type="text" formControlName="facebook" />
+          </div>
+
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" formControlName="instagram" />
+          </div>
+
+          <div class="form-group">
+            <label>LinkedIn</label>
+            <input type="text" formControlName="linkedin" />
+          </div>
+
+          <div class="form-group">
+            <label>GitHub</label>
+            <input type="text" formControlName="github" />
+          </div>
+        </div>
+      </section>
+
+      <p class="save-feedback" *ngIf="isSaved">
+        Le profil a ete prepare avec succes. Si vous voulez, je peux maintenant le relier au backend pour un vrai enregistrement.
+      </p>
+
+      <div class="save-row">
+        <button type="submit" class="save-btn">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>

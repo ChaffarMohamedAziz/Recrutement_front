@@ -1,0 +1,130 @@
+<div class="dashboard-shell" *ngIf="user">
+  <div class="dashboard-header">
+    <div class="header-copy">
+      <span class="badge">ATS Light</span>
+      <h1>Suivi des candidatures</h1>
+      <p>
+        Glissez les candidats entre les colonnes, filtrez les profils par score minimum
+        et analysez rapidement les competences correspondantes ou manquantes.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <div class="user-chip">
+        <span>{{ user.username }}</span>
+        <small>{{ user.role }}</small>
+      </div>
+      <button type="button" class="logout-btn" (click)="logout()">Se deconnecter</button>
+    </div>
+  </div>
+
+  <div class="toolbar-card">
+    <div class="metric-grid">
+      <article class="metric-card">
+        <span>Profils visibles</span>
+        <strong>{{ totalVisibleCandidates }}</strong>
+      </article>
+
+      <article class="metric-card">
+        <span>Score moyen</span>
+        <strong>{{ averageVisibleScore }}%</strong>
+      </article>
+
+      <article class="metric-card">
+        <span>Filtre actif</span>
+        <strong>>= {{ minScore }}%</strong>
+      </article>
+    </div>
+
+    <div class="filter-panel">
+      <label for="scoreFilter">Score minimum</label>
+      <div class="filter-row">
+        <input
+          id="scoreFilter"
+          type="range"
+          min="0"
+          max="100"
+          [value]="minScore"
+          (input)="setMinScore($event)"
+        />
+        <span>{{ minScore }}%</span>
+      </div>
+      <p>Afficher seulement les candidats ayant un score superieur ou egal a {{ minScore }}%.</p>
+    </div>
+  </div>
+
+  <div class="kanban-board">
+    <section
+      class="kanban-column"
+      *ngFor="let column of columns"
+      [attr.data-accent]="column.accent"
+      (dragover)="allowDrop($event)"
+      (drop)="onDrop(column.key)"
+    >
+      <div class="column-header">
+        <div>
+          <h2>{{ column.title }}</h2>
+          <p>{{ getColumnCount(column.key) }} candidat(s)</p>
+        </div>
+        <span class="count-pill">{{ getColumnCount(column.key) }}</span>
+      </div>
+
+      <div class="candidate-list">
+        <article
+          class="candidate-card"
+          *ngFor="let candidate of getColumnApplications(column.key)"
+          draggable="true"
+          (dragstart)="onDragStart(candidate.id)"
+        >
+          <div class="candidate-top">
+            <div>
+              <h3>{{ candidate.candidateName }}</h3>
+              <p>{{ candidate.position }} · {{ candidate.location }}</p>
+            </div>
+            <span class="score-badge">{{ candidate.score }}%</span>
+          </div>
+
+          <p class="summary">{{ candidate.summary }}</p>
+
+          <div class="meta-row">
+            <span>{{ candidate.experience }} ans exp.</span>
+            <span>{{ candidate.appliedAt }}</span>
+          </div>
+
+          <div class="match-box">
+            <div class="match-head">
+              <span>Matching</span>
+              <strong>{{ getMatchRatio(candidate) }}%</strong>
+            </div>
+
+            <div class="skills-grid">
+              <span
+                class="skill-pill"
+                *ngFor="let skill of candidate.skills"
+                [class.skill-match]="skill.matched"
+                [class.skill-miss]="!skill.matched"
+              >
+                {{ skill.name }}
+              </span>
+            </div>
+          </div>
+
+          <div class="quick-compare">
+            <div>
+              <span class="compare-label ok">Correspond</span>
+              <p>{{ candidate.matchingSkills.length ? candidate.matchingSkills.join(', ') : 'Aucune' }}</p>
+            </div>
+            <div>
+              <span class="compare-label ko">Manque</span>
+              <p>{{ candidate.missingSkills.length ? candidate.missingSkills.join(', ') : 'Aucune' }}</p>
+            </div>
+          </div>
+        </article>
+
+        <p class="empty-state" *ngIf="!getColumnApplications(column.key).length">
+          Aucun candidat avec le filtre actuel.
+        </p>
+      </div>
+    </section>
+  </div>
+</div>

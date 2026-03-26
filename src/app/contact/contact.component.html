@@ -1,0 +1,61 @@
+<div class="page-shell">
+  <section class="page-hero">
+    <span class="section-badge">Contact</span>
+    <h1>Parlons de votre besoin en recrutement</h1>
+    <p>
+      Une question, une demande de demonstration ou un besoin de support ? Notre equipe vous repond rapidement.
+    </p>
+    <div class="breadcrumb">
+      <a routerLink="/home">Accueil</a>
+      <span>/</span>
+      <strong>Contact</strong>
+    </div>
+  </section>
+
+  <section class="contact-grid">
+    <article class="info-panel">
+      <h2>Nos coordonnees</h2>
+      <div class="info-list">
+        <div class="info-card" *ngFor="let item of contactCards">
+          <strong>{{ item.title }}</strong>
+          <span>{{ item.value }}</span>
+          <p>{{ item.note }}</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="form-panel">
+      <h2>Envoyez-nous un message</h2>
+
+      <p class="success-box" *ngIf="isSubmitted">
+        Votre message a ete prepare. Vous pouvez maintenant brancher ce formulaire au backend si vous voulez un vrai envoi.
+      </p>
+
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+        <div class="field-row">
+          <label class="field">
+            <span>Nom complet</span>
+            <input type="text" formControlName="fullName" placeholder="Votre nom complet" />
+          </label>
+
+          <label class="field">
+            <span>Adresse e-mail</span>
+            <input type="email" formControlName="email" placeholder="exemple@domaine.com" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Sujet</span>
+          <input type="text" formControlName="subject" placeholder="Objet de votre demande" />
+        </label>
+
+        <label class="field">
+          <span>Message</span>
+          <textarea formControlName="message" rows="6" placeholder="Decrivez votre besoin..."></textarea>
+        </label>
+
+        <button type="submit" class="primary-btn">Envoyer le message</button>
+      </form>
+    </article>
+  </section>
+</div>

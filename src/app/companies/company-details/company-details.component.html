@@ -1,0 +1,42 @@
+<div class="details-shell">
+  <div class="details-card">
+    <div class="hero-panel">
+      <div class="logo-box">{{ company.name.slice(0, 2).toUpperCase() }}</div>
+      <div>
+        <span class="section-badge">Detail entreprise</span>
+        <h1>{{ company.name }}</h1>
+        <p>{{ company.industry }} · {{ company.location }} · {{ company.size }}</p>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <section class="content-card">
+        <h2>A propos</h2>
+        <p>{{ company.summary }}</p>
+        <div class="tag-row">
+          <span class="tag" *ngFor="let item of company.highlights">{{ item }}</span>
+        </div>
+      </section>
+
+      <section class="content-card">
+        <h2>Avantages</h2>
+        <ul>
+          <li *ngFor="let benefit of company.benefits">{{ benefit }}</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="content-card jobs-card">
+      <h2>Postes ouverts</h2>
+      <div class="job-list">
+        <article class="job-item" *ngFor="let job of jobs">
+          <div>
+            <h3>{{ job.title }}</h3>
+            <p>{{ job.summary }}</p>
+          </div>
+          <span>{{ job.contractType }}</span>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>

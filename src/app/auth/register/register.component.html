@@ -1,0 +1,108 @@
+<div class="auth-shell">
+  <div class="auth-card register-layout">
+    <section class="auth-side-panel violet-panel">
+      <div class="side-content">
+        <span class="brand-mini light-brand">Smart Recruit</span>
+        <h2>Bon retour !</h2>
+        <p>Entrez vos informations personnelles et utilisez toutes les fonctionnalites du site.</p>
+        <a routerLink="/login" class="ghost-btn">SE CONNECTER</a>
+      </div>
+    </section>
+
+    <section class="auth-form-panel">
+      <div class="panel-inner register-inner">
+        <div class="heading-block">
+          <h1>Creer un compte</h1>
+          <p>Choisissez votre profil et remplissez vos informations.</p>
+        </div>
+
+        <div class="social-row" aria-hidden="true">
+          <button type="button" class="social-pill clickable" (click)="openFacebookLogin()" aria-label="Se connecter avec Facebook">f</button>
+          <button type="button" class="social-pill clickable" (click)="openGoogleLogin()" aria-label="Se connecter avec Google">G</button>
+          <button type="button" class="social-pill clickable" (click)="openLinkedInLogin()" aria-label="Se connecter avec LinkedIn">in</button>
+        </div>
+
+        <div class="role-switch" aria-label="Choix du profil">
+          <button
+            type="button"
+            class="role-option"
+            [class.active]="selectedRole === 'CANDIDATE'"
+            (click)="setRole('CANDIDATE')"
+        >
+            Candidat
+        </button>
+
+          <button
+            type="button"
+            class="role-option"
+            [class.active]="selectedRole === 'RECRUITER'"
+            (click)="setRole('RECRUITER')"
+        >
+            Recruteur
+        </button>
+      </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <label class="field">
+            <input type="text" formControlName="name" placeholder="Nom complet" />
+        </label>
+
+        <label class="field">
+            <input type="email" formControlName="email" placeholder="Adresse e-mail" />
+        </label>
+
+          <div class="grid-two" *ngIf="selectedRole === 'CANDIDATE'">
+            <label class="field">
+              <input type="text" formControlName="phone" placeholder="Telephone" />
+            </label>
+
+            <label class="field">
+              <input type="text" formControlName="city" placeholder="Ville" />
+            </label>
+          </div>
+
+          <div class="grid-two" *ngIf="selectedRole === 'RECRUITER'">
+            <label class="field">
+              <input type="text" formControlName="jobTitle" placeholder="Fonction" />
+            </label>
+
+            <label class="field">
+              <input type="text" formControlName="position" placeholder="Poste" />
+            </label>
+          </div>
+
+          <div class="grid-two" *ngIf="selectedRole === 'RECRUITER'">
+            <label class="field">
+              <input type="text" formControlName="department" placeholder="Departement" />
+            </label>
+
+            <label class="field">
+              <input type="text" formControlName="company" placeholder="Entreprise" />
+            </label>
+          </div>
+
+          <label class="field">
+            <input type="password" formControlName="password" placeholder="Mot de passe" />
+          </label>
+
+          <p class="error-box" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+          <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+            {{
+              isSubmitting
+                ? 'INSCRIPTION...'
+                : selectedRole === 'RECRUITER'
+                  ? "S'INSCRIRE COMME RECRUTEUR"
+                  : "S'INSCRIRE COMME CANDIDAT"
+            }}
+          </button>
+
+          <p class="footer-link">
+            Vous avez deja un compte ?
+            <a routerLink="/login">Se connecter</a>
+          </p>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>

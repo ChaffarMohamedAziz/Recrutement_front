@@ -1,0 +1,27 @@
+<div class="directory-shell">
+  <div class="directory-hero">
+    <span class="section-badge">Entreprises</span>
+    <h1>Entreprises populaires</h1>
+    <p>Decouvrez les entreprises, leurs activites, leurs postes ouverts et leurs avantages.</p>
+  </div>
+
+  <div class="directory-grid">
+    <article class="directory-card" *ngFor="let company of companies">
+      <div class="logo-box">{{ company.name.slice(0, 2).toUpperCase() }}</div>
+      <h2>{{ company.name }}</h2>
+      <span>{{ company.industry }} · {{ company.location }}</span>
+      <p>{{ company.summary }}</p>
+
+      <div class="pill-row">
+        <span class="pill">{{ company.openJobs }} postes</span>
+        <span class="pill">{{ company.size }}</span>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag" *ngFor="let item of company.highlights">{{ item }}</span>
+      </div>
+
+      <a [routerLink]="['/company-details', company.id]">Voir details</a>
+    </article>
+  </div>
+</div>
