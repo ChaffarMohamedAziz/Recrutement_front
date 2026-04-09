@@ -53,6 +53,8 @@
     </div>
   </div>
 
+  <p class="empty-state" *ngIf="errorMessage">{{ errorMessage }}</p>
+
   <div class="kanban-board">
     <section
       class="kanban-column"
@@ -79,15 +81,15 @@
           <div class="candidate-top">
             <div>
               <h3>{{ candidate.candidateName }}</h3>
-              <p>{{ candidate.position }} · {{ candidate.location }}</p>
+              <p>{{ candidate.candidateJobTitle }} · {{ candidate.candidateLocation }}</p>
             </div>
             <span class="score-badge">{{ candidate.score }}%</span>
           </div>
 
-          <p class="summary">{{ candidate.summary }}</p>
+          <p class="summary">{{ candidate.candidateSummary || 'Profil en cours de mise a jour.' }}</p>
 
           <div class="meta-row">
-            <span>{{ candidate.experience }} ans exp.</span>
+            <span>{{ candidate.candidateExperience }} ans exp.</span>
             <span>{{ candidate.appliedAt }}</span>
           </div>
 
@@ -104,7 +106,7 @@
                 [class.skill-match]="skill.matched"
                 [class.skill-miss]="!skill.matched"
               >
-                {{ skill.name }}
+                {{ skill.nom }}
               </span>
             </div>
           </div>
@@ -122,7 +124,7 @@
         </article>
 
         <p class="empty-state" *ngIf="!getColumnApplications(column.key).length">
-          Aucun candidat avec le filtre actuel.
+          {{ loading ? 'Chargement des candidatures...' : 'Aucun candidat avec le filtre actuel.' }}
         </p>
       </div>
     </section>

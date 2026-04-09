@@ -1,0 +1,84 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <main class="workspace-main">
+    <div class="workspace-main-inner">
+      <section class="workspace-page-header admin-user-header">
+        <div>
+          <h1>Utilisateurs</h1>
+          <p>Rechercher par nom, email ou ID et filtrer les comptes visibles.</p>
+        </div>
+
+        <div class="admin-search-field">
+          <input
+            type="text"
+            placeholder="Recherche..."
+            [ngModel]="searchQuery"
+            (ngModelChange)="onSearchChange($event)"
+          />
+        </div>
+      </section>
+
+      <section class="admin-filter-row">
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+          Tous
+          <strong>{{ users.length }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'CANDIDATE'" (click)="setFilter('CANDIDATE')">
+          Candidats
+          <strong>{{ candidateCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'RECRUITER'" (click)="setFilter('RECRUITER')">
+          Recruteurs
+          <strong>{{ recruiterCount }}</strong>
+        </button>
+      </section>
+
+      <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="admin-status success" *ngIf="successMessage">{{ successMessage }}</p>
+
+      <section class="workspace-card admin-table-card">
+        <div class="admin-table-head user-grid">
+          <span>Nom</span>
+          <span>Email</span>
+          <span>Role</span>
+          <span>Actions</span>
+        </div>
+
+        <div class="admin-table-row user-grid" *ngFor="let userItem of filteredUsers">
+          <div class="admin-identity-cell">
+            <span class="admin-avatar">{{ (userItem.nom || 'U').charAt(0) }}</span>
+            <div>
+              <strong>{{ userItem.nom }}</strong>
+              <small>ID {{ userItem.id }}</small>
+            </div>
+          </div>
+
+          <span class="admin-email-cell">{{ userItem.email }}</span>
+
+          <span class="workspace-chip" [ngClass]="userItem.role === 'RECRUITER' ? 'warning' : 'success'">
+            {{ getRoleLabel(userItem.role) }}
+          </span>
+
+          <div class="admin-actions-cell">
+            <a class="admin-action-btn secondary" [routerLink]="['/admin/users', userItem.id]">
+              Voir
+            </a>
+
+            <button
+              type="button"
+              class="admin-action-icon danger"
+              (click)="deleteUser(userItem)"
+              [disabled]="isDeleting(userItem.id)"
+              title="Supprimer"
+            >
+              {{ isDeleting(userItem.id) ? '...' : 'X' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-empty-state" *ngIf="!loading && !filteredUsers.length">
+          Aucun utilisateur trouve.
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

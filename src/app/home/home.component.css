@@ -4,7 +4,7 @@
 
 .home-shell {
   min-height: 100vh;
-  padding: 112px 28px 28px;
+  padding: 28px 28px 28px;
   background:
     radial-gradient(circle at top left, rgba(70, 103, 191, 0.12), transparent 24%),
     radial-gradient(circle at bottom right, rgba(118, 152, 222, 0.1), transparent 20%),
@@ -523,6 +523,19 @@
   text-decoration: none;
 }
 
+.job-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #21478b, #2d61b5);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .job-actions a.secondary {
   background: #f7f9fc;
   color: #3d4f72;
@@ -624,7 +637,7 @@
 
 @media (max-width: 640px) {
   .home-shell {
-    padding: 92px 14px 14px;
+    padding: 14px 14px 14px;
   }
 
   .hero-banner,

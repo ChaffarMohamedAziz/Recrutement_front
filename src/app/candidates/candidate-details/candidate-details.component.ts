@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { CANDIDATES } from '../../data/mock-market-data';
+import { ApplicationResponse, ApplicationService } from '../../services/application.service';
 
 @Component({
   selector: 'app-candidate-details',
@@ -10,8 +10,31 @@ import { CANDIDATES } from '../../data/mock-market-data';
   templateUrl: './candidate-details.component.html',
   styleUrl: './candidate-details.component.css'
 })
-export class CandidateDetailsComponent {
-  readonly candidate = CANDIDATES.find((item) => item.id === Number(this.route.snapshot.paramMap.get('id'))) ?? CANDIDATES[0];
+export class CandidateDetailsComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly applicationService = inject(ApplicationService);
 
-  constructor(private route: ActivatedRoute) {}
+  application: ApplicationResponse | null = null;
+  errorMessage = '';
+  loading = false;
+
+  ngOnInit(): void {
+    const applicationId = Number(this.route.snapshot.paramMap.get('id'));
+    if (!applicationId) {
+      this.errorMessage = 'Candidature introuvable.';
+      return;
+    }
+
+    this.loading = true;
+    this.applicationService.getRecruiterApplicationById(applicationId).subscribe({
+      next: (application) => {
+        this.application = application;
+        this.loading = false;
+      },
+      error: (error: { message?: string }) => {
+        this.errorMessage = error.message || 'Chargement du profil candidat impossible.';
+        this.loading = false;
+      }
+    });
+  }
 }

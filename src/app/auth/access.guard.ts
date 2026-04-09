@@ -27,3 +27,33 @@ export const adminGuard: CanActivateFn = () => {
 
   return router.createUrlTree(['/access-denied']);
 };
+
+export const recruiterGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isLoggedIn()) {
+    return router.createUrlTree(['/login']);
+  }
+
+  if (authService.isRecruiter()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/access-denied']);
+};
+
+export const candidateGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isLoggedIn()) {
+    return router.createUrlTree(['/login']);
+  }
+
+  if (authService.isCandidate()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/access-denied']);
+};

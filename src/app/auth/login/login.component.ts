@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, SocialProvider } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,9 +15,6 @@ export class LoginComponent {
   loginForm: FormGroup;
   isSubmitting = false;
   errorMessage = '';
-  readonly facebookLoginUrl = 'https://www.facebook.com/login/';
-  readonly googleLoginUrl = 'https://accounts.google.com/signin';
-  readonly linkedInLoginUrl = 'https://www.linkedin.com/login';
 
   constructor(
     private fb: FormBuilder,
@@ -40,10 +37,9 @@ export class LoginComponent {
     this.isSubmitting = true;
 
     this.authService.login(this.loginForm.getRawValue()).subscribe({
-      next: (user) => {
+      next: () => {
         this.isSubmitting = false;
-        const normalizedRole = (user.role ?? '').replace('ROLE_', '').toUpperCase();
-        const targetRoute = normalizedRole === 'ADMIN' ? '/dashboard' : '/job-list';
+        const targetRoute = this.authService.getRoleHomeRoute();
         this.router.navigate([targetRoute]);
       },
       error: (error: Error) => {
@@ -53,15 +49,47 @@ export class LoginComponent {
     });
   }
 
-  openFacebookLogin(): void {
-    window.location.href = this.facebookLoginUrl;
+  continueWithSocial(provider: SocialProvider): void {
+    const emailControl = this.loginForm.get('email');
+    const email = (emailControl?.value || '').trim();
+
+    if (!email || emailControl?.invalid || this.isSubmitting) {
+      emailControl?.markAsTouched();
+      this.errorMessage = `Saisissez une adresse e-mail valide pour continuer avec ${this.getProviderLabel(provider)}.`;
+      return;
+    }
+
+    this.errorMessage = '';
+    this.isSubmitting = true;
+
+    this.authService.socialAuth({
+      provider,
+      mode: 'LOGIN',
+      email
+    }).subscribe({
+      next: (response) => {
+        this.isSubmitting = false;
+        if (!response.token) {
+          this.errorMessage = response.message || 'Connexion sociale impossible.';
+          return;
+        }
+        const targetRoute = this.authService.getRoleHomeRoute();
+        this.router.navigate([targetRoute]);
+      },
+      error: (error: Error) => {
+        this.isSubmitting = false;
+        this.errorMessage = error.message;
+      }
+    });
   }
 
-  openGoogleLogin(): void {
-    window.location.href = this.googleLoginUrl;
-  }
-
-  openLinkedInLogin(): void {
-    window.location.href = this.linkedInLoginUrl;
+  private getProviderLabel(provider: SocialProvider): string {
+    if (provider === 'GMAIL') {
+      return 'Gmail';
+    }
+    if (provider === 'LINKEDIN') {
+      return 'LinkedIn';
+    }
+    return 'Facebook';
   }
 }

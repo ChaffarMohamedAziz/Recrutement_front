@@ -9,17 +9,29 @@
       <form class="hero-search-panel" (ngSubmit)="searchJobs()">
         <div class="search-field">
           <label>Titre du poste</label>
-          <input type="text" [(ngModel)]="jobTitleQuery" name="jobTitleQuery" placeholder="Ex: Developpeur Angular" />
+          <input
+            type="text"
+            [(ngModel)]="jobTitleQuery"
+            (ngModelChange)="updateFilteredJobs()"
+            name="jobTitleQuery"
+            placeholder="Ex: Developpeur Angular"
+          />
         </div>
 
         <div class="search-field">
           <label>Ville ou region</label>
-          <input type="text" [(ngModel)]="locationQuery" name="locationQuery" placeholder="Ex: Tunis, Sfax, Remote" />
+          <input
+            type="text"
+            [(ngModel)]="locationQuery"
+            (ngModelChange)="updateFilteredJobs()"
+            name="locationQuery"
+            placeholder="Ex: Tunis, Sfax, Remote"
+          />
         </div>
 
         <div class="search-field">
           <label>Categorie</label>
-          <select [(ngModel)]="selectedCategory" name="selectedCategory">
+          <select [(ngModel)]="selectedCategory" (ngModelChange)="updateFilteredJobs()" name="selectedCategory">
             <option>Toutes les categories</option>
             <option *ngFor="let category of categories">{{ category.title }}</option>
           </select>
@@ -29,8 +41,8 @@
       </form>
 
       <div class="hero-actions">
-        <a routerLink="/profile" class="hero-primary-btn">Creer votre profil</a>
-        <a routerLink="/submit-resume" class="hero-secondary-btn">Deposer votre CV</a>
+        <a [routerLink]="profileActionRoute" class="hero-primary-btn">{{ profileActionLabel }}</a>
+        <a [routerLink]="resumeActionRoute" class="hero-secondary-btn">{{ resumeActionLabel }}</a>
       </div>
     </div>
   </section>
@@ -102,8 +114,8 @@
         <li>Navigation simple entre profils, offres et details</li>
       </ul>
       <div class="portal-actions">
-        <a routerLink="/company-list" class="primary-link">Voir les entreprises</a>
-        <a routerLink="/candidate-list" class="ghost-link dark">Explorer les profils</a>
+        <a [routerLink]="companiesActionRoute" class="primary-link">{{ companiesActionLabel }}</a>
+        <a [routerLink]="profilesActionRoute" class="ghost-link dark">{{ profilesActionLabel }}</a>
       </div>
     </div>
   </section>
@@ -112,11 +124,11 @@
     <div class="section-head">
       <span class="section-badge">Offres recentes</span>
       <h2>Offres recentes</h2>
-      <p>{{ filteredJobs.length }} resultat(s) selon vos criteres de recherche.</p>
+      <p>{{ filteredJobsList.length }} resultat(s) selon vos criteres de recherche.</p>
     </div>
 
     <div class="job-grid">
-      <article class="job-card" *ngFor="let job of filteredJobs">
+      <article class="job-card" *ngFor="let job of filteredJobsList">
         <div class="job-top">
           <div>
             <h3>{{ job.title }}</h3>
@@ -134,8 +146,8 @@
         </ul>
 
         <div class="job-actions">
-          <a routerLink="/register">Postuler</a>
-          <a [routerLink]="['/company-details', job.companyId]" class="secondary">Entreprise</a>
+          <button type="button" class="job-action-button" (click)="openJobAction()">Postuler</button>
+          <a [routerLink]="companiesActionRoute" class="secondary">{{ companiesActionLabel }}</a>
         </div>
       </article>
     </div>
@@ -169,7 +181,7 @@
           <span class="info-chip">{{ company.industry }}</span>
           <span class="info-chip">{{ company.openJobs }} postes</span>
         </div>
-        <a [routerLink]="['/company-details', company.id]">Voir details</a>
+        <a [routerLink]="companiesActionRoute">{{ companiesActionLabel }}</a>
       </article>
     </div>
   </section>
@@ -188,7 +200,7 @@
         <span>{{ candidate.title }}</span>
         <p>{{ candidate.summary }}</p>
         <div class="score-pill">Score {{ candidate.score }}%</div>
-        <a [routerLink]="['/candidate-details', candidate.id]">Voir le profil</a>
+        <a [routerLink]="profilesActionRoute">{{ profilesActionLabel }}</a>
       </article>
     </div>
   </section>

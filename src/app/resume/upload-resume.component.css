@@ -4,7 +4,7 @@
 
 .resume-shell {
   min-height: 100vh;
-  padding: 112px 28px 28px;
+  padding: 28px 28px 28px;
   background:
     radial-gradient(circle at top left, rgba(70, 103, 191, 0.12), transparent 24%),
     radial-gradient(circle at bottom right, rgba(118, 152, 222, 0.1), transparent 20%),

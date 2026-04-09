@@ -1,0 +1,61 @@
+<div class="details-shell">
+  <div class="details-card" *ngIf="offer; else stateBlock">
+    <div class="hero-panel">
+      <div>
+        <span class="section-badge">Offre</span>
+        <h1>{{ offer.titre }}</h1>
+        <p>{{ offer.nomEntreprise }} · {{ offer.localisation }} · {{ offer.typeContrat }}</p>
+      </div>
+      <div class="hero-side">
+        <strong *ngIf="offer.compatibilityScore !== null">{{ offer.compatibilityScore }}%</strong>
+        <span>Compatibilite estimee</span>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <section class="content-card">
+        <h2>Description</h2>
+        <p>{{ offer.description }}</p>
+      </section>
+
+      <section class="content-card">
+        <h2>Informations</h2>
+        <div class="meta-list">
+          <span>Experience : {{ offer.experienceRequise }}</span>
+          <span>Salaire : {{ offer.salaire }} {{ offer.devise }}</span>
+          <span>Postes : {{ offer.nombrePostes }}</span>
+          <span>Expiration : {{ offer.dateExpiration || 'Non precisee' }}</span>
+        </div>
+      </section>
+    </div>
+
+    <section class="content-card">
+      <h2>Competences demandees</h2>
+      <div class="tag-row">
+        <span class="tag" *ngFor="let skill of offer.competences">
+          {{ skill.nom }} · {{ skill.type }} · {{ skill.ponderation }}%
+        </span>
+      </div>
+    </section>
+
+    <p class="success-banner" *ngIf="applyMessage">{{ applyMessage }}</p>
+    <p class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <div class="action-row">
+      <a routerLink="/job-list" class="secondary-action">Retour aux offres</a>
+      <button type="button" class="primary-action" [disabled]="offer.alreadyApplied || applying" (click)="apply()">
+        {{
+          offer.alreadyApplied
+            ? 'Deja postule'
+            : (applying ? 'Envoi...' : 'Postuler')
+        }}
+      </button>
+    </div>
+  </div>
+
+  <ng-template #stateBlock>
+    <div class="details-card">
+      <p>{{ loading ? 'Chargement du detail de l offre...' : errorMessage }}</p>
+    </div>
+  </ng-template>
+</div>

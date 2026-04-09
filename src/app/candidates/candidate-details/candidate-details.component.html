@@ -1,32 +1,46 @@
 <div class="details-shell">
-  <div class="details-card">
+  <div class="details-card" *ngIf="application; else stateBlock">
     <div class="hero-panel">
-      <div class="avatar-box">{{ candidate.name.slice(0, 1) }}</div>
+      <div class="avatar-box">{{ application.candidateName.slice(0, 1) }}</div>
       <div>
         <span class="section-badge">Detail candidat</span>
-        <h1>{{ candidate.name }}</h1>
-        <p>{{ candidate.title }} · {{ candidate.location }} · {{ candidate.experience }} ans d'experience</p>
+        <h1>{{ application.candidateName }}</h1>
+        <p>{{ application.candidateJobTitle }} · {{ application.candidateLocation }} · {{ application.candidateExperience }} ans d'experience</p>
       </div>
     </div>
 
     <div class="content-grid">
       <section class="content-card">
         <h2>Profil</h2>
-        <p>{{ candidate.summary }}</p>
+        <p>{{ application.candidateSummary || 'Le candidat n a pas encore complete sa presentation.' }}</p>
       </section>
 
       <section class="content-card">
-        <h2>Disponibilite</h2>
-        <p>{{ candidate.availability }}</p>
-        <div class="score-pill">Score de correspondance {{ candidate.score }}%</div>
+        <h2>Candidature</h2>
+        <p>{{ application.offerTitle }} · {{ application.companyName }}</p>
+        <div class="score-pill">Score de correspondance {{ application.score }}%</div>
+        <div class="status-pill" [attr.data-status]="application.status">{{ application.status }}</div>
       </section>
     </div>
 
     <section class="content-card">
-      <h2>Competences</h2>
+      <h2>Competences correspondantes</h2>
       <div class="tag-row">
-        <span class="tag" *ngFor="let skill of candidate.skills">{{ skill }}</span>
+        <span class="tag" *ngFor="let skill of application.matchingSkills">{{ skill }}</span>
+      </div>
+    </section>
+
+    <section class="content-card" *ngIf="application.missingSkills.length">
+      <h2>Competences manquantes</h2>
+      <div class="tag-row">
+        <span class="tag tag-miss" *ngFor="let skill of application.missingSkills">{{ skill }}</span>
       </div>
     </section>
   </div>
+
+  <ng-template #stateBlock>
+    <div class="details-card">
+      <p>{{ loading ? 'Chargement du profil candidat...' : errorMessage }}</p>
+    </div>
+  </ng-template>
 </div>

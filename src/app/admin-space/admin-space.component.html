@@ -1,0 +1,77 @@
+<div class="dashboard-shell admin-shell">
+  <section class="dashboard-hero">
+    <div class="hero-copy">
+      <span class="hero-badge">Espace administration</span>
+      <h1>Pilotez la plateforme Smart Recruit depuis un tableau de bord centralise.</h1>
+      <p>
+        Validez les comptes recruteurs, supervisez les utilisateurs et gardez une vue claire sur
+        les operations prioritaires de la plateforme.
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/admin/recruiter-activation" class="primary-link">Voir les demandes</a>
+        <a routerLink="/admin/users" class="secondary-link">Ouvrir les utilisateurs</a>
+      </div>
+    </div>
+
+    <article class="hero-panel">
+      <span class="panel-label">Administration</span>
+      <strong>{{ user?.username || 'Admin' }}</strong>
+      <p>Retrouvez les indicateurs essentiels et les acces rapides pour gerer la plateforme.</p>
+      <div class="hero-panel-stats">
+        <div>
+          <span>Demandes</span>
+          <strong>{{ kpis[0].value }}</strong>
+        </div>
+        <div>
+          <span>Utilisateurs</span>
+          <strong>{{ kpis[1].value }}</strong>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="kpi-grid">
+    <article class="kpi-card" *ngFor="let stat of kpis">
+      <span>{{ stat.label }}</span>
+      <strong>{{ stat.value }}</strong>
+      <small>{{ stat.detail }}</small>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="surface-card">
+      <div class="section-head">
+        <span class="section-badge">Priorites</span>
+        <h2>Operations recentes</h2>
+      </div>
+
+      <div class="pipeline-list">
+        <article class="pipeline-card" *ngFor="let item of recentActivities">
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.subtitle }}</p>
+          </div>
+          <strong>{{ item.value }}</strong>
+        </article>
+      </div>
+    </article>
+
+    <article class="surface-card">
+      <div class="section-head">
+        <span class="section-badge">Modules</span>
+        <h2>Acces rapides</h2>
+      </div>
+
+      <div class="agenda-list">
+        <article class="agenda-card" *ngFor="let item of topSkills">
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>Module disponible dans l'interface d'administration.</p>
+          </div>
+          <span>{{ item.percent }}</span>
+        </article>
+      </div>
+    </article>
+  </section>
+</div>

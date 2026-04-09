@@ -3,16 +3,18 @@
     <section class="auth-form-panel">
       <div class="panel-inner">
         <div class="heading-block">
-          <span class="brand-mini">Smart Recruit</span>
+          <span class="brand-mini">Plateforme de recrutement</span>
           <h1>Connexion</h1>
           <p>Utilisez votre e-mail et votre mot de passe pour acceder a votre compte.</p>
         </div>
 
-        <div class="social-row" aria-hidden="true">
-          <button type="button" class="social-pill clickable" (click)="openFacebookLogin()" aria-label="Se connecter avec Facebook">f</button>
-          <button type="button" class="social-pill clickable" (click)="openGoogleLogin()" aria-label="Se connecter avec Google">G</button>
-          <button type="button" class="social-pill clickable" (click)="openLinkedInLogin()" aria-label="Se connecter avec LinkedIn">in</button>
+        <div class="social-row">
+          <button type="button" class="social-pill clickable" (click)="continueWithSocial('FACEBOOK')" aria-label="Se connecter avec Facebook">f</button>
+          <button type="button" class="social-pill clickable" (click)="continueWithSocial('GMAIL')" aria-label="Se connecter avec Gmail">G</button>
+          <button type="button" class="social-pill clickable" (click)="continueWithSocial('LINKEDIN')" aria-label="Se connecter avec LinkedIn">in</button>
         </div>
+
+        <p class="social-help">Entrez votre e-mail puis choisissez Facebook, Gmail ou LinkedIn.</p>
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
           <label class="field">
@@ -31,16 +33,13 @@
             {{ isSubmitting ? 'CONNEXION...' : 'SE CONNECTER' }}
           </button>
 
-          <p class="footer-link">
-            Vous n'avez pas de compte ?
-            <a routerLink="/register">Creer un compte</a>
-          </p>
         </form>
       </div>
     </section>
 
     <section class="auth-side-panel cyan-panel">
       <div class="side-content">
+        <img src="/Logo_site.png" alt="Smart Recruit" class="side-logo" />
         <h2>Bonjour !</h2>
         <p>Inscrivez-vous avec vos informations personnelles pour utiliser toutes les fonctionnalites.</p>
         <a routerLink="/register" class="ghost-btn">S'INSCRIRE</a>

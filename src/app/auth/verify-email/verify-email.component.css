@@ -23,6 +23,17 @@
   text-align: center;
 }
 
+.brand-lockup {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.brand-image {
+  width: min(280px, 100%);
+  height: auto;
+}
+
 .verify-badge {
   display: inline-flex;
   padding: 10px 14px;

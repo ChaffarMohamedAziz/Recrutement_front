@@ -22,25 +22,37 @@
 
       <div class="top-card-grid" [formGroup]="identityGroup">
         <div class="photo-panel">
-          <div class="photo-drop">
+          <label class="photo-drop" for="profile-photo-input">
             <div class="photo-icon">+</div>
             <strong>Photo de profil</strong>
-            <span>Ajoutez une photo professionnelle</span>
-            <input type="file" />
-          </div>
+            <span>{{ selectedProfilePhotoName || 'Ajoutez une photo professionnelle' }}</span>
+            <span class="file-hint">Ex : photo-profil.jpg</span>
+            <span class="file-hint">Formats acceptes : JPG, JPEG, PNG</span>
+            <input
+              id="profile-photo-input"
+              class="hidden-file-input"
+              type="file"
+              accept=".jpg,.jpeg,.png"
+              (change)="onProfilePhotoSelected($event)"
+            />
+          </label>
         </div>
 
         <div class="identity-panel">
           <div class="form-group">
-            <input type="text" formControlName="fullName" placeholder="Votre nom complet" />
+            <label>Nom complet</label>
+            <input type="text" formControlName="fullName" placeholder="Ex : Aziz Chaffar" />
           </div>
 
           <div class="form-group">
-            <input type="text" formControlName="profession" placeholder="Votre profession" />
+            <label>Profession</label>
+            <input type="text" formControlName="profession" placeholder="Ex : Developpeur Full Stack" />
           </div>
 
           <div class="text-right">
-            <button type="button" class="small-btn" (click)="saveProfile()">Valider</button>
+            <button type="button" class="small-btn" (click)="saveProfile()" [disabled]="isSaving || isLoading">
+              {{ isSaving ? 'Enregistrement...' : (isLoading ? 'Chargement...' : 'Enregistrer ce profil') }}
+            </button>
           </div>
         </div>
       </div>
@@ -51,40 +63,59 @@
         <div class="section-head">
           <h2>Informations de base</h2>
           <div class="section-actions">
-            <button type="button" class="ghost-btn">Ajouter une photo de couverture</button>
-            <button type="button" class="ghost-btn">Ajouter votre CV</button>
+            <div class="upload-action">
+              <button type="button" class="ghost-btn" (click)="coverPhotoInput.click()">
+                Ajouter une photo de couverture
+              </button>
+              <span class="upload-meta">{{ selectedCoverPhotoName || 'Ex : couverture-profil.png' }}</span>
+            </div>
+
+            <div class="upload-action">
+              <button type="button" class="ghost-btn" (click)="cvInput.click()">
+                Ajouter votre CV
+              </button>
+              <span class="upload-meta">{{ selectedCvFileName || 'Ex : cv-aziz-chaffar.pdf' }}</span>
+            </div>
+
+            <input #coverPhotoInput class="hidden-file-input" type="file" accept=".jpg,.jpeg,.png" (change)="onCoverPhotoSelected($event)" />
+            <input #cvInput class="hidden-file-input" type="file" accept=".pdf,.doc,.docx" (change)="onCvSelected($event)" />
           </div>
         </div>
 
         <div class="form-grid">
           <div class="form-group">
             <label>Nom complet</label>
-            <input type="text" formControlName="fullName" />
+            <input type="text" formControlName="fullName" placeholder="Ex : Aziz Chaffar" />
           </div>
 
           <div class="form-group">
             <label>Adresse e-mail</label>
-            <input type="email" formControlName="email" />
+            <input type="email" formControlName="email" placeholder="Ex : ex@gmail.com" />
           </div>
 
           <div class="form-group">
             <label>Date de naissance</label>
-            <input type="date" formControlName="birthDate" />
+            <input type="date" formControlName="birthDate" placeholder="Ex : 2000-05-15" />
           </div>
 
           <div class="form-group">
             <label>Telephone</label>
-            <input type="text" formControlName="phone" />
+            <input type="text" formControlName="phone" placeholder="Ex : +216 12 345 678" />
           </div>
 
           <div class="form-group">
             <label>Intitule du poste</label>
-            <input type="text" formControlName="jobTitle" />
+            <input type="text" formControlName="jobTitle" placeholder="Ex : Developpeur Angular" />
           </div>
 
           <div class="form-group">
             <label>Adresse</label>
-            <input type="text" formControlName="address" />
+            <input type="text" formControlName="address" placeholder="Ex : Sousse, Tunisie" />
+          </div>
+
+          <div class="form-group">
+            <label>Profession</label>
+            <input type="text" formControlName="profession" placeholder="Ex : Ingenieur logiciel" />
           </div>
 
           <div class="form-group full-width">
@@ -97,7 +128,7 @@
 
           <div class="form-group full-width">
             <label>Description</label>
-            <textarea rows="7" formControlName="description" placeholder="Presentez votre profil, votre experience et vos objectifs."></textarea>
+            <textarea rows="7" formControlName="description" placeholder="Ex : Developpeur motive avec une experience en Angular, Spring Boot et bases de donnees."></textarea>
           </div>
         </div>
       </section>
@@ -114,22 +145,22 @@
           <div class="inline-grid" *ngFor="let educationGroup of educationArray.controls; let index = index" [formGroupName]="index">
             <div class="form-group">
               <label>Titre</label>
-              <input type="text" formControlName="title" placeholder="Ex: Informatique" />
+              <input type="text" formControlName="title" placeholder="Ex : Informatique" />
             </div>
 
             <div class="form-group">
               <label>Diplome</label>
-              <input type="text" formControlName="degree" placeholder="Ex: Master" />
+              <input type="text" formControlName="degree" placeholder="Ex : Master en Genie Logiciel" />
             </div>
 
             <div class="form-group">
               <label>Etablissement</label>
-              <input type="text" formControlName="institute" placeholder="Ex: ESSTHS" />
+              <input type="text" formControlName="institute" placeholder="Ex : ESSTHS" />
             </div>
 
             <div class="form-group">
               <label>Annee</label>
-              <input type="text" formControlName="year" placeholder="Ex: 2025" />
+              <input type="text" formControlName="year" placeholder="Ex : 2025" />
             </div>
           </div>
         </div>
@@ -147,12 +178,29 @@
           <div class="skill-grid" *ngFor="let skillGroup of skillsArray.controls; let index = index" [formGroupName]="index">
             <div class="form-group">
               <label>Competence</label>
-              <input type="text" formControlName="title" placeholder="Ex: Angular" />
+              <select formControlName="competenceId" (change)="onSkillCompetenceChange(index)">
+                <option [ngValue]="null">Choisir une competence</option>
+                <option *ngFor="let competence of availableCompetences" [ngValue]="competence.id">
+                  {{ competence.nom }} - {{ competence.type }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Niveau</label>
+              <select formControlName="level">
+                <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Experience</label>
+              <input type="text" formControlName="yearsExperience" placeholder="Ex : 2 ans" />
             </div>
 
             <div class="skill-range">
               <div class="range-head">
-                <span>Pourcentage</span>
+                <span>Auto-evaluation</span>
                 <strong>{{ skillGroup.get('percentage')?.value }}%</strong>
               </div>
               <input type="range" min="0" max="100" formControlName="percentage" />
@@ -169,32 +217,34 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Facebook</label>
-            <input type="text" formControlName="facebook" />
+            <input type="text" formControlName="facebook" placeholder="Ex : https://facebook.com/votreprofil" />
           </div>
 
           <div class="form-group">
             <label>Instagram</label>
-            <input type="text" formControlName="instagram" />
+            <input type="text" formControlName="instagram" placeholder="Ex : https://instagram.com/votreprofil" />
           </div>
 
           <div class="form-group">
             <label>LinkedIn</label>
-            <input type="text" formControlName="linkedin" />
+            <input type="text" formControlName="linkedin" placeholder="Ex : https://linkedin.com/in/votreprofil" />
           </div>
 
           <div class="form-group">
             <label>GitHub</label>
-            <input type="text" formControlName="github" />
+            <input type="text" formControlName="github" placeholder="Ex : https://github.com/votreprofil" />
           </div>
         </div>
       </section>
 
-      <p class="save-feedback" *ngIf="isSaved">
-        Le profil a ete prepare avec succes. Si vous voulez, je peux maintenant le relier au backend pour un vrai enregistrement.
-      </p>
+      <p class="save-feedback loading" *ngIf="isLoading">Chargement du profil...</p>
+      <p class="save-feedback error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="save-feedback success" *ngIf="successMessage">{{ successMessage }}</p>
 
       <div class="save-row">
-        <button type="submit" class="save-btn">Enregistrer</button>
+        <button type="submit" class="save-btn" [disabled]="isSaving || isLoading">
+          {{ isSaving ? 'Enregistrement...' : (isLoading ? 'Chargement...' : 'Enregistrer') }}
+        </button>
       </div>
     </form>
   </div>

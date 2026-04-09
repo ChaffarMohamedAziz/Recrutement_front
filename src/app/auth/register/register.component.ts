@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, SocialProvider } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -16,9 +16,7 @@ export class RegisterComponent {
   selectedRole: 'CANDIDATE' | 'RECRUITER' = 'CANDIDATE';
   isSubmitting = false;
   errorMessage = '';
-  readonly facebookLoginUrl = 'https://www.facebook.com/login/';
-  readonly googleLoginUrl = 'https://accounts.google.com/signin';
-  readonly linkedInLoginUrl = 'https://www.linkedin.com/login';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -51,6 +49,7 @@ export class RegisterComponent {
     }
 
     this.errorMessage = '';
+    this.successMessage = '';
     this.isSubmitting = true;
 
     if (this.selectedRole === 'CANDIDATE') {
@@ -91,18 +90,73 @@ export class RegisterComponent {
         this.isSubmitting = false;
         this.errorMessage = error.message;
       }
+      });
+  }
+
+  continueWithSocial(provider: SocialProvider): void {
+    const nameControl = this.registerForm.get('name');
+    const emailControl = this.registerForm.get('email');
+    const name = (nameControl?.value || '').trim();
+    const email = (emailControl?.value || '').trim();
+
+    if (!name) {
+      nameControl?.markAsTouched();
+      this.errorMessage = 'Saisissez votre nom complet avant de continuer avec un reseau social.';
+      this.successMessage = '';
+      return;
+    }
+
+    if (!email || emailControl?.invalid || this.isSubmitting) {
+      emailControl?.markAsTouched();
+      this.errorMessage = `Saisissez une adresse e-mail valide pour continuer avec ${this.getProviderLabel(provider)}.`;
+      this.successMessage = '';
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isSubmitting = true;
+
+    this.authService.socialAuth({
+      provider,
+      mode: 'REGISTER',
+      email,
+      username: name,
+      role: this.selectedRole,
+      phoneNumber: this.registerForm.value.phone || '',
+      fonction: this.registerForm.value.jobTitle || '',
+      poste: this.registerForm.value.position || '',
+      departement: this.registerForm.value.department || ''
+    }).subscribe({
+      next: (response) => {
+        this.isSubmitting = false;
+        this.successMessage = response.message;
+
+        if (response.token) {
+          const targetRoute = this.authService.getRoleHomeRoute();
+          this.router.navigate([targetRoute]);
+          return;
+        }
+
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 1500);
+      },
+      error: (error: Error) => {
+        this.isSubmitting = false;
+        this.errorMessage = error.message;
+        this.successMessage = '';
+      }
     });
   }
 
-  openFacebookLogin(): void {
-    window.location.href = this.facebookLoginUrl;
-  }
-
-  openGoogleLogin(): void {
-    window.location.href = this.googleLoginUrl;
-  }
-
-  openLinkedInLogin(): void {
-    window.location.href = this.linkedInLoginUrl;
+  private getProviderLabel(provider: SocialProvider): string {
+    if (provider === 'GMAIL') {
+      return 'Gmail';
+    }
+    if (provider === 'LINKEDIN') {
+      return 'LinkedIn';
+    }
+    return 'Facebook';
   }
 }

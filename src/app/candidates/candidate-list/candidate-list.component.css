@@ -5,16 +5,30 @@
 .section-badge{display:inline-flex;padding:10px 14px;border-radius:999px;background:#ebf2ff;color:#275ed0;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
 .directory-hero h1{margin:18px 0 12px;color:#18234d;font-size:clamp(2.2rem,4vw,3.4rem)}
 .directory-hero p{margin:0;color:#62708f;line-height:1.8}
+.toolbar-card{width:min(1320px,100%);margin:0 auto 22px;padding:20px;border-radius:26px;background:rgba(255,255,255,.95);box-shadow:0 20px 50px rgba(37,59,104,.08);display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.filter-box{display:grid;gap:8px;color:#4c5c80;font-weight:700}
+.filter-box select{min-height:48px;border-radius:14px;border:1px solid #d7e3f8;background:#fff;color:#172249;font-weight:700}
+.score-input{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.score-input strong{display:inline-flex;align-items:center;justify-content:center;min-width:72px;min-height:46px;border-radius:14px;background:#edf4ff;color:#255fd0}
+.error-banner,.empty-state{width:min(1320px,100%);margin:0 auto 22px;padding:18px;border-radius:20px;background:#fff;border:1px solid #e3ebfb;box-shadow:0 18px 36px rgba(37,59,104,.06)}
+.error-banner{color:#b42318}
 .directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 .directory-card{padding:24px;border-radius:26px;background:rgba(255,255,255,.95);box-shadow:0 20px 50px rgba(37,59,104,.08)}
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .avatar-box{width:58px;height:58px;display:grid;place-items:center;margin-bottom:16px;border-radius:50%;background:linear-gradient(135deg,#255fd0,#31a1ff);color:#fff;font-weight:900}
+.score-pill{padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#214f97,#173d78);color:#fff;font-weight:800}
 .directory-card h2{margin:0 0 8px;color:#172249}
 .directory-card span{display:block;color:#7481a2;margin-bottom:10px}
 .directory-card p{margin:0 0 14px;color:#64728f;line-height:1.75}
 .pill-row,.tag-row{display:flex;gap:10px;flex-wrap:wrap}
 .pill,.tag{padding:8px 10px;border-radius:999px;font-size:.84rem}
 .pill{background:#eef4ff;color:#255fd0;font-weight:800}
+.status-pill[data-status='ENTRETIEN']{background:#fff7e8;color:#c57f16}
+.status-pill[data-status='RETENU']{background:#e8fff1;color:#16814e}
+.status-pill[data-status='REFUSE']{background:#fff0f0;color:#c43d3d}
 .tag{background:#f7faff;color:#5d6c8c}
+.tag-match{background:#e8fff1;color:#16814e}
+.tag-miss{background:#fff0f0;color:#c43d3d}
 .directory-card a{display:inline-flex;margin-top:16px;padding:12px 16px;border-radius:14px;background:linear-gradient(135deg,#255fd0,#31a1ff);color:#fff;text-decoration:none;font-weight:800}
-@media (max-width:980px){.directory-grid{grid-template-columns:1fr 1fr}}
-@media (max-width:640px){.directory-shell{padding:14px}.directory-grid{grid-template-columns:1fr}}
+@media (max-width:980px){.toolbar-card,.directory-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.directory-shell{padding:14px}.toolbar-card,.directory-grid{grid-template-columns:1fr}}

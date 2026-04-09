@@ -1,7 +1,12 @@
+import { AdminSpaceComponent } from './admin-space/admin-space.component';
+import { RecruiterActivationComponent } from './admin/recruiter-activation/recruiter-activation.component';
+import { UserDetailComponent } from './admin/user-detail/user-detail.component';
+import { UserListComponent } from './admin/user-list/user-list.component';
+import { TagsComponent } from './admin/tags/tags.component';
 import { AboutComponent } from './about/about.component';
 import { Routes } from '@angular/router';
 import { AccessDeniedComponent } from './auth/access-denied/access-denied.component';
-import { adminGuard, authGuard } from './auth/access.guard';
+import { adminGuard, candidateGuard, recruiterGuard } from './auth/access.guard';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
@@ -9,6 +14,7 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
 import { VerifyEmailComponent } from './auth/verify-email/verify-email.component';
 import { BlogDetailsComponent } from './blog/blog-details.component';
 import { BlogListComponent } from './blog/blog-list.component';
+import { CandidateSpaceComponent } from './candidate-space/candidate-space.component';
 import { CandidateDetailsComponent } from './candidates/candidate-details/candidate-details.component';
 import { CandidateListComponent } from './candidates/candidate-list/candidate-list.component';
 import { CompanyDetailsComponent } from './companies/company-details/company-details.component';
@@ -17,8 +23,13 @@ import { ContactComponent } from './contact/contact.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HomeComponent } from './home/home.component';
 import { SimplePageComponent } from './info/simple-page.component';
+import { JobDetailsComponent } from './jobs/job-details.component';
+import { JobListComponent } from './jobs/job-list.component';
+import { PostJobComponent } from './jobs/post-job.component';
 import { ProfileFormComponent } from './profile/profile-form.component';
+import { RecruiterSpaceComponent } from './recruiter-space/recruiter-space.component';
 import { UploadResumeComponent } from './resume/upload-resume.component';
+import { RoleHomeComponent } from './role-home/role-home.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -31,60 +42,35 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'access-denied', component: AccessDeniedComponent },
-  { path: 'home', component: HomeComponent },
+  { path: 'home', component: RoleHomeComponent },
+  { path: 'public-home', component: HomeComponent },
+  { path: 'candidate-space', component: CandidateSpaceComponent, canActivate: [candidateGuard] },
+  { path: 'admin-dashboard', component: AdminSpaceComponent, canActivate: [adminGuard] },
+  { path: 'admin/recruiter-activation', component: RecruiterActivationComponent, canActivate: [adminGuard] },
+  { path: 'admin/users', component: UserListComponent, canActivate: [adminGuard] },
+  { path: 'admin/tags', component: TagsComponent, canActivate: [adminGuard] },
+  { path: 'admin/users/:id', component: UserDetailComponent, canActivate: [adminGuard] },
+  { path: 'recruiter-space', component: RecruiterSpaceComponent, canActivate: [recruiterGuard] },
   {
     path: 'job-list',
-    component: SimplePageComponent,
-    canActivate: [authGuard],
-    data: {
-      badge: 'Emplois',
-      title: 'Liste des emplois',
-      description: 'Parcourez les offres disponibles et accedez rapidement aux postes les plus pertinents.',
-      primaryLabel: 'Voir l accueil',
-      primaryLink: '/home',
-      secondaryLabel: 'Voir les entreprises',
-      secondaryLink: '/company-list',
-      features: ['Recherche multicritere', 'Offres organisees', 'Navigation rapide']
-    }
+    component: JobListComponent,
+    canActivate: [candidateGuard],
   },
-  {
-    path: 'job-details',
-    component: SimplePageComponent,
-    canActivate: [authGuard],
-    data: {
-      badge: 'Emplois',
-      title: 'Details d un emploi',
-      description: 'Cette page est prete pour afficher la fiche detaillee d une offre et ses criteres de selection.',
-      primaryLabel: 'Retour aux emplois',
-      primaryLink: '/job-list',
-      secondaryLabel: 'Voir les candidats',
-      secondaryLink: '/candidate-list',
-      features: ['Description complete', 'Competences attendues', 'Actions de candidature']
-    }
-  },
+  { path: 'job-details', redirectTo: 'job-list', pathMatch: 'full' },
+  { path: 'job-details/:id', component: JobDetailsComponent, canActivate: [candidateGuard] },
   {
     path: 'post-a-job',
-    component: SimplePageComponent,
-    canActivate: [adminGuard],
-    data: {
-      badge: 'Recruteur',
-      title: 'Publier une offre',
-      description: 'Preparez la publication d une offre emploi avec une presentation claire et professionnelle.',
-      primaryLabel: 'Creer un compte',
-      primaryLink: '/register',
-      secondaryLabel: 'Aller au tableau ATS',
-      secondaryLink: '/dashboard',
-      features: ['Titre et mission', 'Competences demandees', 'Publication rapide']
-    }
+    component: PostJobComponent,
+    canActivate: [recruiterGuard],
   },
   { path: 'company-list', component: CompanyListComponent, canActivate: [adminGuard] },
   { path: 'company-details/:id', component: CompanyDetailsComponent, canActivate: [adminGuard] },
-  { path: 'candidate-list', component: CandidateListComponent, canActivate: [adminGuard] },
-  { path: 'candidate-details/:id', component: CandidateDetailsComponent, canActivate: [adminGuard] },
+  { path: 'candidate-list', component: CandidateListComponent, canActivate: [recruiterGuard] },
+  { path: 'candidate-details/:id', component: CandidateDetailsComponent, canActivate: [recruiterGuard] },
   {
     path: 'submit-resume',
     component: UploadResumeComponent,
-    canActivate: [authGuard],
+    canActivate: [candidateGuard],
   },
   {
     path: 'pricing',
@@ -104,7 +90,7 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: ProfileFormComponent,
-    canActivate: [authGuard],
+    canActivate: [candidateGuard],
   },
   {
     path: 'faq',
@@ -154,5 +140,5 @@ export const routes: Routes = [
   { path: 'blog', component: BlogListComponent },
   { path: 'blog-details/:id', component: BlogDetailsComponent },
   { path: 'contact', component: ContactComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [adminGuard] }
+  { path: 'dashboard', component: DashboardComponent, canActivate: [recruiterGuard] }
 ];

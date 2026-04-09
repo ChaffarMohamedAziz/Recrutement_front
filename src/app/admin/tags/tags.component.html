@@ -1,0 +1,88 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <main class="workspace-main">
+    <div class="workspace-main-inner">
+      <section class="workspace-page-header">
+        <div>
+          <h1>Bibliotheque des competences</h1>
+          <p>Centralisez les tags competences pour uniformiser le vocabulaire de recrutement.</p>
+        </div>
+
+        <button type="button" class="admin-ghost-btn" (click)="loadCompetences()" [disabled]="loading">
+          {{ loading ? 'Chargement...' : 'Actualiser' }}
+        </button>
+      </section>
+
+      <section class="tags-layout">
+        <article class="workspace-card tags-form-card">
+          <h2>{{ editingId ? 'Modifier une competence' : 'Ajouter une competence' }}</h2>
+
+          <form [formGroup]="form" (ngSubmit)="saveCompetence()" class="tags-form">
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" formControlName="nom" placeholder="Ex : Angular" />
+            </div>
+
+            <div class="form-group">
+              <label>Categorie</label>
+              <select formControlName="type">
+                <option *ngFor="let type of filterTypes.slice(1)" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Description</label>
+              <textarea rows="4" formControlName="description" placeholder="Description courte de la competence."></textarea>
+            </div>
+
+            <div class="actions-row">
+              <button type="submit" class="admin-action-btn primary" [disabled]="saving">
+                {{ saving ? 'Enregistrement...' : (editingId ? 'Mettre a jour' : 'Ajouter') }}
+              </button>
+              <button type="button" class="admin-action-btn delete" *ngIf="editingId" (click)="cancelEdit()">
+                Annuler
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article class="workspace-card tags-list-card">
+          <div class="tags-toolbar">
+            <label class="search-box">
+              <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher une competence..." />
+            </label>
+
+            <label class="filter-box">
+              <select [(ngModel)]="selectedType">
+                <option *ngFor="let type of filterTypes" [value]="type">{{ type }}</option>
+              </select>
+            </label>
+
+            <button type="button" class="admin-action-btn primary" (click)="applyFilters()">Filtrer</button>
+          </div>
+
+          <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+          <p class="admin-status success" *ngIf="successMessage">{{ successMessage }}</p>
+
+          <div class="tag-list">
+            <article class="tag-row" *ngFor="let item of competences">
+              <div class="tag-copy">
+                <strong>{{ item.nom }}</strong>
+                <span>{{ item.type }}</span>
+                <p>{{ item.description || 'Aucune description.' }}</p>
+              </div>
+
+              <div class="tag-actions">
+                <button type="button" class="admin-action-btn primary" (click)="startEdit(item)">Modifier</button>
+                <button type="button" class="admin-action-btn danger" (click)="deleteCompetence(item)">Supprimer</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="admin-empty-state" *ngIf="!loading && !competences.length">
+            Aucune competence disponible.
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+</div>

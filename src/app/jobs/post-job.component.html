@@ -1,0 +1,161 @@
+<div class="post-job-shell">
+  <section class="page-title-area">
+    <div class="page-title-card">
+      <div class="page-title-text">
+        <span class="page-badge">Recruteur</span>
+        <h1>Publier une offre</h1>
+        <ul>
+          <li><a routerLink="/home">Accueil</a></li>
+          <li>/</li>
+          <li>Publier une offre</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="post-job-card">
+    <form [formGroup]="postJobForm" (ngSubmit)="publishJob()">
+      <div class="post-job-heading">
+        <h2>Publier votre offre</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Titre du poste</label>
+          <input type="text" formControlName="title" placeholder="Ex: UX/UI Designer" />
+        </div>
+
+        <div class="form-group">
+          <label>Categorie</label>
+          <select formControlName="category">
+            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+          </select>
+        </div>
+
+        <div class="form-group salary-group">
+          <label>Salaire propose</label>
+          <div class="salary-row">
+            <input type="text" formControlName="salary" placeholder="Ex: 2500" />
+            <select formControlName="currency">
+              <option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Nombre de postes</label>
+          <input type="text" formControlName="vacancies" placeholder="Ex: 10" />
+        </div>
+
+        <div class="form-group">
+          <label>Localisation</label>
+          <input type="text" formControlName="location" placeholder="Ex: Tunis, Sfax, Remote" />
+        </div>
+
+        <div class="form-group">
+          <label>Experience requise</label>
+          <input type="text" formControlName="experience" placeholder="Ex: 2-4 ans" />
+        </div>
+
+        <div class="form-group">
+          <label>Date d'expiration</label>
+          <input type="date" formControlName="expirationDate" />
+        </div>
+
+        <div class="form-group full-width">
+          <div class="job-type-area">
+            <span>Type de contrat</span>
+            <label *ngFor="let type of jobTypes">
+              <input type="radio" formControlName="jobType" [value]="type" />
+              {{ type }}
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Description du poste</label>
+          <textarea rows="8" formControlName="description" placeholder="Decrivez les missions, les competences demandees et le contexte du poste."></textarea>
+        </div>
+      </div>
+
+      <section class="skills-card" formArrayName="skills">
+        <div class="section-inline-head">
+          <h3>Competences demandees</h3>
+          <button type="button" class="ghost-btn-inline" (click)="addSkill()">Ajouter une competence</button>
+        </div>
+
+        <div class="skills-grid">
+          <div class="skill-item" *ngFor="let skill of skillsArray.controls; let index = index" [formGroupName]="index">
+            <div class="form-group">
+              <label>Competence</label>
+              <select formControlName="competenceId" (change)="onCompetenceChange(index)">
+                <option [ngValue]="null">Choisir une competence</option>
+                <option *ngFor="let competence of availableCompetences" [ngValue]="competence.id">
+                  {{ competence.nom }} - {{ competence.type }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Type</label>
+              <select formControlName="type">
+                <option *ngFor="let type of skillTypes" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Niveau vise</label>
+              <select formControlName="niveau">
+                <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Ponderation (%)</label>
+              <input type="number" formControlName="ponderation" min="0" max="100" />
+            </div>
+
+            <button type="button" class="danger-link" (click)="removeSkill(index)" [disabled]="skillsArray.length === 1">
+              Retirer
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
+      <div class="action-row">
+        <button type="submit" class="primary-btn" [disabled]="saving">
+          {{ saving ? 'Publication...' : 'Publier' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="post-job-card offers-list-card">
+    <div class="post-job-heading">
+      <h2>Mes offres publiees</h2>
+    </div>
+
+    <p class="loading-message" *ngIf="loading">Chargement des offres...</p>
+
+    <div class="offer-list" *ngIf="!loading && recruiterOffers.length">
+      <article class="offer-row" *ngFor="let offer of recruiterOffers">
+        <div>
+          <strong>{{ offer.titre }}</strong>
+          <p>{{ offer.localisation }} • {{ offer.typeContrat }} • {{ offer.experienceRequise }}</p>
+        </div>
+
+        <div class="offer-meta">
+          <span>{{ offer.salaire }} {{ offer.devise }}</span>
+          <small>{{ offer.competences.length }} competence(s)</small>
+        </div>
+      </article>
+    </div>
+
+    <div class="empty-message" *ngIf="!loading && !recruiterOffers.length">
+      Aucune offre publiee pour le moment.
+    </div>
+  </section>
+</div>

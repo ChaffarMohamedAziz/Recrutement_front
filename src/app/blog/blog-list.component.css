@@ -4,7 +4,7 @@
 
 .page-shell {
   min-height: 100vh;
-  padding: 112px 28px 28px;
+  padding: 28px 28px 28px;
   background: linear-gradient(180deg, #f6f8fc 0%, #ffffff 100%);
   font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }

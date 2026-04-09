@@ -1,0 +1,103 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <main class="workspace-main">
+    <div class="workspace-main-inner">
+      <section class="workspace-page-header">
+        <div>
+          <h1>Demandes recruteurs</h1>
+          <p>Gerer les comptes recruteurs en attente, deja actives ou a supprimer.</p>
+        </div>
+
+        <button type="button" class="admin-ghost-btn" (click)="loadRecruiters()" [disabled]="loading">
+          {{ loading ? 'Chargement...' : 'Actualiser' }}
+        </button>
+      </section>
+
+      <section class="admin-filter-row">
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'PENDING'" (click)="setFilter('PENDING')">
+          En attente
+          <strong>{{ pendingCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'APPROVED'" (click)="setFilter('APPROVED')">
+          Approuves
+          <strong>{{ approvedCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'REFUSED'" (click)="setFilter('REFUSED')">
+          Refuses
+          <strong>{{ refusedCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+          Tous
+          <strong>{{ recruiters.length }}</strong>
+        </button>
+      </section>
+
+      <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="admin-status success" *ngIf="actionMessage">{{ actionMessage }}</p>
+
+      <section class="workspace-card admin-table-card">
+        <div class="admin-table-head recruiter-grid">
+          <span>ID</span>
+          <span>Nom</span>
+          <span>Email</span>
+          <span>Statut</span>
+          <span>Actions</span>
+        </div>
+
+        <div class="admin-table-row recruiter-grid" *ngFor="let recruiter of filteredRecruiters">
+          <span class="admin-id-cell">#{{ recruiter.id }}</span>
+
+          <div class="admin-identity-cell">
+            <span class="admin-avatar">{{ (recruiter.nom || 'R').charAt(0) }}</span>
+            <div>
+              <strong>{{ recruiter.nom || 'Compte recruteur' }}</strong>
+              <small>Compte recruteur</small>
+            </div>
+          </div>
+
+          <span class="admin-email-cell">{{ recruiter.email }}</span>
+
+          <span class="workspace-chip" [ngClass]="getApprovalClass(recruiter)">
+            {{ getApprovalLabel(recruiter) }}
+          </span>
+
+          <div class="admin-actions-cell" [class.single-action]="isDeleteOnlyAction(recruiter)">
+            <button
+              *ngIf="shouldShowApproveButton(recruiter)"
+              type="button"
+              class="admin-action-btn primary"
+              (click)="approveRecruiter(recruiter)"
+              [disabled]="getApprovalStatus(recruiter) === 'APPROVED' || isApproving(recruiter.id) || isDeleting(recruiter.id) || isRejecting(recruiter.id)"
+            >
+              {{ isApproving(recruiter.id) ? 'Activation...' : 'Approuver' }}
+            </button>
+
+            <button
+              *ngIf="shouldShowRejectButton(recruiter)"
+              type="button"
+              class="admin-action-btn danger"
+              (click)="rejectRecruiter(recruiter)"
+              [disabled]="getApprovalStatus(recruiter) === 'REFUSED' || isRejecting(recruiter.id) || isApproving(recruiter.id) || isDeleting(recruiter.id)"
+            >
+              {{ isRejecting(recruiter.id) ? 'Refus...' : 'Refuser' }}
+            </button>
+
+            <button
+              *ngIf="shouldShowDeleteButton(recruiter)"
+              type="button"
+              class="admin-action-btn delete"
+              (click)="deleteRecruiter(recruiter)"
+              [disabled]="isDeleting(recruiter.id) || isApproving(recruiter.id) || isRejecting(recruiter.id)"
+              title="Supprimer"
+            >
+              {{ isDeleting(recruiter.id) ? 'Suppression...' : 'Supprimer' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-empty-state" *ngIf="!loading && !filteredRecruiters.length">
+          Aucun compte recruteur a afficher.
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

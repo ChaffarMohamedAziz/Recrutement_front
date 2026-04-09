@@ -1,27 +1,60 @@
 <div class="directory-shell">
   <div class="directory-hero">
     <span class="section-badge">Candidats</span>
-    <h1>Profils candidats a la une</h1>
-    <p>Consultez les profils candidats, leurs competences, leur experience et leur disponibilite.</p>
+    <h1>Liste des candidats classes par pertinence</h1>
+    <p>Consultez les candidatures triees par score et appliquez un filtre minimum pour vous concentrer sur les meilleurs profils.</p>
   </div>
 
-  <div class="directory-grid">
-    <article class="directory-card" *ngFor="let candidate of candidates">
-      <div class="avatar-box">{{ candidate.name.slice(0, 1) }}</div>
-      <h2>{{ candidate.name }}</h2>
-      <span>{{ candidate.title }} · {{ candidate.location }}</span>
-      <p>{{ candidate.summary }}</p>
+  <div class="toolbar-card">
+    <label class="filter-box">
+      <span>Offre</span>
+      <select [(ngModel)]="selectedOfferId">
+        <option *ngFor="let offer of offerOptions" [value]="offer.value">{{ offer.label }}</option>
+      </select>
+    </label>
+
+    <label class="filter-box score-box">
+      <span>Score minimum</span>
+      <div class="score-input">
+        <input type="range" min="0" max="100" [value]="minScore" (input)="setMinScore($event)" />
+        <strong>{{ minScore }}%</strong>
+      </div>
+    </label>
+  </div>
+
+  <p class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <div class="directory-grid" *ngIf="filteredApplications.length; else emptyState">
+    <article class="directory-card" *ngFor="let application of filteredApplications">
+      <div class="card-top">
+        <div class="avatar-box">{{ application.candidateName.slice(0, 1) }}</div>
+        <div class="score-pill">{{ application.score }}%</div>
+      </div>
+
+      <h2>{{ application.candidateName }}</h2>
+      <span>{{ application.candidateJobTitle }} · {{ application.candidateLocation }}</span>
+      <p>{{ application.offerTitle }} · {{ application.companyName }}</p>
 
       <div class="pill-row">
-        <span class="pill">{{ candidate.experience }} ans</span>
-        <span class="pill">{{ candidate.score }}%</span>
+        <span class="pill">{{ application.candidateExperience }} ans</span>
+        <span class="pill status-pill" [attr.data-status]="application.status">{{ application.status }}</span>
       </div>
 
       <div class="tag-row">
-        <span class="tag" *ngFor="let skill of candidate.skills">{{ skill }}</span>
+        <span class="tag tag-match" *ngFor="let skill of application.matchingSkills.slice(0, 4)">{{ skill }}</span>
       </div>
 
-      <a [routerLink]="['/candidate-details', candidate.id]">Voir profil</a>
+      <div class="tag-row" *ngIf="application.missingSkills.length">
+        <span class="tag tag-miss" *ngFor="let skill of application.missingSkills.slice(0, 3)">{{ skill }}</span>
+      </div>
+
+      <a [routerLink]="['/candidate-details', application.id]">Voir profil</a>
     </article>
   </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      {{ loading ? 'Chargement des candidats...' : 'Aucun candidat ne correspond aux filtres actuels.' }}
+    </div>
+  </ng-template>
 </div>

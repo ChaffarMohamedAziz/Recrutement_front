@@ -1,8 +1,9 @@
 <div class="navbar-area fixed-top">
   <div class="mobile-nav">
-    <a routerLink="/home" class="logo" (click)="closeMobileMenu()">
-      <span class="logo-mark"></span>
-      <span class="logo-text">Smart Recruit</span>
+    <a [routerLink]="homeLink" class="logo" (click)="closeMobileMenu()">
+      <span class="brand-logo-frame">
+        <img src="/Logo_site.png" alt="Smart Recruit" class="brand-logo-image" />
+      </span>
     </a>
 
     <button type="button" class="mobile-toggle" (click)="toggleMobileMenu()" aria-label="Ouvrir le menu">
@@ -14,147 +15,96 @@
 
   <div class="main-nav" [class.open]="isMobileMenuOpen">
     <div class="container">
-      <nav class="navbar">
-        <a class="navbar-brand" routerLink="/home" (click)="closeMobileMenu()">
-          <span class="logo-mark"></span>
-          <span class="logo-text">Smart Recruit</span>
+      <nav class="navbar" [class.role-navbar]="isLoggedIn" [class.admin-navbar]="isAdmin">
+        <a class="navbar-brand" [routerLink]="homeLink" (click)="closeMobileMenu()">
+          <span class="brand-logo-frame">
+            <img src="/Logo_site.png" alt="Smart Recruit" class="brand-logo-image" />
+          </span>
         </a>
 
-        <div class="navbar-menu">
-          <ul class="navbar-nav">
-            <li class="nav-item has-dropdown">
-              <a href="javascript:void(0)" class="nav-link">Accueil</a>
-              <ul class="dropdown-menu">
-                <li class="nav-item">
-                  <a routerLink="/home" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Accueil
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/about" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    A propos
-                  </a>
-                </li>
-                <li class="nav-item" *ngIf="hasUserAccess">
-                  <a routerLink="/profile" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Mon profil
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="nav-item has-dropdown">
-              <a href="javascript:void(0)" class="nav-link">Emplois</a>
-              <ul class="dropdown-menu">
-                <li class="nav-item" *ngIf="hasUserAccess">
-                  <a routerLink="/job-list" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Liste des emplois
-                  </a>
-                </li>
-                <li class="nav-item" *ngIf="hasUserAccess">
-                  <a routerLink="/job-details" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Details emploi
-                  </a>
-                </li>
-                <li class="nav-item" *ngIf="isAdmin">
-                  <a routerLink="/post-a-job" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Publier une offre
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="nav-item has-dropdown" *ngIf="isAdmin">
-              <a href="javascript:void(0)" class="nav-link">Candidats</a>
-              <ul class="dropdown-menu">
-                <li class="nav-item">
-                  <a routerLink="/candidate-list" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Liste des candidats
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a [routerLink]="['/candidate-details', 1]" routerLinkActive="active" class="nav-link" (click)="closeMobileMenu()">
-                    Details candidat
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/submit-resume" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Deposer un CV
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/pricing" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Tarification
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/dashboard" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Tableau ATS
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="nav-item has-dropdown" *ngIf="isAdmin">
-              <a href="javascript:void(0)" class="nav-link">Pages</a>
-              <ul class="dropdown-menu">
-                <li class="nav-item">
-                  <a routerLink="/company-list" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Liste entreprises
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a [routerLink]="['/company-details', 1]" routerLinkActive="active" class="nav-link" (click)="closeMobileMenu()">
-                    Details entreprise
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/profile" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Profil
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/faq" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    FAQ
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/terms-and-conditions" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Conditions
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a routerLink="/privacy-policy" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Confidentialite
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="nav-item has-dropdown">
-              <a href="javascript:void(0)" class="nav-link">Blogs</a>
-              <ul class="dropdown-menu">
-                <li class="nav-item">
-                  <a routerLink="/blog" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
-                    Blog
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a [routerLink]="['/blog-details', 1]" routerLinkActive="active" class="nav-link" (click)="closeMobileMenu()">
-                    Details article
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="nav-item">
-              <a routerLink="/contact" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">Contact</a>
+        <div class="navbar-menu" [class.role-navbar-menu]="isLoggedIn" [class.admin-navbar-menu]="isAdmin">
+          <ul class="navbar-nav" [class.role-navbar-nav]="isLoggedIn" [class.admin-navbar-nav]="isAdmin">
+            <li class="nav-item" *ngFor="let item of navItems; trackBy: trackByLink">
+              <a
+                [routerLink]="item.link"
+                routerLinkActive="active"
+                class="nav-link"
+                [routerLinkActiveOptions]="item.exact ? exactRouteOptions : partialRouteOptions"
+                (click)="closeMobileMenu()"
+              >
+                {{ item.label }}
+              </a>
             </li>
           </ul>
 
-          <div class="common-btn" *ngIf="isLoggedIn">
-            <button type="button" class="logout-btn" (click)="logout()">
-              Deconnexion
+          <div class="common-btn" *ngIf="isLoggedIn" [class.role-common-btn]="isLoggedIn" [class.admin-common-btn]="isAdmin">
+            <div class="notify-shell" (click)="$event.stopPropagation()">
+              <button type="button" class="notify-btn" aria-label="Notifications" (click)="toggleNotifications($event)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5.25a4.25 4.25 0 0 0-4.25 4.25v2.27c0 .74-.24 1.47-.69 2.07l-1.12 1.52c-.22.3-.01.72.36.72h11.4c.37 0 .58-.42.36-.72l-1.12-1.52a3.46 3.46 0 0 1-.69-2.07V9.5A4.25 4.25 0 0 0 12 5.25Z"></path>
+                  <path d="M10.2 18.2a1.8 1.8 0 0 0 3.6 0"></path>
+                  <path d="M12 4v1.25"></path>
+                </svg>
+                <span class="notify-count" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+              </button>
+
+              <div class="notifications-panel" *ngIf="notificationsOpen">
+                <div class="notifications-head">
+                  <div>
+                    <strong>Notifications</strong>
+                    <small>{{ unreadCount }} non lue(s)</small>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="notifications-mark-btn"
+                    (click)="markAllNotificationsAsRead($event)"
+                    [disabled]="!unreadCount"
+                  >
+                    Tout lire
+                  </button>
+                </div>
+
+                <p class="notifications-state" *ngIf="notificationsLoading">Chargement...</p>
+                <p class="notifications-state error" *ngIf="!notificationsLoading && notificationsError">{{ notificationsError }}</p>
+
+                <div class="notifications-list" *ngIf="!notificationsLoading && !notificationsError">
+                  <button
+                    type="button"
+                    class="notification-item"
+                    *ngFor="let notification of notifications; trackBy: trackByNotificationId"
+                    [class.unread]="!notification.lue"
+                    (click)="markNotificationAsRead(notification, $event)"
+                  >
+                    <span class="notification-dot" *ngIf="!notification.lue"></span>
+                    <div class="notification-copy">
+                      <strong>{{ notification.message }}</strong>
+                      <small>{{ notification.dateEnvoi | date:'dd/MM/yyyy HH:mm' }}</small>
+                    </div>
+                  </button>
+
+                  <div class="notifications-empty" *ngIf="!notifications.length">
+                    Aucune notification.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <a [routerLink]="homeLink" class="profile-chip" (click)="closeMobileMenu()">
+              <span class="profile-avatar">{{ userInitials }}</span>
+              <span class="profile-copy">
+                <strong>{{ currentUser?.username || roleLabel }}</strong>
+                <small>{{ roleLabel }}</small>
+              </span>
+            </a>
+
+            <button type="button" class="logout-btn" (click)="logout()" aria-label="Se deconnecter">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 7l5 5-5 5"></path>
+                <path d="M19 12H10"></path>
+                <path d="M10 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"></path>
+              </svg>
+              <span>Deconnexion</span>
             </button>
           </div>
         </div>

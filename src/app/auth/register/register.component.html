@@ -2,7 +2,8 @@
   <div class="auth-card register-layout">
     <section class="auth-side-panel violet-panel">
       <div class="side-content">
-        <span class="brand-mini light-brand">Smart Recruit</span>
+        <img src="/Logo_site.png" alt="Smart Recruit" class="side-logo" />
+        <span class="brand-mini light-brand">Plateforme de recrutement</span>
         <h2>Bon retour !</h2>
         <p>Entrez vos informations personnelles et utilisez toutes les fonctionnalites du site.</p>
         <a routerLink="/login" class="ghost-btn">SE CONNECTER</a>
@@ -16,11 +17,13 @@
           <p>Choisissez votre profil et remplissez vos informations.</p>
         </div>
 
-        <div class="social-row" aria-hidden="true">
-          <button type="button" class="social-pill clickable" (click)="openFacebookLogin()" aria-label="Se connecter avec Facebook">f</button>
-          <button type="button" class="social-pill clickable" (click)="openGoogleLogin()" aria-label="Se connecter avec Google">G</button>
-          <button type="button" class="social-pill clickable" (click)="openLinkedInLogin()" aria-label="Se connecter avec LinkedIn">in</button>
+        <div class="social-row">
+          <button type="button" class="social-pill clickable" (click)="continueWithSocial('FACEBOOK')" aria-label="S'inscrire avec Facebook">f</button>
+          <button type="button" class="social-pill clickable" (click)="continueWithSocial('GMAIL')" aria-label="S'inscrire avec Gmail">G</button>
+          <button type="button" class="social-pill clickable" (click)="continueWithSocial('LINKEDIN')" aria-label="S'inscrire avec LinkedIn">in</button>
         </div>
+
+        <p class="social-help">Renseignez d'abord votre nom et votre e-mail, puis choisissez un reseau social.</p>
 
         <div class="role-switch" aria-label="Choix du profil">
           <button
@@ -86,6 +89,7 @@
           </label>
 
           <p class="error-box" *ngIf="errorMessage">{{ errorMessage }}</p>
+          <p class="success-box" *ngIf="successMessage">{{ successMessage }}</p>
 
           <button type="submit" class="primary-btn" [disabled]="isSubmitting">
             {{
@@ -97,10 +101,7 @@
             }}
           </button>
 
-          <p class="footer-link">
-            Vous avez deja un compte ?
-            <a routerLink="/login">Se connecter</a>
-          </p>
+
         </form>
       </div>
     </section>

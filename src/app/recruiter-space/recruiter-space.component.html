@@ -1,0 +1,77 @@
+<div class="dashboard-shell recruiter-shell">
+  <section class="dashboard-hero">
+    <div class="hero-copy">
+      <span class="hero-badge">Dashboard recruteur</span>
+      <h1>Supervisez votre pipeline de recrutement avec une interface claire et efficace.</h1>
+      <p>
+        Centralisez vos offres, vos candidatures et vos prochains entretiens pour piloter chaque etape
+        avec precision et fluidite.
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/post-a-job" class="primary-link">Publier une offre</a>
+        <a routerLink="/dashboard" class="secondary-link">Ouvrir le kanban</a>
+      </div>
+    </div>
+
+    <article class="hero-panel">
+      <span class="panel-label">Mon espace</span>
+      <strong>{{ user?.username || 'Recruteur' }}</strong>
+      <p>Retrouvez vos recrutements, vos candidats et vos prochaines actions dans une seule vue.</p>
+      <div class="hero-panel-stats">
+        <div>
+          <span>Offres</span>
+          <strong>{{ kpis[0].value }}</strong>
+        </div>
+        <div>
+          <span>Entretiens</span>
+          <strong>{{ kpis[2].value }}</strong>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="kpi-grid">
+    <article class="kpi-card" *ngFor="let stat of kpis">
+      <span>{{ stat.label }}</span>
+      <strong>{{ stat.value }}</strong>
+      <small>Suivi en temps reel</small>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="surface-card">
+      <div class="section-head">
+        <span class="section-badge">Pipeline</span>
+        <h2>Candidatures recentes</h2>
+      </div>
+
+      <div class="pipeline-list">
+        <article class="pipeline-card" *ngFor="let item of recentCandidates">
+          <div>
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.role }}</p>
+          </div>
+          <strong>{{ item.time }}</strong>
+        </article>
+      </div>
+    </article>
+
+    <article class="surface-card">
+      <div class="section-head">
+        <span class="section-badge">Agenda</span>
+        <h2>Actions du jour</h2>
+      </div>
+
+      <div class="agenda-list">
+        <article class="agenda-card" *ngFor="let item of recentActivity">
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.subtitle }}</p>
+          </div>
+          <span>{{ item.value }}</span>
+        </article>
+      </div>
+    </article>
+  </section>
+</div>

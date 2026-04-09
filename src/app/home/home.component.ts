@@ -17,6 +17,15 @@ export class HomeComponent {
   jobTitleQuery = '';
   locationQuery = '';
   selectedCategory = 'Toutes les categories';
+  filteredJobsList = JOBS;
+  profileActionRoute = '/register';
+  profileActionLabel = 'Demarrer maintenant';
+  resumeActionRoute = '/login';
+  resumeActionLabel = 'Se connecter';
+  companiesActionRoute = '/about';
+  companiesActionLabel = 'Decouvrir la plateforme';
+  profilesActionRoute = '/register';
+  profilesActionLabel = 'Creer un compte';
 
   readonly categories = JOB_CATEGORIES;
   readonly companies = COMPANIES;
@@ -51,10 +60,12 @@ export class HomeComponent {
     private router: Router
   ) {
     this.registration = this.authService.getLastRegistration();
+    this.configureActions();
+    this.updateFilteredJobs();
   }
 
-  get filteredJobs() {
-    return this.allJobs.filter((job) => {
+  updateFilteredJobs(): void {
+    this.filteredJobsList = this.allJobs.filter((job) => {
       const matchTitle = !this.jobTitleQuery || job.title.toLowerCase().includes(this.jobTitleQuery.toLowerCase());
       const matchLocation = !this.locationQuery || job.location.toLowerCase().includes(this.locationQuery.toLowerCase());
       const matchCategory = this.selectedCategory === 'Toutes les categories' || job.category === this.selectedCategory;
@@ -72,10 +83,52 @@ export class HomeComponent {
 
   selectCategory(category: string): void {
     this.selectedCategory = category;
+    this.updateFilteredJobs();
   }
 
   searchJobs(): void {
+    this.updateFilteredJobs();
     const jobsSection = document.getElementById('jobs-section');
     jobsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  openJobAction(): void {
+    if (this.authService.isCandidate()) {
+      this.router.navigate(['/submit-resume']);
+      return;
+    }
+
+    this.router.navigate(['/login']);
+  }
+
+  private configureActions(): void {
+    const isCandidate = this.authService.isCandidate();
+    const isRecruiter = this.authService.isRecruiter();
+    const isAdmin = this.authService.isAdmin();
+    const isLoggedIn = this.authService.isLoggedIn();
+
+    this.profileActionRoute = isCandidate ? '/profile' : (isLoggedIn ? this.authService.getRoleHomeRoute() : '/register');
+    this.profileActionLabel = isCandidate ? 'Creer votre profil' : 'Demarrer maintenant';
+
+    this.resumeActionRoute = isCandidate ? '/submit-resume' : '/login';
+    this.resumeActionLabel = isCandidate ? 'Deposer votre CV' : 'Se connecter';
+
+    this.companiesActionRoute = isAdmin ? '/company-list' : '/about';
+    this.companiesActionLabel = isAdmin ? 'Voir les entreprises' : 'Decouvrir la plateforme';
+
+    if (isRecruiter) {
+      this.profilesActionRoute = '/candidate-list';
+      this.profilesActionLabel = 'Explorer les profils';
+      return;
+    }
+
+    if (isCandidate) {
+      this.profilesActionRoute = '/profile';
+      this.profilesActionLabel = 'Mettre a jour mon profil';
+      return;
+    }
+
+    this.profilesActionRoute = '/register';
+    this.profilesActionLabel = 'Creer un compte';
   }
 }

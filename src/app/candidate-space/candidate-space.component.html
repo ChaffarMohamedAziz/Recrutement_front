@@ -1,0 +1,142 @@
+<div class="dashboard-shell candidate-shell">
+  <section class="dashboard-hero">
+    <div class="hero-copy">
+      <span class="hero-badge">Espace candidat</span>
+      <h1>Suivez vos candidatures et ciblez les offres qui correspondent le mieux a votre profil.</h1>
+      <p>
+        Retrouvez vos dossiers en cours, vos statuts de recrutement et les opportunites les plus
+        pertinentes depuis un seul espace.
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/job-list" class="primary-link">Explorer les offres</a>
+        <a routerLink="/profile" class="secondary-link">Mettre a jour mon profil</a>
+      </div>
+    </div>
+
+    <article class="hero-panel">
+      <span class="panel-label">Mon espace</span>
+      <strong>{{ user?.username || 'Candidat' }}</strong>
+      <p>Gardez votre profil et votre CV a jour pour augmenter la qualite du matching automatique.</p>
+      <div class="hero-panel-stats">
+        <div>
+          <span>Candidatures</span>
+          <strong>{{ quickStats[0].value }}</strong>
+        </div>
+        <div>
+          <span>Offres recommandees</span>
+          <strong>{{ quickStats[3].value }}</strong>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <p class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="stats-grid">
+    <article class="stat-card" *ngFor="let stat of quickStats">
+      <strong>{{ stat.value }}</strong>
+      <span>{{ stat.label }}</span>
+      <small>{{ stat.detail }}</small>
+    </article>
+  </section>
+
+  <section class="journey-grid">
+    <article class="surface-card">
+      <div class="section-head">
+        <div>
+          <span class="section-badge">Suivi</span>
+          <h2>Etat de vos candidatures</h2>
+        </div>
+      </div>
+
+      <div class="status-list">
+        <article class="status-item" *ngFor="let stage of applicationStages">
+          <div>
+            <h3>{{ stage.label }}</h3>
+            <p>{{ stage.detail }}</p>
+          </div>
+          <strong>{{ stage.value }}</strong>
+        </article>
+      </div>
+    </article>
+
+    <article class="surface-card actions-card">
+      <div class="section-head">
+        <div>
+          <span class="section-badge">Actions rapides</span>
+          <h2>Acces direct</h2>
+        </div>
+      </div>
+
+      <div class="action-list">
+        <article class="action-card" *ngFor="let action of quickActions">
+          <span class="action-icon">{{ action.icon }}</span>
+          <div>
+            <h3>{{ action.title }}</h3>
+            <p>{{ action.description }}</p>
+          </div>
+          <a [routerLink]="action.link">{{ action.label }}</a>
+        </article>
+      </div>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="surface-card">
+      <div class="section-head">
+        <div>
+          <span class="section-badge">Mes candidatures</span>
+          <h2>Dossiers recents</h2>
+        </div>
+      </div>
+
+      <div class="data-list" *ngIf="recentApplications.length; else noApplications">
+        <article class="data-row" *ngFor="let application of recentApplications">
+          <div>
+            <h3>{{ application.offerTitle }}</h3>
+            <p>{{ application.companyName }} · {{ application.appliedAt }}</p>
+          </div>
+          <div class="row-aside">
+            <span class="match-badge">{{ application.score }}%</span>
+            <span class="status-badge" [attr.data-status]="application.status">{{ application.status }}</span>
+          </div>
+        </article>
+      </div>
+    </article>
+
+    <article class="surface-card">
+      <div class="section-head">
+        <div>
+          <span class="section-badge">Matching</span>
+          <h2>Offres recommandees</h2>
+        </div>
+      </div>
+
+      <div class="data-list" *ngIf="recommendedJobs.length; else noOffers">
+        <article class="data-row" *ngFor="let offer of recommendedJobs">
+          <div>
+            <h3>{{ offer.titre }}</h3>
+            <p>{{ offer.nomEntreprise }} · {{ offer.localisation }}</p>
+          </div>
+          <div class="row-aside">
+            <span class="match-badge">{{ offer.compatibilityScore ?? 0 }}%</span>
+            <a [routerLink]="['/job-details', offer.id]">Voir</a>
+          </div>
+        </article>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #noApplications>
+    <p class="empty-hint">
+      {{ loading ? 'Chargement des candidatures...' : 'Aucune candidature pour le moment. Commencez par postuler a une offre.' }}
+    </p>
+  </ng-template>
+
+  <ng-template #noOffers>
+    <p class="empty-hint">
+      {{ loading ? 'Chargement des offres...' : 'Aucune offre recommandee pour le moment.' }}
+    </p>
+  </ng-template>
+</div>

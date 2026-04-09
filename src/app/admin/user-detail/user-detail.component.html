@@ -1,0 +1,93 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <main class="workspace-main">
+    <div class="workspace-main-inner">
+      <section class="admin-page">
+        <div class="page-header">
+          <div>
+            <h1>Profil utilisateur</h1>
+            <p>Consultez les informations du compte et du profil detaille.</p>
+          </div>
+          <button type="button" class="back-btn" (click)="goBack()">Retour a la liste</button>
+        </div>
+
+        <p class="status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="status loading" *ngIf="loading">Chargement du profil...</p>
+
+        <div class="profile-card" *ngIf="user">
+          <div class="profile-avatar">{{ (user.nom || 'U').slice(0, 1) }}</div>
+          <div class="profile-body">
+            <h2>{{ user.nom || 'Utilisateur' }}</h2>
+            <p class="profile-role">{{ getRoleLabel(user.role) }}</p>
+
+            <div class="profile-grid account-grid">
+              <div>
+                <span class="label">ID</span>
+                <span class="value">{{ user.id }}</span>
+              </div>
+              <div>
+                <span class="label">Email</span>
+                <span class="value">{{ user.email }}</span>
+              </div>
+              <div>
+                <span class="label">Role</span>
+                <span class="value">{{ getRoleLabel(user.role) }}</span>
+              </div>
+              <div>
+                <span class="label">Statut du compte</span>
+                <span class="value">{{ user.statutCompte ? 'Actif' : 'En attente' }}</span>
+              </div>
+              <div>
+                <span class="label">Email verifie</span>
+                <span class="value">{{ user.emailVerified ? 'Oui' : 'Non' }}</span>
+              </div>
+            </div>
+
+            <div class="profile-section">
+              <h3>Profil detaille</h3>
+
+              <p class="status missing" *ngIf="!user.profileExists">
+                {{ user.profileMessage || 'Ce profil n a pas encore ete cree.' }}
+              </p>
+
+              <div class="profile-grid" *ngIf="user.profileExists">
+                <div *ngIf="user.role === 'CANDIDATE' && hasValue(user.numTelephone)">
+                  <span class="label">Telephone</span>
+                  <span class="value">{{ user.numTelephone }}</span>
+                </div>
+                <div *ngIf="user.role === 'CANDIDATE' && hasValue(user.posteRecherche)">
+                  <span class="label">Poste recherche</span>
+                  <span class="value">{{ user.posteRecherche }}</span>
+                </div>
+                <div *ngIf="user.role === 'CANDIDATE' && hasValue(user.localisation)">
+                  <span class="label">Localisation</span>
+                  <span class="value">{{ user.localisation }}</span>
+                </div>
+                <div *ngIf="user.role === 'CANDIDATE' && hasValue(user.experience)">
+                  <span class="label">Experience</span>
+                  <span class="value">{{ user.experience }} an(s)</span>
+                </div>
+
+                <div *ngIf="user.role === 'RECRUITER' && hasValue(user.fonction)">
+                  <span class="label">Fonction</span>
+                  <span class="value">{{ user.fonction }}</span>
+                </div>
+                <div *ngIf="user.role === 'RECRUITER' && hasValue(user.poste)">
+                  <span class="label">Poste</span>
+                  <span class="value">{{ user.poste }}</span>
+                </div>
+                <div *ngIf="user.role === 'RECRUITER' && hasValue(user.departement)">
+                  <span class="label">Departement</span>
+                  <span class="value">{{ user.departement }}</span>
+                </div>
+                <div *ngIf="user.role === 'RECRUITER' && hasValue(user.entreprise)">
+                  <span class="label">Entreprise</span>
+                  <span class="value">{{ user.entreprise }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
