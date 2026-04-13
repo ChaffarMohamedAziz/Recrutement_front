@@ -3,11 +3,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CompetenceItem, CompetencePayload, CompetenceService } from '../../services/competence.service';
+import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-tags',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PageHeroComponent],
   templateUrl: './tags.component.html',
   styleUrl: './tags.component.css'
 })
@@ -15,10 +16,38 @@ export class TagsComponent implements OnInit {
   private readonly competenceService = inject(CompetenceService);
   private readonly fb = inject(FormBuilder);
 
-  readonly filterTypes = ['Toutes', 'Frontend', 'Backend', 'Base de donnees', 'Cloud', 'Soft skills', 'IA'];
+  readonly competenceCategories = [
+    'Développement Frontend',
+    'Développement Backend',
+    'Développement Mobile',
+    'Full Stack',
+    'Langage de programmation',
+    'Base de données',
+    'DevOps',
+    'Cloud',
+    'Cybersécurité',
+    'Intelligence Artificielle',
+    'Data Science',
+    'Data Engineering',
+    'Réseaux',
+    'Systèmes embarqués',
+    'QA / Test',
+    'UI/UX Design',
+    'Gestion de projet',
+    'Business / Analyse',
+    'Marketing digital',
+    'Vente / Commercial',
+    'Communication',
+    'Finance / Comptabilité',
+    'Ressources humaines',
+    'Bureautique',
+    'Langues',
+    'Soft Skills'
+  ];
+  readonly filterTypes = ['Toutes', ...this.competenceCategories];
   readonly form = this.fb.group({
     nom: ['', Validators.required],
-    type: ['Frontend', Validators.required],
+    type: [this.competenceCategories[0], Validators.required],
     description: ['']
   });
 
@@ -73,7 +102,7 @@ export class TagsComponent implements OnInit {
     this.editingId = null;
     this.form.reset({
       nom: '',
-      type: 'Frontend',
+      type: this.competenceCategories[0],
       description: ''
     });
   }

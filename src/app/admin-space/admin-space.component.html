@@ -1,77 +1,121 @@
-<div class="dashboard-shell admin-shell">
-  <section class="dashboard-hero">
-    <div class="hero-copy">
-      <span class="hero-badge">Espace administration</span>
-      <h1>Pilotez la plateforme Smart Recruit depuis un tableau de bord centralise.</h1>
-      <p>
-        Validez les comptes recruteurs, supervisez les utilisateurs et gardez une vue claire sur
-        les operations prioritaires de la plateforme.
-      </p>
+<div class="admin-shell app-page-layout">
+  <app-page-hero
+    badge="Admin"
+    title="Pilotez la plateforme Smart Recruit depuis un tableau de bord centralise."
+    subtitle="Validez les comptes recruteurs, supervisez les utilisateurs et gardez une vue claire sur les operations prioritaires de la plateforme."
+    theme="admin"
+    variant="analytics"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Dashboard admin' }]"
+    [primaryActionLabel]="'Voir les demandes'"
+    [primaryActionLink]="'/admin/recruiter-activation'"
+    [secondaryActionLabel]="'Ouvrir les utilisateurs'"
+    [secondaryActionLink]="'/admin/users'"
+    [highlights]="[
+      { title: 'Validation centralisee', description: 'Gardez la main sur les activations et les demandes sensibles.', icon: 'shield' },
+      { title: 'Suivi plateforme', description: 'Retrouvez les indicateurs essentiels dans une vue claire.', icon: 'chart' },
+      { title: 'Actions rapides', description: 'Passez d un module a l autre sans perdre le contexte.', icon: 'speed' }
+    ]"
+  ></app-page-hero>
 
-      <div class="hero-actions">
-        <a routerLink="/admin/recruiter-activation" class="primary-link">Voir les demandes</a>
-        <a routerLink="/admin/users" class="secondary-link">Ouvrir les utilisateurs</a>
+  <p class="admin-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="admin-kpi-grid">
+    <article class="admin-kpi-card" *ngFor="let card of kpis" [attr.data-tone]="card.tone">
+      <span>{{ card.label }}</span>
+      <strong>{{ card.value }}</strong>
+      <small>{{ card.detail }}</small>
+    </article>
+  </section>
+
+  <section class="admin-dashboard-grid">
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Vue d ensemble</span>
+          <h2>Composition de la plateforme</h2>
+          <p>Lecture rapide des grands equilibres entre utilisateurs, recruteurs et referentiel.</p>
+        </div>
       </div>
+
+      <div class="distribution-list">
+        <article class="distribution-row" *ngFor="let row of platformRows" [attr.data-tone]="row.tone">
+          <div>
+            <h3>{{ row.label }}</h3>
+            <p>{{ row.helper }}</p>
+          </div>
+          <strong>{{ row.value }}</strong>
+        </article>
+      </div>
+    </article>
+
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Demandes recruteurs</span>
+          <h2>Etat des validations</h2>
+          <p>Suivez les comptes a approuver, les comptes actifs et l historique des refus.</p>
+        </div>
+      </div>
+
+      <div class="distribution-list">
+        <article class="distribution-row" *ngFor="let row of recruiterRows" [attr.data-tone]="row.tone">
+          <div>
+            <h3>{{ row.label }}</h3>
+            <p>{{ row.helper }}</p>
+          </div>
+          <strong>{{ row.value }}</strong>
+        </article>
+      </div>
+    </article>
+  </section>
+
+  <section class="admin-dashboard-grid admin-dashboard-grid--bottom">
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Offres publiees</span>
+          <h2>Categories les plus presentes</h2>
+          <p>Reperes rapides pour voir ou se concentre l activite recrutement.</p>
+        </div>
+      </div>
+
+      <div class="category-list" *ngIf="offerHighlights.length; else noOffers">
+        <article class="category-row" *ngFor="let item of offerHighlights">
+          <div class="category-copy">
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.count }} offre(s) dans cette categorie</span>
+          </div>
+          <div class="category-bar">
+            <span [style.width.%]="item.count / (offerHighlights[0].count || 1) * 100"></span>
+          </div>
+        </article>
+      </div>
+    </article>
+
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Actions rapides</span>
+          <h2>Modules administratifs</h2>
+          <p>Accedez directement aux zones les plus critiques du back-office.</p>
+        </div>
+      </div>
+
+      <div class="quick-link-list">
+        <article class="quick-link-card" *ngFor="let link of quickLinks">
+          <div>
+            <h3>{{ link.title }}</h3>
+            <p>{{ link.description }}</p>
+          </div>
+          <a [routerLink]="link.link">{{ link.label }}</a>
+        </article>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #noOffers>
+    <div class="mini-empty-state">
+      {{ loading ? 'Chargement des offres...' : 'Aucune offre publiee pour le moment.' }}
     </div>
-
-    <article class="hero-panel">
-      <span class="panel-label">Administration</span>
-      <strong>{{ user?.username || 'Admin' }}</strong>
-      <p>Retrouvez les indicateurs essentiels et les acces rapides pour gerer la plateforme.</p>
-      <div class="hero-panel-stats">
-        <div>
-          <span>Demandes</span>
-          <strong>{{ kpis[0].value }}</strong>
-        </div>
-        <div>
-          <span>Utilisateurs</span>
-          <strong>{{ kpis[1].value }}</strong>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <section class="kpi-grid">
-    <article class="kpi-card" *ngFor="let stat of kpis">
-      <span>{{ stat.label }}</span>
-      <strong>{{ stat.value }}</strong>
-      <small>{{ stat.detail }}</small>
-    </article>
-  </section>
-
-  <section class="dashboard-grid">
-    <article class="surface-card">
-      <div class="section-head">
-        <span class="section-badge">Priorites</span>
-        <h2>Operations recentes</h2>
-      </div>
-
-      <div class="pipeline-list">
-        <article class="pipeline-card" *ngFor="let item of recentActivities">
-          <div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.subtitle }}</p>
-          </div>
-          <strong>{{ item.value }}</strong>
-        </article>
-      </div>
-    </article>
-
-    <article class="surface-card">
-      <div class="section-head">
-        <span class="section-badge">Modules</span>
-        <h2>Acces rapides</h2>
-      </div>
-
-      <div class="agenda-list">
-        <article class="agenda-card" *ngFor="let item of topSkills">
-          <div>
-            <h3>{{ item.title }}</h3>
-            <p>Module disponible dans l'interface d'administration.</p>
-          </div>
-          <span>{{ item.percent }}</span>
-        </article>
-      </div>
-    </article>
-  </section>
+  </ng-template>
 </div>

@@ -2,13 +2,15 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { AssistantService } from '../services/assistant.service';
 import { CompetenceItem, CompetenceService } from '../services/competence.service';
 import { OfferPayload, OfferResponse, OfferService, OfferSkillRequirement } from '../services/offer.service';
+import { PageHeroComponent } from '../shared/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-post-job',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, PageHeroComponent],
   templateUrl: './post-job.component.html',
   styleUrl: './post-job.component.css'
 })
@@ -32,11 +34,13 @@ export class PostJobComponent implements OnInit {
   recruiterOffers: OfferResponse[] = [];
   loading = false;
   saving = false;
+  aiDraftLoading = false;
   errorMessage = '';
   successMessage = '';
 
   constructor(
     private readonly fb: FormBuilder,
+    private readonly assistantService: AssistantService,
     private readonly competenceService: CompetenceService,
     private readonly offerService: OfferService
   ) {
@@ -58,6 +62,34 @@ export class PostJobComponent implements OnInit {
   ngOnInit(): void {
     this.loadCompetences();
     this.loadRecruiterOffers();
+  }
+
+  get publicationProgress(): number {
+    const values = this.postJobForm.getRawValue();
+    const checks = [
+      !!values.title,
+      !!values.category,
+      !!values.salary,
+      !!values.location,
+      !!values.jobType,
+      !!values.experience,
+      !!values.description,
+      this.skillsArray.controls.some((control) => !!control.get('nom')?.value || !!control.get('competenceId')?.value)
+    ];
+
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  }
+
+  get requiredSkillsCount(): number {
+    return this.skillsArray.getRawValue()
+      .filter((item: OfferSkillRequirement) => item.type === 'OBLIGATOIRE' && (item.nom || item.competenceId))
+      .length;
+  }
+
+  get preferredSkillsCount(): number {
+    return this.skillsArray.getRawValue()
+      .filter((item: OfferSkillRequirement) => item.type === 'SOUHAITEE' && (item.nom || item.competenceId))
+      .length;
   }
 
   get skillsArray(): FormArray {
@@ -90,8 +122,14 @@ export class PostJobComponent implements OnInit {
   }
 
   publishJob(): void {
-    if (this.postJobForm.invalid || this.saving) {
+    if (this.saving || this.loading) {
+      return;
+    }
+
+    if (this.postJobForm.invalid) {
       this.postJobForm.markAllAsTouched();
+      this.errorMessage = "Veuillez remplir les champs obligatoires avant de publier l'offre.";
+      this.successMessage = '';
       return;
     }
 
@@ -113,6 +151,12 @@ export class PostJobComponent implements OnInit {
       dateExpiration: this.postJobForm.value.expirationDate || '',
       competences: (this.skillsArray.getRawValue() as OfferSkillRequirement[]).filter((item) => item.nom?.trim())
     };
+
+    if (!payload.competences.length) {
+      this.saving = false;
+      this.errorMessage = 'Ajoutez au moins une competence valide avant de publier.';
+      return;
+    }
 
     this.offerService.createOffer(payload).subscribe({
       next: (response) => {
@@ -137,6 +181,50 @@ export class PostJobComponent implements OnInit {
       error: (error: { message?: string }) => {
         this.saving = false;
         this.errorMessage = error.message || "Publication de l'offre impossible.";
+        this.successMessage = '';
+      }
+    });
+  }
+
+  generateDescriptionWithAi(): void {
+    if (this.aiDraftLoading || this.saving || this.loading) {
+      return;
+    }
+
+    const rawTitle = (this.postJobForm.value.title || '').trim();
+    if (!rawTitle) {
+      this.errorMessage = "Ajoutez d'abord un titre de poste avant de lancer l'assistant IA.";
+      this.successMessage = '';
+      this.postJobForm.get('title')?.markAsTouched();
+      return;
+    }
+
+    this.aiDraftLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.assistantService.generateOfferDraft({
+      title: rawTitle,
+      category: this.postJobForm.value.category || '',
+      location: this.postJobForm.value.location || '',
+      contractType: this.postJobForm.value.jobType || '',
+      experienceLevel: this.postJobForm.value.experience || '',
+      tone: 'Professionnel et attractif',
+      context: this.postJobForm.value.description || '',
+      skills: (this.skillsArray.getRawValue() as OfferSkillRequirement[])
+        .map((item) => item.nom?.trim())
+        .filter(Boolean)
+    }).subscribe({
+      next: (response) => {
+        this.aiDraftLoading = false;
+        this.postJobForm.patchValue({
+          description: response.generatedDescription
+        });
+        this.successMessage = response.message || "La description de l'offre a ete generee par l'assistant IA.";
+      },
+      error: (error: { message?: string }) => {
+        this.aiDraftLoading = false;
+        this.errorMessage = error.message || "Generation de la description impossible.";
       }
     });
   }
@@ -145,6 +233,9 @@ export class PostJobComponent implements OnInit {
     this.competenceService.getCompetences().subscribe({
       next: (items) => {
         this.availableCompetences = items;
+      },
+      error: (error: { message?: string }) => {
+        this.errorMessage = error.message || 'Chargement des competences impossible.';
       }
     });
   }
@@ -156,8 +247,9 @@ export class PostJobComponent implements OnInit {
         this.recruiterOffers = items;
         this.loading = false;
       },
-      error: () => {
+      error: (error: { message?: string }) => {
         this.loading = false;
+        this.errorMessage = error.message || 'Chargement des offres impossible.';
       }
     });
   }

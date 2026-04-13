@@ -1,4 +1,5 @@
 import { AdminSpaceComponent } from './admin-space/admin-space.component';
+import { AssistantHubComponent } from './assistant/assistant-hub.component';
 import { RecruiterActivationComponent } from './admin/recruiter-activation/recruiter-activation.component';
 import { UserDetailComponent } from './admin/user-detail/user-detail.component';
 import { UserListComponent } from './admin/user-list/user-list.component';
@@ -6,7 +7,7 @@ import { TagsComponent } from './admin/tags/tags.component';
 import { AboutComponent } from './about/about.component';
 import { Routes } from '@angular/router';
 import { AccessDeniedComponent } from './auth/access-denied/access-denied.component';
-import { adminGuard, candidateGuard, recruiterGuard } from './auth/access.guard';
+import { adminGuard, candidateGuard, candidateOrRecruiterGuard, recruiterGuard } from './auth/access.guard';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
@@ -26,6 +27,7 @@ import { SimplePageComponent } from './info/simple-page.component';
 import { JobDetailsComponent } from './jobs/job-details.component';
 import { JobListComponent } from './jobs/job-list.component';
 import { PostJobComponent } from './jobs/post-job.component';
+import { MessagesHubComponent } from './messages/messages-hub.component';
 import { ProfileFormComponent } from './profile/profile-form.component';
 import { RecruiterSpaceComponent } from './recruiter-space/recruiter-space.component';
 import { UploadResumeComponent } from './resume/upload-resume.component';
@@ -51,6 +53,8 @@ export const routes: Routes = [
   { path: 'admin/tags', component: TagsComponent, canActivate: [adminGuard] },
   { path: 'admin/users/:id', component: UserDetailComponent, canActivate: [adminGuard] },
   { path: 'recruiter-space', component: RecruiterSpaceComponent, canActivate: [recruiterGuard] },
+  { path: 'messages', component: MessagesHubComponent, canActivate: [candidateOrRecruiterGuard] },
+  { path: 'assistant', component: AssistantHubComponent, canActivate: [candidateOrRecruiterGuard] },
   {
     path: 'job-list',
     component: JobListComponent,

@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BLOG_POSTS } from '../data/mock-market-data';
+import { PageHeroComponent } from '../shared/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-blog-details',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PageHeroComponent],
   templateUrl: './blog-details.component.html',
   styleUrl: './blog-details.component.css'
 })

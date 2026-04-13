@@ -1,16 +1,21 @@
 <div class="page-shell">
-  <section class="page-hero">
-    <span class="section-badge">Article</span>
-    <h1>{{ post.title }}</h1>
-    <p>{{ post.excerpt }}</p>
-    <div class="breadcrumb">
-      <a routerLink="/home">Accueil</a>
-      <span>/</span>
-      <a routerLink="/blog">Blog</a>
-      <span>/</span>
-      <strong>Details</strong>
-    </div>
-  </section>
+  <app-page-hero
+    badge="Smart Recruit"
+    [title]="post.title"
+    [subtitle]="post.excerpt"
+    theme="public"
+    variant="insight"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Blog', link: '/blog' },
+      { label: 'Details' }
+    ]"
+    [highlights]="[
+      { title: 'Analyse pratique', description: 'Des conseils directement exploitables pour vos recrutements.', icon: 'chart' },
+      { title: 'Vision metier', description: 'Une lecture orientee terrain pour mieux comprendre les attentes du marche.', icon: 'briefcase' },
+      { title: 'Lecture utile', description: 'Gardez les points essentiels visibles avant de passer a l action.', icon: 'check' }
+    ]"
+  ></app-page-hero>
 
   <section class="content-grid">
     <article class="content-card article-card">

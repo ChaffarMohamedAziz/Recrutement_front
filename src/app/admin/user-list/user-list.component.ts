@@ -5,13 +5,14 @@ import { RouterModule } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AuthService, UserSummary } from '../../services/auth.service';
+import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
 type UserFilter = 'ALL' | 'CANDIDATE' | 'RECRUITER';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PageHeroComponent],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css'
 })

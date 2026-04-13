@@ -1,20 +1,52 @@
 <div class="role-workspace theme-admin admin-top-layout admin-detail-page">
   <main class="workspace-main">
     <div class="workspace-main-inner">
-      <section class="workspace-page-header">
-        <div>
-          <h1>Bibliotheque des competences</h1>
-          <p>Centralisez les tags competences pour uniformiser le vocabulaire de recrutement.</p>
-        </div>
+      <app-page-hero
+        badge="Admin"
+        title="Bibliotheque des competences"
+        subtitle="Centralisez les tags et uniformisez le vocabulaire metier utilise dans les profils et les offres."
+        theme="admin"
+        variant="taxonomy"
+        [breadcrumbs]="[
+          { label: 'Accueil', link: '/home' },
+          { label: 'Admin', link: '/admin-dashboard' },
+          { label: 'Tags competences' }
+        ]"
+        [highlights]="[
+          { title: 'Referentiel commun', description: 'Evitez les doublons et gardez une nomenclature stable.', icon: 'check' },
+          { title: 'Gestion rapide', description: 'Ajoutez, modifiez et filtrez les competences depuis une seule vue.', icon: 'speed' },
+          { title: 'Qualite du matching', description: 'Des tags propres renforcent la pertinence des resultats.', icon: 'chart' }
+        ]"
+      ></app-page-hero>
 
+      <section class="workspace-page-header">
         <button type="button" class="admin-ghost-btn" (click)="loadCompetences()" [disabled]="loading">
           {{ loading ? 'Chargement...' : 'Actualiser' }}
         </button>
       </section>
 
+      <section class="tags-summary-grid">
+        <article class="tags-summary-card">
+          <span>Competences visibles</span>
+          <strong>{{ competences.length }}</strong>
+          <small>Tags remontes selon votre filtre actuel</small>
+        </article>
+        <article class="tags-summary-card">
+          <span>Categorie active</span>
+          <strong>{{ selectedType }}</strong>
+          <small>Filtre courant du referentiel</small>
+        </article>
+      </section>
+
       <section class="tags-layout">
         <article class="workspace-card tags-form-card">
-          <h2>{{ editingId ? 'Modifier une competence' : 'Ajouter une competence' }}</h2>
+          <div class="tags-form-head">
+            <span class="tags-form-badge">{{ editingId ? 'Mode edition' : 'Nouveau tag' }}</span>
+            <h2>{{ editingId ? 'Modifier une competence' : 'Ajouter une competence' }}</h2>
+            <p class="tags-form-note">
+              Renseignez le nom, la categorie et une courte description pour enrichir le referentiel commun.
+            </p>
+          </div>
 
           <form [formGroup]="form" (ngSubmit)="saveCompetence()" class="tags-form">
             <div class="form-group">
@@ -79,7 +111,8 @@
           </div>
 
           <div class="admin-empty-state" *ngIf="!loading && !competences.length">
-            Aucune competence disponible.
+            <strong>Aucune competence disponible</strong>
+            <p>Ajoutez un premier tag ou ajustez vos filtres pour retrouver les competences existantes.</p>
           </div>
         </article>
       </section>

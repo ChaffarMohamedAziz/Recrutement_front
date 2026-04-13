@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { PageHeroComponent } from '../shared/page-hero/page-hero.component';
 
 interface SimplePageData {
   title: string;
@@ -16,7 +17,7 @@ interface SimplePageData {
 @Component({
   selector: 'app-simple-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PageHeroComponent],
   templateUrl: './simple-page.component.html',
   styleUrl: './simple-page.component.css'
 })

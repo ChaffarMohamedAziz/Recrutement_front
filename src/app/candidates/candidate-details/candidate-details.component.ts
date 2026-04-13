@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApplicationResponse, ApplicationService } from '../../services/application.service';
+import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-candidate-details',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PageHeroComponent],
   templateUrl: './candidate-details.component.html',
   styleUrl: './candidate-details.component.css'
 })

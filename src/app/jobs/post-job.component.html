@@ -1,161 +1,259 @@
 <div class="post-job-shell">
-  <section class="page-title-area">
-    <div class="page-title-card">
-      <div class="page-title-text">
-        <span class="page-badge">Recruteur</span>
-        <h1>Publier une offre</h1>
-        <ul>
-          <li><a routerLink="/home">Accueil</a></li>
-          <li>/</li>
-          <li>Publier une offre</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+  <app-page-hero
+    badge="Recruteur"
+    title="Publier une offre"
+    subtitle="Attirez les meilleurs talents en publiant une offre claire, detaillee et attractive. Soignez chaque detail pour capter l attention des candidats ideaux."
+    theme="recruiter"
+    variant="publish"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Publier une offre' }]"
+    [highlights]="[
+      { title: 'Visibilite accrue', description: 'Mettez en avant votre besoin avec un cadre clair et attractif.', icon: 'briefcase' },
+      { title: 'Candidats qualifies', description: 'Structurez les competences et les criteres pour mieux cibler.', icon: 'users' },
+      { title: 'Recrutement rapide', description: 'Gagnez du temps des la publication grace a une offre complete.', icon: 'speed' }
+    ]"
+    [primaryActionLabel]="'Assistant IA'"
+    [primaryActionLink]="'/assistant'"
+    [secondaryActionLabel]="'Messagerie'"
+    [secondaryActionLink]="'/messages'"
+  ></app-page-hero>
 
-  <section class="post-job-card">
-    <form [formGroup]="postJobForm" (ngSubmit)="publishJob()">
-      <div class="post-job-heading">
-        <h2>Publier votre offre</h2>
-      </div>
-
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Titre du poste</label>
-          <input type="text" formControlName="title" placeholder="Ex: UX/UI Designer" />
-        </div>
-
-        <div class="form-group">
-          <label>Categorie</label>
-          <select formControlName="category">
-            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
-          </select>
-        </div>
-
-        <div class="form-group salary-group">
-          <label>Salaire propose</label>
-          <div class="salary-row">
-            <input type="text" formControlName="salary" placeholder="Ex: 2500" />
-            <select formControlName="currency">
-              <option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</option>
-            </select>
+  <section class="editor-layout">
+    <article class="post-job-card post-job-card--editor">
+      <form [formGroup]="postJobForm" (ngSubmit)="publishJob()">
+        <div class="post-job-heading">
+          <div>
+            <span class="section-kicker">Creation d offre</span>
+            <h2>Publier votre offre</h2>
+            <p>Structurez le poste, ajoutez les competences attendues et publiez un brief clair pour vos candidats.</p>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Nombre de postes</label>
-          <input type="text" formControlName="vacancies" placeholder="Ex: 10" />
+        <section class="editor-section">
+          <div class="section-inline-head">
+            <div>
+              <span class="section-kicker">Poste</span>
+              <h3>Informations principales</h3>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Titre du poste</label>
+              <input type="text" formControlName="title" placeholder="Ex: UX/UI Designer" />
+            </div>
+
+            <div class="form-group">
+              <label>Categorie</label>
+              <select formControlName="category">
+                <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+              </select>
+            </div>
+
+            <div class="form-group salary-group">
+              <label>Salaire propose</label>
+              <div class="salary-row">
+                <input type="text" formControlName="salary" placeholder="Ex: 2500" />
+                <select formControlName="currency">
+                  <option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Nombre de postes</label>
+              <input type="text" formControlName="vacancies" placeholder="Ex: 3" />
+            </div>
+
+            <div class="form-group">
+              <label>Localisation</label>
+              <input type="text" formControlName="location" placeholder="Ex: Tunis, Sfax, Remote" />
+            </div>
+
+            <div class="form-group">
+              <label>Experience requise</label>
+              <input type="text" formControlName="experience" placeholder="Ex: 2-4 ans" />
+            </div>
+
+            <div class="form-group">
+              <label>Date d expiration</label>
+              <input type="date" formControlName="expirationDate" />
+            </div>
+
+            <div class="form-group full-width">
+              <div class="job-type-area">
+                <span>Type de contrat</span>
+                <label *ngFor="let type of jobTypes">
+                  <input type="radio" formControlName="jobType" [value]="type" />
+                  {{ type }}
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <div class="field-head">
+                <label>Description du poste</label>
+                <button type="button" class="ghost-btn-inline" (click)="generateDescriptionWithAi()" [disabled]="aiDraftLoading">
+                  {{ aiDraftLoading ? 'Generation IA...' : 'Generer avec IA' }}
+                </button>
+              </div>
+              <textarea rows="8" formControlName="description" placeholder="Decrivez les missions, les competences demandees et le contexte du poste."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="skills-card" formArrayName="skills">
+          <div class="section-inline-head">
+            <div>
+              <span class="section-kicker">Matching</span>
+              <h3>Competences demandees</h3>
+            </div>
+            <button type="button" class="ghost-btn-inline" (click)="addSkill()">Ajouter une competence</button>
+          </div>
+
+          <div class="skills-grid">
+            <div class="skill-item" *ngFor="let skill of skillsArray.controls; let index = index" [formGroupName]="index">
+              <div class="form-group">
+                <label>Competence</label>
+                <select formControlName="competenceId" (change)="onCompetenceChange(index)">
+                  <option [ngValue]="null">Choisir une competence</option>
+                  <option *ngFor="let competence of availableCompetences" [ngValue]="competence.id">
+                    {{ competence.nom }} - {{ competence.type }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Type</label>
+                <select formControlName="type">
+                  <option *ngFor="let type of skillTypes" [value]="type">{{ type }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Niveau vise</label>
+                <select formControlName="niveau">
+                  <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Ponderation (%)</label>
+                <input type="number" formControlName="ponderation" min="0" max="100" />
+              </div>
+
+              <button type="button" class="danger-link" (click)="removeSkill(index)" [disabled]="skillsArray.length === 1">
+                Retirer
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
+        <div class="action-row">
+          <button type="submit" class="primary-btn" [disabled]="saving || loading">
+            {{ saving ? 'Publication...' : (loading ? 'Chargement...' : 'Publier') }}
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <aside class="post-job-sidebar">
+      <article class="post-job-card post-job-card--summary">
+        <div class="sidebar-head">
+          <span class="section-kicker">Etat du formulaire</span>
+          <h3>Publication prete a partir</h3>
         </div>
 
-        <div class="form-group">
-          <label>Localisation</label>
-          <input type="text" formControlName="location" placeholder="Ex: Tunis, Sfax, Remote" />
-        </div>
-
-        <div class="form-group">
-          <label>Experience requise</label>
-          <input type="text" formControlName="experience" placeholder="Ex: 2-4 ans" />
-        </div>
-
-        <div class="form-group">
-          <label>Date d'expiration</label>
-          <input type="date" formControlName="expirationDate" />
-        </div>
-
-        <div class="form-group full-width">
-          <div class="job-type-area">
-            <span>Type de contrat</span>
-            <label *ngFor="let type of jobTypes">
-              <input type="radio" formControlName="jobType" [value]="type" />
-              {{ type }}
-            </label>
+        <div class="progress-card">
+          <div>
+            <span class="progress-label">Progression</span>
+            <strong>{{ publicationProgress }}%</strong>
+          </div>
+          <div class="progress-bar">
+            <span [style.width.%]="publicationProgress"></span>
           </div>
         </div>
 
-        <div class="form-group full-width">
-          <label>Description du poste</label>
-          <textarea rows="8" formControlName="description" placeholder="Decrivez les missions, les competences demandees et le contexte du poste."></textarea>
-        </div>
-      </div>
-
-      <section class="skills-card" formArrayName="skills">
-        <div class="section-inline-head">
-          <h3>Competences demandees</h3>
-          <button type="button" class="ghost-btn-inline" (click)="addSkill()">Ajouter une competence</button>
-        </div>
-
-        <div class="skills-grid">
-          <div class="skill-item" *ngFor="let skill of skillsArray.controls; let index = index" [formGroupName]="index">
-            <div class="form-group">
-              <label>Competence</label>
-              <select formControlName="competenceId" (change)="onCompetenceChange(index)">
-                <option [ngValue]="null">Choisir une competence</option>
-                <option *ngFor="let competence of availableCompetences" [ngValue]="competence.id">
-                  {{ competence.nom }} - {{ competence.type }}
-                </option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Type</label>
-              <select formControlName="type">
-                <option *ngFor="let type of skillTypes" [value]="type">{{ type }}</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Niveau vise</label>
-              <select formControlName="niveau">
-                <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Ponderation (%)</label>
-              <input type="number" formControlName="ponderation" min="0" max="100" />
-            </div>
-
-            <button type="button" class="danger-link" (click)="removeSkill(index)" [disabled]="skillsArray.length === 1">
-              Retirer
-            </button>
+        <div class="summary-grid">
+          <div class="summary-pill">
+            <span>Competences obligatoires</span>
+            <strong>{{ requiredSkillsCount }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Competences souhaitees</span>
+            <strong>{{ preferredSkillsCount }}</strong>
           </div>
         </div>
-      </section>
 
-      <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
-      <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
-
-      <div class="action-row">
-        <button type="submit" class="primary-btn" [disabled]="saving">
-          {{ saving ? 'Publication...' : 'Publier' }}
-        </button>
-      </div>
-    </form>
-  </section>
-
-  <section class="post-job-card offers-list-card">
-    <div class="post-job-heading">
-      <h2>Mes offres publiees</h2>
-    </div>
-
-    <p class="loading-message" *ngIf="loading">Chargement des offres...</p>
-
-    <div class="offer-list" *ngIf="!loading && recruiterOffers.length">
-      <article class="offer-row" *ngFor="let offer of recruiterOffers">
-        <div>
-          <strong>{{ offer.titre }}</strong>
-          <p>{{ offer.localisation }} • {{ offer.typeContrat }} • {{ offer.experienceRequise }}</p>
-        </div>
-
-        <div class="offer-meta">
-          <span>{{ offer.salaire }} {{ offer.devise }}</span>
-          <small>{{ offer.competences.length }} competence(s)</small>
+        <div class="summary-checklist">
+          <article>
+            <strong>Titre et categorie</strong>
+            <p>Nom de poste clair et categorie bien choisie.</p>
+          </article>
+          <article>
+            <strong>Localisation et experience</strong>
+            <p>Indiquez precisement le contexte du poste.</p>
+          </article>
+          <article>
+            <strong>Competences ponderees</strong>
+            <p>Priorisez les criteres importants pour le matching.</p>
+          </article>
         </div>
       </article>
-    </div>
 
-    <div class="empty-message" *ngIf="!loading && !recruiterOffers.length">
-      Aucune offre publiee pour le moment.
-    </div>
+      <article class="post-job-card post-job-card--summary">
+        <div class="sidebar-head">
+          <span class="section-kicker">Sprint 4</span>
+          <h3>Assistant intelligent</h3>
+        </div>
+
+        <div class="summary-checklist">
+          <article>
+            <strong>Description guidee</strong>
+            <p>Generez une base de description depuis le poste, le contrat et les competences demandees.</p>
+          </article>
+          <article>
+            <strong>Questions d entretien</strong>
+            <p>Preparez vos entretiens et trouvez des candidats en langage naturel depuis le hub IA.</p>
+          </article>
+        </div>
+
+        <div class="action-row action-row--stack">
+          <button type="button" class="primary-btn" (click)="generateDescriptionWithAi()" [disabled]="aiDraftLoading">
+            {{ aiDraftLoading ? 'Generation IA...' : 'Generer une description' }}
+          </button>
+          <a class="ghost-link" routerLink="/assistant">Ouvrir le hub IA complet</a>
+        </div>
+      </article>
+
+      <article class="post-job-card offers-list-card">
+        <div class="sidebar-head">
+          <span class="section-kicker">Vos publications</span>
+          <h3>Mes offres publiees</h3>
+        </div>
+
+        <p class="loading-message" *ngIf="loading">Chargement des offres...</p>
+
+        <div class="offer-list" *ngIf="!loading && recruiterOffers.length">
+          <article class="offer-row" *ngFor="let offer of recruiterOffers">
+            <div>
+              <strong>{{ offer.titre }}</strong>
+              <p>{{ offer.localisation }} - {{ offer.typeContrat }} - {{ offer.experienceRequise }}</p>
+            </div>
+
+            <div class="offer-meta">
+              <span>{{ offer.salaire }} {{ offer.devise }}</span>
+              <small>{{ offer.competences.length }} competence(s)</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="empty-message" *ngIf="!loading && !recruiterOffers.length">
+          Aucune offre publiee pour le moment.
+        </div>
+      </article>
+    </aside>
   </section>
 </div>

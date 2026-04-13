@@ -1,14 +1,23 @@
 <div class="details-shell">
-  <div class="details-card">
-    <div class="hero-panel">
-      <div class="logo-box">{{ company.name.slice(0, 2).toUpperCase() }}</div>
-      <div>
-        <span class="section-badge">Detail entreprise</span>
-        <h1>{{ company.name }}</h1>
-        <p>{{ company.industry }} · {{ company.location }} · {{ company.size }}</p>
-      </div>
-    </div>
+  <app-page-hero
+    badge="Admin"
+    [title]="company.name"
+    [subtitle]="company.industry + ' · ' + company.location + ' · ' + company.size"
+    theme="admin"
+    variant="enterprise"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Entreprises', link: '/company-list' },
+      { label: 'Details' }
+    ]"
+    [highlights]="[
+      { title: 'Secteur visible', description: 'Retrouvez rapidement le positionnement de l entreprise.', icon: 'briefcase' },
+      { title: 'Attractivite', description: 'Visualisez ses points forts et ses avantages en un coup d oeil.', icon: 'spark' },
+      { title: 'Postes ouverts', description: 'Accedez directement aux besoins actifs de cette entreprise.', icon: 'chart' }
+    ]"
+  ></app-page-hero>
 
+  <div class="details-card">
     <div class="content-grid">
       <section class="content-card">
         <h2>A propos</h2>

@@ -1,14 +1,16 @@
 <div class="page-shell">
-  <section class="page-hero">
-    <span class="section-badge">{{ pageData.badge }}</span>
-    <h1>{{ pageData.title }}</h1>
-    <p>{{ pageData.description }}</p>
-    <div class="breadcrumb">
-      <a routerLink="/home">Accueil</a>
-      <span>/</span>
-      <strong>{{ pageData.badge }}</strong>
-    </div>
-  </section>
+  <app-page-hero
+    badge="Smart Recruit"
+    [title]="pageData.title"
+    [subtitle]="pageData.description"
+    theme="public"
+    variant="settings"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: pageData.badge }]"
+    [primaryActionLabel]="pageData.primaryLabel"
+    [primaryActionLink]="pageData.primaryLink"
+    [secondaryActionLabel]="pageData.secondaryLabel"
+    [secondaryActionLink]="pageData.secondaryLink"
+  ></app-page-hero>
 
   <section class="content-grid">
     <article class="content-card">
@@ -20,11 +22,6 @@
 
       <div class="feature-list">
         <div class="feature-item" *ngFor="let feature of pageData.features">{{ feature }}</div>
-      </div>
-
-      <div class="action-row">
-        <a [routerLink]="pageData.primaryLink" class="primary-btn">{{ pageData.primaryLabel }}</a>
-        <a [routerLink]="pageData.secondaryLink" class="ghost-btn">{{ pageData.secondaryLabel }}</a>
       </div>
     </article>
   </section>

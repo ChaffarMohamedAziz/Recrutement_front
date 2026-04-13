@@ -1,17 +1,24 @@
 <div class="details-shell">
-  <div class="details-card" *ngIf="offer; else stateBlock">
-    <div class="hero-panel">
-      <div>
-        <span class="section-badge">Offre</span>
-        <h1>{{ offer.titre }}</h1>
-        <p>{{ offer.nomEntreprise }} · {{ offer.localisation }} · {{ offer.typeContrat }}</p>
-      </div>
-      <div class="hero-side">
-        <strong *ngIf="offer.compatibilityScore !== null">{{ offer.compatibilityScore }}%</strong>
-        <span>Compatibilite estimee</span>
-      </div>
-    </div>
+  <app-page-hero
+    *ngIf="offer"
+    badge="Candidat"
+    [title]="offer.titre"
+    [subtitle]="(offer.nomEntreprise || 'Entreprise') + ' · ' + (offer.localisation || 'Non precisee') + ' · ' + (offer.typeContrat || 'CDI')"
+    theme="candidate"
+    variant="opportunities"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Emplois', link: '/job-list' },
+      { label: 'Details' }
+    ]"
+    [highlights]="[
+      { title: 'Compatibilite', description: ((offer.compatibilityScore ?? 0) + '% estime pour votre profil.'), icon: 'chart' },
+      { title: 'Informations claires', description: 'Retrouvez les criteres clefs avant de postuler.', icon: 'briefcase' },
+      { title: 'Decision rapide', description: 'Passez a l action avec une vue synthetique de l offre.', icon: 'speed' }
+    ]"
+  ></app-page-hero>
 
+  <div class="details-card" *ngIf="offer; else stateBlock">
     <div class="content-grid">
       <section class="content-card">
         <h2>Description</h2>

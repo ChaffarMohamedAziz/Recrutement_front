@@ -1,17 +1,17 @@
 <div class="page-shell">
-  <section class="page-hero">
-    <span class="section-badge">A propos</span>
-    <h1>Une plateforme de recrutement plus claire et plus efficace</h1>
-    <p>
-      Smart Recruit connecte les entreprises, les recruteurs et les candidats dans un environnement moderne,
-      fluide et oriente resultats.
-    </p>
-    <div class="breadcrumb">
-      <a routerLink="/home">Accueil</a>
-      <span>/</span>
-      <strong>A propos</strong>
-    </div>
-  </section>
+  <app-page-hero
+    badge="Smart Recruit"
+    title="Une plateforme de recrutement plus claire et plus efficace"
+    subtitle="Smart Recruit connecte les entreprises, les recruteurs et les candidats dans un environnement moderne, fluide et oriente resultats."
+    theme="public"
+    variant="insight"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'A propos' }]"
+    [highlights]="[
+      { title: 'Processus structure', description: 'Centralisez les offres, les candidatures et les validations dans une seule interface.', icon: 'briefcase' },
+      { title: 'Matching plus fin', description: 'Reliez rapidement les besoins des recruteurs aux bons profils.', icon: 'chart' },
+      { title: 'Experience fluide', description: 'Offrez un parcours clair aux candidats comme aux recruteurs.', icon: 'spark' }
+    ]"
+  ></app-page-hero>
 
   <section class="story-grid">
     <article class="story-card highlight">

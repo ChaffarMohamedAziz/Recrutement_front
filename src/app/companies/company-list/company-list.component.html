@@ -1,9 +1,21 @@
 <div class="directory-shell">
-  <div class="directory-hero">
-    <span class="section-badge">Entreprises</span>
-    <h1>Entreprises populaires</h1>
-    <p>Decouvrez les entreprises, leurs activites, leurs postes ouverts et leurs avantages.</p>
-  </div>
+  <app-page-hero
+    badge="Admin"
+    title="Entreprises populaires"
+    subtitle="Decouvrez les entreprises, leurs activites, leurs postes ouverts et leurs avantages."
+    theme="admin"
+    variant="enterprise"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Admin', link: '/admin-dashboard' },
+      { label: 'Entreprises' }
+    ]"
+    [highlights]="[
+      { title: 'Vue centralisee', description: 'Gardez les entreprises visibles avec leurs postes et points forts.', icon: 'briefcase' },
+      { title: 'Lecture rapide', description: 'Identifiez les activites et les localisations en un coup d oeil.', icon: 'search' },
+      { title: 'Navigation claire', description: 'Passez facilement de la liste a la fiche detaillee.', icon: 'check' }
+    ]"
+  ></app-page-hero>
 
   <div class="directory-grid">
     <article class="directory-card" *ngFor="let company of companies">

@@ -1,77 +1,126 @@
-<div class="dashboard-shell recruiter-shell">
-  <section class="dashboard-hero">
-    <div class="hero-copy">
-      <span class="hero-badge">Dashboard recruteur</span>
-      <h1>Supervisez votre pipeline de recrutement avec une interface claire et efficace.</h1>
-      <p>
-        Centralisez vos offres, vos candidatures et vos prochains entretiens pour piloter chaque etape
-        avec precision et fluidite.
-      </p>
+<div class="recruiter-shell app-page-layout">
+  <app-page-hero
+    badge="Recruteur"
+    title="Pilotez votre activite recrutement avec une vue claire, premium et orientee action."
+    subtitle="Centralisez vos offres, vos candidatures et vos prochaines decisions depuis un espace pense pour le suivi quotidien."
+    theme="recruiter"
+    variant="management"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Profil recruteur' }]"
+    [primaryActionLabel]="'Publier une offre'"
+    [primaryActionLink]="'/post-a-job'"
+    [secondaryActionLabel]="'Ouvrir le kanban'"
+    [secondaryActionLink]="'/dashboard'"
+    [highlights]="[
+      { title: 'Offres sous controle', description: 'Gardez vos campagnes de recrutement visibles et organisees.', icon: 'briefcase' },
+      { title: 'Candidats qualifies', description: 'Reperez les profils les plus pertinents plus rapidement.', icon: 'users' },
+      { title: 'Pipeline fluide', description: 'Passez des candidatures au suivi ATS sans rupture de contexte.', icon: 'speed' }
+    ]"
+  ></app-page-hero>
 
-      <div class="hero-actions">
-        <a routerLink="/post-a-job" class="primary-link">Publier une offre</a>
-        <a routerLink="/dashboard" class="secondary-link">Ouvrir le kanban</a>
+  <p class="recruiter-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="recruiter-profile-grid">
+    <article class="recruiter-profile-card">
+      <div class="recruiter-avatar">{{ userInitials }}</div>
+      <div class="recruiter-profile-copy">
+        <span class="panel-kicker">Compte recruteur</span>
+        <h2>{{ user?.username || 'Compte recruteur' }}</h2>
+        <p>{{ user?.email || 'Adresse e-mail indisponible' }}</p>
+
+        <div class="profile-badges">
+          <span class="profile-badge">Role recruteur</span>
+          <span class="profile-badge neutral">Espace professionnel</span>
+        </div>
       </div>
-    </div>
+    </article>
 
-    <article class="hero-panel">
-      <span class="panel-label">Mon espace</span>
-      <strong>{{ user?.username || 'Recruteur' }}</strong>
-      <p>Retrouvez vos recrutements, vos candidats et vos prochaines actions dans une seule vue.</p>
-      <div class="hero-panel-stats">
+    <article class="recruiter-activity-card">
+      <div class="activity-row" *ngFor="let item of activityRows">
         <div>
-          <span>Offres</span>
-          <strong>{{ kpis[0].value }}</strong>
+          <strong>{{ item.label }}</strong>
+          <p>{{ item.helper }}</p>
         </div>
-        <div>
-          <span>Entretiens</span>
-          <strong>{{ kpis[2].value }}</strong>
-        </div>
+        <span>{{ item.value }}</span>
       </div>
     </article>
   </section>
 
-  <section class="kpi-grid">
-    <article class="kpi-card" *ngFor="let stat of kpis">
+  <section class="recruiter-kpi-grid">
+    <article class="recruiter-kpi-card" *ngFor="let stat of kpis" [attr.data-tone]="stat.tone">
       <span>{{ stat.label }}</span>
       <strong>{{ stat.value }}</strong>
-      <small>Suivi en temps reel</small>
+      <small>{{ stat.detail }}</small>
     </article>
   </section>
 
-  <section class="dashboard-grid">
-    <article class="surface-card">
-      <div class="section-head">
-        <span class="section-badge">Pipeline</span>
-        <h2>Candidatures recentes</h2>
+  <section class="recruiter-command-grid">
+    <article class="recruiter-command-card" *ngFor="let action of workspaceActions" [attr.data-tone]="action.tone">
+      <div>
+        <span class="panel-kicker">Sprint 4</span>
+        <h2>{{ action.title }}</h2>
+        <p>{{ action.description }}</p>
+      </div>
+      <a [routerLink]="action.link">{{ action.label }}</a>
+    </article>
+  </section>
+
+  <section class="recruiter-dashboard-grid">
+    <article class="recruiter-panel">
+      <div class="recruiter-panel__head">
+        <div>
+          <span class="panel-kicker">Offres d emploi</span>
+          <h2>Publications recentes</h2>
+          <p>Reprenez vos annonces recentes et gardez un oeil sur les campagnes ouvertes.</p>
+        </div>
       </div>
 
-      <div class="pipeline-list">
-        <article class="pipeline-card" *ngFor="let item of recentCandidates">
+      <div class="entity-list" *ngIf="recentOffers.length; else noOffers">
+        <article class="entity-row" *ngFor="let offer of recentOffers">
           <div>
-            <h3>{{ item.name }}</h3>
-            <p>{{ item.role }}</p>
+            <h3>{{ offer.titre }}</h3>
+            <p>{{ offer.localisation }} - {{ offer.typeContrat }} - {{ offer.experienceRequise }}</p>
           </div>
-          <strong>{{ item.time }}</strong>
+          <div class="entity-row__aside">
+            <span class="entity-pill">{{ offer.salaire }} {{ offer.devise }}</span>
+            <small>{{ offer.competences.length }} competence(s)</small>
+          </div>
         </article>
       </div>
     </article>
 
-    <article class="surface-card">
-      <div class="section-head">
-        <span class="section-badge">Agenda</span>
-        <h2>Actions du jour</h2>
+    <article class="recruiter-panel">
+      <div class="recruiter-panel__head">
+        <div>
+          <span class="panel-kicker">Talents</span>
+          <h2>Candidats prioritaires</h2>
+          <p>Profils classes selon le score de compatibilite pour accelerer vos prochaines decisions.</p>
+        </div>
       </div>
 
-      <div class="agenda-list">
-        <article class="agenda-card" *ngFor="let item of recentActivity">
+      <div class="entity-list" *ngIf="candidateSpotlights.length; else noCandidates">
+        <article class="entity-row" *ngFor="let candidate of candidateSpotlights">
           <div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.subtitle }}</p>
+            <h3>{{ candidate.candidateName }}</h3>
+            <p>{{ candidate.offerTitle }} - {{ candidate.candidateJobTitle || 'Profil candidat' }}</p>
           </div>
-          <span>{{ item.value }}</span>
+          <div class="entity-row__aside">
+            <span class="entity-pill score">{{ candidate.score }}%</span>
+            <small>{{ candidate.status }}</small>
+          </div>
         </article>
       </div>
     </article>
   </section>
+
+  <ng-template #noOffers>
+    <div class="mini-empty-state">
+      {{ loading ? 'Chargement des offres...' : 'Aucune offre publiee pour le moment.' }}
+    </div>
+  </ng-template>
+
+  <ng-template #noCandidates>
+    <div class="mini-empty-state">
+      {{ loading ? 'Chargement des candidatures...' : 'Aucun candidat a afficher pour le moment.' }}
+    </div>
+  </ng-template>
 </div>

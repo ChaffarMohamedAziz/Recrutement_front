@@ -11,6 +11,14 @@ export interface CandidateEducationItem {
   year: string;
 }
 
+export interface CandidateExperienceItem {
+  title: string;
+  company: string;
+  location: string;
+  period: string;
+  description: string;
+}
+
 export interface CandidateSkillItem {
   competenceId?: number | null;
   title: string;
@@ -29,6 +37,7 @@ export interface CandidateProfilePayload {
   address: string;
   gender: string;
   description: string;
+  experiences: CandidateExperienceItem[];
   education: CandidateEducationItem[];
   skills: CandidateSkillItem[];
   socialLinks: {
@@ -50,6 +59,7 @@ export interface CandidateProfileResponse {
   address: string;
   gender: string;
   description: string;
+  experienceJson: string;
   educationJson: string;
   skillsJson: string;
   facebook: string;
@@ -57,9 +67,26 @@ export interface CandidateProfileResponse {
   linkedin: string;
   github: string;
   profilePhotoName: string;
+  profilePhotoUrl: string;
   coverPhotoName: string;
+  coverPhotoUrl: string;
   cvFileName: string;
   cvFileSize: string;
+  cvFileUrl: string;
+}
+
+export interface CandidateProfileAutofillResponse {
+  message: string;
+  fullName: string;
+  profession: string;
+  email: string;
+  phone: string;
+  jobTitle: string;
+  address: string;
+  description: string;
+  experiences: CandidateExperienceItem[];
+  education: CandidateEducationItem[];
+  skills: CandidateSkillItem[];
 }
 
 @Injectable({
@@ -73,6 +100,17 @@ export class CandidateProfileService {
     return this.http.get<CandidateProfileResponse>(this.apiUrl).pipe(
       catchError((error: HttpErrorResponse) =>
         throwError(() => new Error(this.extractErrorMessage(error, 'Chargement du profil candidat impossible.')))
+      )
+    );
+  }
+
+  extractProfileFromCv(cvFile: File): Observable<CandidateProfileAutofillResponse> {
+    const formData = new FormData();
+    formData.append('cvFile', cvFile);
+
+    return this.http.post<CandidateProfileAutofillResponse>(`${this.apiUrl}/autofill-cv`, formData).pipe(
+      catchError((error: HttpErrorResponse) =>
+        throwError(() => new Error(this.extractErrorMessage(error, "Analyse automatique du CV impossible.")))
       )
     );
   }
@@ -111,6 +149,18 @@ export class CandidateProfileService {
   }
 
   private extractErrorMessage(error: HttpErrorResponse, fallback: string): string {
+    if (error.status === 413) {
+      return 'Le fichier envoye est trop volumineux. Reduisez la taille de la photo ou du CV puis reessayez.';
+    }
+
+    if (error.status === 403) {
+      return "Action non autorisee. Reconnectez-vous avec un compte candidat pour enregistrer votre profil.";
+    }
+
+    if (error.status === 0) {
+      return 'Backend indisponible. Verifiez que Spring Boot tourne sur le port 8081.';
+    }
+
     if (typeof error.error === 'string' && error.error.trim()) {
       return error.error;
     }
@@ -119,8 +169,8 @@ export class CandidateProfileService {
       return error.error.message;
     }
 
-    if (error.status === 0) {
-      return 'Backend indisponible. Verifiez que Spring Boot tourne sur le port 8081.';
+    if (error.error?.error) {
+      return error.error.error;
     }
 
     return fallback;

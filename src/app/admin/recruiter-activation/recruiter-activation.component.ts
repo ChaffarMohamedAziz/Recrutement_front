@@ -2,13 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService, RegisterResult } from '../../services/auth.service';
+import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
 type RecruiterFilter = 'PENDING' | 'APPROVED' | 'REFUSED' | 'ALL';
 
 @Component({
   selector: 'app-recruiter-activation',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PageHeroComponent],
   templateUrl: './recruiter-activation.component.html',
   styleUrl: './recruiter-activation.component.css'
 })

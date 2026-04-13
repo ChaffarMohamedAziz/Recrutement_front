@@ -13,11 +13,11 @@ body {
 }
 
 .app-shell.with-navbar {
-  padding-top: 112px;
+  padding-top: 120px;
 }
 
 @media (max-width: 1040px) {
   .app-shell.with-navbar {
-    padding-top: 88px;
+    padding-top: 92px;
   }
 }

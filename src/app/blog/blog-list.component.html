@@ -1,14 +1,17 @@
 <div class="page-shell">
-  <section class="page-hero">
-    <span class="section-badge">Blog</span>
-    <h1>Nos articles sur le recrutement</h1>
-    <p>Conseils, tendances et bonnes pratiques pour les recruteurs et les candidats.</p>
-    <div class="breadcrumb">
-      <a routerLink="/home">Accueil</a>
-      <span>/</span>
-      <strong>Blog</strong>
-    </div>
-  </section>
+  <app-page-hero
+    badge="Smart Recruit"
+    title="Nos articles sur le recrutement"
+    subtitle="Conseils, tendances et bonnes pratiques pour les recruteurs et les candidats."
+    theme="public"
+    variant="communication"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Blog' }]"
+    [highlights]="[
+      { title: 'Tendances marche', description: 'Suivez les pratiques qui transforment le recrutement moderne.', icon: 'chart' },
+      { title: 'Conseils experts', description: 'Retrouvez des contenus utiles pour mieux recruter et mieux postuler.', icon: 'spark' },
+      { title: 'Lecture rapide', description: 'Accedez facilement aux sujets les plus utiles selon votre role.', icon: 'search' }
+    ]"
+  ></app-page-hero>
 
   <section class="blog-grid">
     <article class="blog-card" *ngFor="let post of posts">

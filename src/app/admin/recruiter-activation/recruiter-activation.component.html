@@ -1,15 +1,46 @@
 <div class="role-workspace theme-admin admin-top-layout admin-detail-page">
   <main class="workspace-main">
     <div class="workspace-main-inner">
-      <section class="workspace-page-header">
-        <div>
-          <h1>Demandes recruteurs</h1>
-          <p>Gerer les comptes recruteurs en attente, deja actives ou a supprimer.</p>
-        </div>
+      <app-page-hero
+        badge="Admin"
+        title="Gerer les demandes recruteurs"
+        subtitle="Examinez les comptes en attente, les activations valides et les refus depuis un espace commun, lisible et rapide."
+        theme="admin"
+        variant="approval"
+        [breadcrumbs]="[
+          { label: 'Accueil', link: '/home' },
+          { label: 'Admin', link: '/admin-dashboard' },
+          { label: 'Demandes recruteurs' }
+        ]"
+        [highlights]="[
+          { title: 'Validation rapide', description: 'Approuvez ou refusez les comptes recruteurs avec une vue centralisee.', icon: 'shield' },
+          { title: 'Liste claire', description: 'Gardez les statuts visibles sans changer d ecran.', icon: 'chart' },
+          { title: 'Suivi fiable', description: 'Conservez un historique clair entre attente, actif et refuse.', icon: 'check' }
+        ]"
+      ></app-page-hero>
 
+      <section class="workspace-page-header">
         <button type="button" class="admin-ghost-btn" (click)="loadRecruiters()" [disabled]="loading">
           {{ loading ? 'Chargement...' : 'Actualiser' }}
         </button>
+      </section>
+
+      <section class="admin-summary-grid">
+        <article class="admin-summary-card">
+          <span>Demandes en attente</span>
+          <strong>{{ pendingCount }}</strong>
+          <small>Comptes a verifier en priorite</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Comptes approuves</span>
+          <strong>{{ approvedCount }}</strong>
+          <small>Recruteurs autorises a publier</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Comptes refuses</span>
+          <strong>{{ refusedCount }}</strong>
+          <small>Historique des validations refusees</small>
+        </article>
       </section>
 
       <section class="admin-filter-row">
@@ -95,7 +126,8 @@
         </div>
 
         <div class="admin-empty-state" *ngIf="!loading && !filteredRecruiters.length">
-          Aucun compte recruteur a afficher.
+          <strong>Aucun compte recruteur a afficher</strong>
+          <p>Cette vue est vide pour le filtre selectionne. Changez de liste ou rechargez les demandes.</p>
         </div>
       </section>
     </div>

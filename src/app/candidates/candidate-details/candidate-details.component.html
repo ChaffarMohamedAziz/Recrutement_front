@@ -1,14 +1,24 @@
 <div class="details-shell">
-  <div class="details-card" *ngIf="application; else stateBlock">
-    <div class="hero-panel">
-      <div class="avatar-box">{{ application.candidateName.slice(0, 1) }}</div>
-      <div>
-        <span class="section-badge">Detail candidat</span>
-        <h1>{{ application.candidateName }}</h1>
-        <p>{{ application.candidateJobTitle }} · {{ application.candidateLocation }} · {{ application.candidateExperience }} ans d'experience</p>
-      </div>
-    </div>
+  <app-page-hero
+    *ngIf="application"
+    badge="Recruteur"
+    [title]="application.candidateName"
+    [subtitle]="application.candidateJobTitle + ' · ' + application.candidateLocation + ' · ' + application.candidateExperience + ' ans d experience'"
+    theme="recruiter"
+    variant="profile"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Candidats', link: '/candidate-list' },
+      { label: 'Profil' }
+    ]"
+    [highlights]="[
+      { title: 'Score visible', description: ('Compatibilite actuelle : ' + application.score + '%.'), icon: 'chart' },
+      { title: 'Profil detaille', description: 'Consultez rapidement le resume du candidat et le contexte de candidature.', icon: 'users' },
+      { title: 'Competences cles', description: 'Comparez les competences correspondantes et les manques.', icon: 'search' }
+    ]"
+  ></app-page-hero>
 
+  <div class="details-card" *ngIf="application; else stateBlock">
     <div class="content-grid">
       <section class="content-card">
         <h2>Profil</h2>

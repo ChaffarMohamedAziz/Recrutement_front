@@ -1,16 +1,17 @@
 <div class="page-shell">
-  <section class="page-hero">
-    <span class="section-badge">Contact</span>
-    <h1>Parlons de votre besoin en recrutement</h1>
-    <p>
-      Une question, une demande de demonstration ou un besoin de support ? Notre equipe vous repond rapidement.
-    </p>
-    <div class="breadcrumb">
-      <a routerLink="/home">Accueil</a>
-      <span>/</span>
-      <strong>Contact</strong>
-    </div>
-  </section>
+  <app-page-hero
+    badge="Smart Recruit"
+    title="Parlons de votre besoin en recrutement"
+    subtitle="Une question, une demande de demonstration ou un besoin de support ? Notre equipe vous repond rapidement."
+    theme="public"
+    variant="support"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Contact' }]"
+    [highlights]="[
+      { title: 'Reponse rapide', description: 'Notre equipe revient vers vous sous 24 heures ouvrables.', icon: 'speed' },
+      { title: 'Accompagnement RH', description: 'Nous vous orientons sur le bon module ou le bon flux metier.', icon: 'users' },
+      { title: 'Support structure', description: 'Gardez un point de contact clair pour vos besoins plateforme.', icon: 'shield' }
+    ]"
+  ></app-page-hero>
 
   <section class="contact-grid">
     <article class="info-panel">

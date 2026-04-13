@@ -3,11 +3,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApplicationResponse, ApplicationService } from '../../services/application.service';
+import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-candidate-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PageHeroComponent],
   templateUrl: './candidate-list.component.html',
   styleUrl: './candidate-list.component.css'
 })

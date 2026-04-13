@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { PageHeroComponent } from '../shared/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-upload-resume',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PageHeroComponent],
   templateUrl: './upload-resume.component.html',
   styleUrl: './upload-resume.component.css'
 })

@@ -67,8 +67,9 @@
 
 .tags-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 22px;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
 }
 
 .tags-form-card,
@@ -77,9 +78,57 @@
   gap: 18px;
 }
 
+.tags-form-card {
+  align-self: start;
+  height: fit-content;
+  position: sticky;
+  top: 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 250, 255, 0.98) 100%);
+  border-color: #dbe6f5;
+  box-shadow: 0 22px 44px rgba(18, 43, 84, 0.08);
+}
+
+.tags-form-card::before {
+  content: "";
+  display: block;
+  height: 4px;
+  margin: -18px -18px 0;
+  background: linear-gradient(90deg, #2a5dac 0%, #5c8eff 100%);
+}
+
+.tags-form-head {
+  display: grid;
+  gap: 10px;
+}
+
+.tags-form-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(42, 93, 172, 0.1);
+  color: #2a5dac;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
 .tags-form-card h2 {
   margin: 0;
   color: #18234d;
+}
+
+.tags-form-note {
+  margin: -8px 0 4px;
+  color: #697894;
+  font-size: 0.92rem;
+  line-height: 1.6;
 }
 
 .tags-form {
@@ -120,11 +169,20 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.actions-row .admin-action-btn.primary {
+  min-width: 148px;
+}
+
+.actions-row .admin-action-btn.delete {
+  min-width: 118px;
 }
 
 .tags-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px auto;
+  grid-template-columns: minmax(0, 1fr) 260px auto;
   gap: 12px;
 }
 
@@ -146,9 +204,9 @@
 .tag-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 14px;
+  gap: 18px;
   align-items: center;
-  padding: 18px;
+  padding: 20px;
   border-radius: 18px;
   background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
   border: 1px solid #e7eef8;
@@ -187,6 +245,10 @@
 @media (max-width: 1100px) {
   .tags-layout {
     grid-template-columns: 1fr;
+  }
+
+  .tags-form-card {
+    position: static;
   }
 }
 

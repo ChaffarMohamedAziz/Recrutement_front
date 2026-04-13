@@ -16,6 +16,8 @@
   --sr-radius-xl: 28px;
   --sr-radius-lg: 22px;
   --sr-radius-md: 16px;
+  --app-shell-max: 1560px;
+  --app-shell-gutter: clamp(18px, 2vw, 34px);
 }
 
 *,
@@ -133,6 +135,12 @@ img {
   color: #0f172a;
 }
 
+.app-page-layout {
+  width: min(var(--app-shell-max), calc(100% - (var(--app-shell-gutter) * 2)));
+  margin: 0 auto;
+  padding: 30px 0 64px;
+}
+
 .role-workspace {
   --workspace-bg: #f5f7fb;
   --workspace-sidebar: #0f1d3a;
@@ -144,7 +152,7 @@ img {
   --workspace-border: #e7ecf5;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 228px 1fr;
+  grid-template-columns: 244px 1fr;
   background: linear-gradient(180deg, #f5f7fb 0%, #ffffff 100%);
 }
 
@@ -275,16 +283,16 @@ img {
 }
 
 .workspace-main {
-  padding: 18px;
+  padding: 22px var(--app-shell-gutter) 30px;
 }
 
 .admin-top-layout .workspace-main {
-  padding: 18px;
+  padding: 22px var(--app-shell-gutter) 30px;
 }
 
 .workspace-main-inner {
   display: grid;
-  gap: 18px;
+  gap: 22px;
 }
 
 .workspace-topbar {
@@ -793,5 +801,12 @@ img {
   .admin-workspace-links {
     width: 100%;
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-page-layout {
+    width: min(var(--app-shell-max), calc(100% - (var(--app-shell-gutter) * 2)));
+    padding: 14px 0 40px;
   }
 }

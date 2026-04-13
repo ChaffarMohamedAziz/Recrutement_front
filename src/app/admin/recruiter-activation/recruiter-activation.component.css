@@ -39,6 +39,38 @@
   flex-wrap: wrap;
 }
 
+.admin-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-summary-card {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid #e2e9f4;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.05);
+}
+
+.admin-summary-card span {
+  color: #6b7b92;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.admin-summary-card strong {
+  color: #10213f;
+  font-size: 2rem;
+}
+
+.admin-summary-card small {
+  color: #8c99ac;
+  line-height: 1.6;
+}
+
 .admin-filter-btn {
   display: inline-flex;
   align-items: center;
@@ -107,6 +139,7 @@
 .admin-table-card {
   display: grid;
   gap: 10px;
+  padding: 24px;
 }
 
 .admin-table-head,
@@ -117,7 +150,7 @@
 }
 
 .recruiter-grid {
-  grid-template-columns: 90px 1.25fr 1.35fr 120px minmax(220px, 320px);
+  grid-template-columns: 110px minmax(240px, 1.35fr) minmax(280px, 1.55fr) 150px minmax(290px, 380px);
 }
 
 .admin-table-head {
@@ -130,7 +163,7 @@
 }
 
 .admin-table-row {
-  padding: 18px 14px;
+  padding: 20px 16px;
   border-radius: 18px;
   background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
   border: 1px solid #e7eef8;
@@ -240,11 +273,24 @@
 }
 
 .admin-empty-state {
-  padding: 16px 6px 6px;
+  display: grid;
+  gap: 8px;
+  padding: 24px 10px 10px;
   color: var(--workspace-muted);
+  text-align: center;
+}
+
+.admin-empty-state strong {
+  color: var(--workspace-text);
+}
+
+.admin-empty-state p {
+  margin: 0;
+  line-height: 1.6;
 }
 
 @media (max-width: 1200px) {
+  .admin-summary-grid,
   .recruiter-grid {
     grid-template-columns: 1fr;
   }

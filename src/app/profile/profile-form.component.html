@@ -1,29 +1,140 @@
 <div class="profile-shell">
-  <section class="page-title-area">
-    <div class="page-title-card">
-      <div class="page-title-text">
-        <span class="page-badge">Profil candidat</span>
-        <h1>Creer votre profil</h1>
-        <ul>
-          <li><a routerLink="/home">Accueil</a></li>
-          <li>/</li>
-          <li>Creer votre profil</li>
-        </ul>
+  <app-page-hero
+    badge="Candidat"
+    title="Creer votre profil"
+    subtitle="Construisez un profil clair, complet et professionnel pour mieux ressortir dans le matching automatique."
+    theme="candidate"
+    variant="profile"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Creer votre profil' }]"
+    [highlights]="[
+      { title: 'Profil structure', description: 'Renseignez vos informations, votre experience et votre presentation.', icon: 'users' },
+      { title: 'CV et medias', description: 'Ajoutez votre CV et vos visuels pour completer votre dossier.', icon: 'briefcase' },
+      { title: 'Matching plus fort', description: 'Plus votre profil est complet, plus vos recommandations gagnent en qualite.', icon: 'chart' }
+    ]"
+    [primaryActionLabel]="'Assistant IA'"
+    [primaryActionLink]="'/assistant'"
+    [secondaryActionLabel]="'Mes candidatures'"
+    [secondaryActionLink]="'/candidate-space'"
+  ></app-page-hero>
+
+  <section class="profile-overview-grid">
+    <article class="profile-overview-card profile-overview-card--identity">
+      <div class="profile-cover-frame" [class.has-cover]="!!coverPhotoPreviewUrl">
+        <img *ngIf="coverPhotoPreviewUrl" [src]="coverPhotoPreviewUrl" alt="Couverture du candidat" class="profile-cover-frame__image" />
       </div>
-    </div>
+
+      <div class="profile-overview-main">
+        <div class="profile-avatar-large" [class.has-photo]="!!profilePhotoPreviewUrl">
+          <img *ngIf="profilePhotoPreviewUrl" [src]="profilePhotoPreviewUrl" alt="Photo de profil du candidat" />
+          <span *ngIf="!profilePhotoPreviewUrl">{{ candidateInitials }}</span>
+        </div>
+
+        <div class="profile-overview-copy">
+          <span class="profile-badge">Profil candidat</span>
+          <h2>{{ identityGroup.value.fullName || 'Votre identite professionnelle' }}</h2>
+          <p class="profile-role">{{ profileJobTitle }}</p>
+          <p class="profile-summary">{{ profileSummary }}</p>
+
+          <div class="profile-meta-grid">
+            <div>
+              <span class="meta-label">Localisation</span>
+              <strong>{{ profileLocation }}</strong>
+            </div>
+            <div>
+              <span class="meta-label">E-mail</span>
+              <strong>{{ identityGroup.value.email || 'A completer' }}</strong>
+            </div>
+            <div>
+              <span class="meta-label">Telephone</span>
+              <strong>{{ identityGroup.value.phone || 'A completer' }}</strong>
+            </div>
+            <div>
+              <span class="meta-label">CV</span>
+              <strong>{{ selectedCvFileName || 'Non importe' }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="profile-overview-card profile-overview-card--side">
+      <div class="completion-card" [attr.data-tone]="completionTone">
+        <div>
+          <span class="meta-label">Taux de completude</span>
+          <strong>{{ completionRate }}%</strong>
+        </div>
+        <div class="completion-ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="46" class="track"></circle>
+            <circle
+              cx="60"
+              cy="60"
+              r="46"
+              class="value"
+              [attr.stroke-dasharray]="289"
+              [attr.stroke-dashoffset]="289 - (289 * completionRate / 100)"
+            ></circle>
+          </svg>
+          <span>{{ completionRate }}%</span>
+        </div>
+      </div>
+
+      <div class="overview-pills">
+        <span class="overview-pill">{{ visibleExperiencesCount }} experience(s)</span>
+        <span class="overview-pill">{{ visibleEducationCount }} formation(s)</span>
+        <span class="overview-pill">{{ visibleSkills.length }} competence(s)</span>
+      </div>
+
+      <div class="overview-section">
+        <div class="overview-section__head">
+          <h3>Competences visibles</h3>
+        </div>
+        <div class="tag-cloud">
+          <span class="tag-cloud__item" *ngFor="let skill of visibleSkills">
+            {{ skill.title || ('Competence #' + skill.competenceId) }}
+          </span>
+          <span class="tag-cloud__item muted" *ngIf="!visibleSkills.length">Ajoutez des competences pour enrichir votre matching.</span>
+        </div>
+      </div>
+
+      <div class="overview-section">
+        <div class="overview-section__head">
+          <h3>Reseaux sociaux</h3>
+        </div>
+        <div class="social-summary">
+          <a *ngFor="let link of socialLinkEntries" [href]="link.value" target="_blank" rel="noopener noreferrer">
+            {{ link.label }}
+          </a>
+          <span class="social-empty" *ngIf="!socialLinkEntries.length">Ajoutez vos liens professionnels pour renforcer votre credibilite.</span>
+        </div>
+      </div>
+    </article>
   </section>
 
   <div class="profile-content">
     <section class="profile-top-card">
-      <div class="already-create">
-        <span>Vous avez deja un compte ?</span>
-        <a routerLink="/login">Se connecter</a>
+
+
+      <div class="cover-preview-card" *ngIf="coverPhotoPreviewUrl">
+        <img [src]="coverPhotoPreviewUrl" alt="Photo de couverture du candidat" class="cover-preview-image" />
+        <div class="cover-preview-overlay">
+          <span class="cover-preview-badge">Couverture active</span>
+          <strong>{{ identityGroup.value.fullName || 'Votre profil candidat' }}</strong>
+          <span>{{ identityGroup.value.profession || 'Ajoutez une profession claire pour renforcer votre profil.' }}</span>
+        </div>
       </div>
 
       <div class="top-card-grid" [formGroup]="identityGroup">
         <div class="photo-panel">
           <label class="photo-drop" for="profile-photo-input">
-            <div class="photo-icon">+</div>
+            <div class="photo-preview" *ngIf="profilePhotoPreviewUrl; else emptyProfilePhoto">
+              <img [src]="profilePhotoPreviewUrl" alt="Photo de profil du candidat" class="photo-preview-image" />
+            </div>
+
+            <ng-template #emptyProfilePhoto>
+              <div class="photo-icon">+</div>
+            </ng-template>
+
             <strong>Photo de profil</strong>
             <span>{{ selectedProfilePhotoName || 'Ajoutez une photo professionnelle' }}</span>
             <span class="file-hint">Ex : photo-profil.jpg</span>
@@ -39,6 +150,12 @@
         </div>
 
         <div class="identity-panel">
+          <div class="identity-panel__head">
+            <span class="section-kicker">Informations personnelles</span>
+            <h2>Vos donnees principales</h2>
+            <p>Gardez un profil clair, professionalise et facile a lire pour les recruteurs.</p>
+          </div>
+
           <div class="form-group">
             <label>Nom complet</label>
             <input type="text" formControlName="fullName" placeholder="Ex : Aziz Chaffar" />
@@ -50,8 +167,8 @@
           </div>
 
           <div class="text-right">
-            <button type="button" class="small-btn" (click)="saveProfile()" [disabled]="isSaving || isLoading">
-              {{ isSaving ? 'Enregistrement...' : (isLoading ? 'Chargement...' : 'Enregistrer ce profil') }}
+            <button type="button" class="small-btn" (click)="saveProfile()" [disabled]="isSaving || isLoading || isAutofillingCv">
+              {{ isSaving ? 'Enregistrement...' : (isAutofillingCv ? 'Analyse du CV...' : (isLoading ? 'Chargement...' : 'Enregistrer ce profil')) }}
             </button>
           </div>
         </div>
@@ -61,7 +178,11 @@
     <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
       <section class="content-card" [formGroup]="identityGroup">
         <div class="section-head">
-          <h2>Informations de base</h2>
+          <div>
+            <span class="section-kicker">Informations personnelles</span>
+            <h2>Informations de base</h2>
+            <p>Coordonnees, poste recherche, localisation et presentation generale.</p>
+          </div>
           <div class="section-actions">
             <div class="upload-action">
               <button type="button" class="ghost-btn" (click)="coverPhotoInput.click()">
@@ -74,7 +195,11 @@
               <button type="button" class="ghost-btn" (click)="cvInput.click()">
                 Ajouter votre CV
               </button>
-              <span class="upload-meta">{{ selectedCvFileName || 'Ex : cv-aziz-chaffar.pdf' }}</span>
+              <span class="upload-meta">
+                {{ selectedCvFileName || 'Ex : cv-aziz-chaffar.pdf' }}
+                <br *ngIf="isAutofillingCv" />
+                <strong *ngIf="isAutofillingCv">Analyse automatique du CV en cours...</strong>
+              </span>
             </div>
 
             <input #coverPhotoInput class="hidden-file-input" type="file" accept=".jpg,.jpeg,.png" (change)="onCoverPhotoSelected($event)" />
@@ -135,7 +260,58 @@
 
       <section class="content-card">
         <div class="section-head">
-          <h2>Formation</h2>
+          <div>
+            <span class="section-kicker">Parcours professionnel</span>
+            <h2>Experiences</h2>
+            <p>Ajoutez vos missions principales et vos environnements de travail recents.</p>
+          </div>
+          <div class="section-actions">
+            <button type="button" class="ghost-btn" (click)="addExperience()">Ajouter une experience</button>
+          </div>
+        </div>
+
+        <div formArrayName="experiences" class="stack-grid">
+          <div class="inline-grid" *ngFor="let experienceGroup of experiencesArray.controls; let index = index" [formGroupName]="index">
+            <div class="card-inline-actions full-width">
+              <span class="entry-index">Experience {{ index + 1 }}</span>
+              <button type="button" class="remove-entry-btn" (click)="removeExperience(index)">Retirer</button>
+            </div>
+
+            <div class="form-group">
+              <label>Poste</label>
+              <input type="text" formControlName="title" placeholder="Ex : Developpeur Full Stack" />
+            </div>
+
+            <div class="form-group">
+              <label>Entreprise</label>
+              <input type="text" formControlName="company" placeholder="Ex : Smart Recruit" />
+            </div>
+
+            <div class="form-group">
+              <label>Localisation</label>
+              <input type="text" formControlName="location" placeholder="Ex : Tunis / Remote" />
+            </div>
+
+            <div class="form-group">
+              <label>Periode</label>
+              <input type="text" formControlName="period" placeholder="Ex : 2023 - 2025" />
+            </div>
+
+            <div class="form-group full-width">
+              <label>Description</label>
+              <textarea rows="4" formControlName="description" placeholder="Ex : Developpement d'applications web, APIs REST, tests et maintenance."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-card">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">Formation</span>
+            <h2>Formations</h2>
+            <p>Structurez vos diplomes, vos etablissements et vos annees de reference.</p>
+          </div>
           <div class="section-actions">
             <button type="button" class="ghost-btn" (click)="addEducation()">Ajouter une formation</button>
           </div>
@@ -143,6 +319,11 @@
 
         <div formArrayName="education" class="stack-grid">
           <div class="inline-grid" *ngFor="let educationGroup of educationArray.controls; let index = index" [formGroupName]="index">
+            <div class="card-inline-actions full-width">
+              <span class="entry-index">Formation {{ index + 1 }}</span>
+              <button type="button" class="remove-entry-btn" (click)="removeEducation(index)">Retirer</button>
+            </div>
+
             <div class="form-group">
               <label>Titre</label>
               <input type="text" formControlName="title" placeholder="Ex : Informatique" />
@@ -168,7 +349,11 @@
 
       <section class="content-card">
         <div class="section-head">
-          <h2>Competences</h2>
+          <div>
+            <span class="section-kicker">Matching technique</span>
+            <h2>Competences</h2>
+            <p>Selectionnez vos competences, renseignez le niveau et auto-evaluez votre maitrise.</p>
+          </div>
           <div class="section-actions">
             <button type="button" class="ghost-btn" (click)="addSkill()">Ajouter une competence</button>
           </div>
@@ -176,8 +361,25 @@
 
         <div formArrayName="skills" class="stack-grid">
           <div class="skill-grid" *ngFor="let skillGroup of skillsArray.controls; let index = index" [formGroupName]="index">
+            <div class="card-inline-actions full-width">
+              <span class="entry-index">Competence {{ index + 1 }}</span>
+              <button type="button" class="remove-entry-btn" (click)="removeSkill(index)">Retirer</button>
+            </div>
+
             <div class="form-group">
-              <label>Competence</label>
+              <label>Competence libre</label>
+              <input
+                type="text"
+                formControlName="title"
+                list="candidate-skill-options"
+                placeholder="Ex : Angular, Spring Boot, Power BI"
+                (input)="onSkillTitleInput(index)"
+              />
+              <span class="field-hint">Si elle n'existe pas, elle sera creee automatiquement dans la bibliotheque.</span>
+            </div>
+
+            <div class="form-group">
+              <label>Associer un tag existant</label>
               <select formControlName="competenceId" (change)="onSkillCompetenceChange(index)">
                 <option [ngValue]="null">Choisir une competence</option>
                 <option *ngFor="let competence of availableCompetences" [ngValue]="competence.id">
@@ -207,11 +409,19 @@
             </div>
           </div>
         </div>
+
+        <datalist id="candidate-skill-options">
+          <option *ngFor="let competence of availableCompetences" [value]="competence.nom"></option>
+        </datalist>
       </section>
 
       <section class="content-card" formGroupName="socialLinks">
         <div class="section-head">
-          <h2>Liens sociaux</h2>
+          <div>
+            <span class="section-kicker">Presence en ligne</span>
+            <h2>Liens sociaux</h2>
+            <p>Partagez vos profils publics utiles pour renforcer votre dossier candidat.</p>
+          </div>
         </div>
 
         <div class="form-grid">
@@ -238,12 +448,13 @@
       </section>
 
       <p class="save-feedback loading" *ngIf="isLoading">Chargement du profil...</p>
+      <p class="save-feedback loading" *ngIf="isAutofillingCv">Analyse du CV pour pre-remplir le profil...</p>
       <p class="save-feedback error" *ngIf="errorMessage">{{ errorMessage }}</p>
       <p class="save-feedback success" *ngIf="successMessage">{{ successMessage }}</p>
 
       <div class="save-row">
-        <button type="submit" class="save-btn" [disabled]="isSaving || isLoading">
-          {{ isSaving ? 'Enregistrement...' : (isLoading ? 'Chargement...' : 'Enregistrer') }}
+        <button type="submit" class="save-btn" [disabled]="isSaving || isLoading || isAutofillingCv">
+          {{ isSaving ? 'Enregistrement...' : (isAutofillingCv ? 'Analyse du CV...' : (isLoading ? 'Chargement...' : 'Enregistrer')) }}
         </button>
       </div>
     </form>

@@ -1,9 +1,21 @@
 <div class="directory-shell">
-  <div class="directory-hero">
-    <span class="section-badge">Candidats</span>
-    <h1>Liste des candidats classes par pertinence</h1>
-    <p>Consultez les candidatures triees par score et appliquez un filtre minimum pour vous concentrer sur les meilleurs profils.</p>
-  </div>
+  <app-page-hero
+    badge="Recruteur"
+    title="Liste des candidats classes par pertinence"
+    subtitle="Consultez les candidatures triees par score et appliquez un filtre minimum pour vous concentrer sur les meilleurs profils."
+    theme="recruiter"
+    variant="talent"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Recruteur', link: '/recruiter-space' },
+      { label: 'Candidats' }
+    ]"
+    [highlights]="[
+      { title: 'Tri intelligent', description: 'Affichez les profils les plus pertinents en premier.', icon: 'chart' },
+      { title: 'Filtre score', description: 'Conservez votre attention sur les candidats au-dessus du seuil voulu.', icon: 'search' },
+      { title: 'Comparaison rapide', description: 'Visualisez les competences correspondantes ou manquantes.', icon: 'users' }
+    ]"
+  ></app-page-hero>
 
   <div class="toolbar-card">
     <label class="filter-box">

@@ -3,11 +3,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApplicationService } from '../services/application.service';
 import { OfferResponse, OfferService } from '../services/offer.service';
+import { PageHeroComponent } from '../shared/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PageHeroComponent],
   templateUrl: './job-details.component.html',
   styleUrl: './job-details.component.css'
 })

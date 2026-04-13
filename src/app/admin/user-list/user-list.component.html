@@ -1,12 +1,25 @@
 <div class="role-workspace theme-admin admin-top-layout admin-detail-page">
   <main class="workspace-main">
     <div class="workspace-main-inner">
-      <section class="workspace-page-header admin-user-header">
-        <div>
-          <h1>Utilisateurs</h1>
-          <p>Rechercher par nom, email ou ID et filtrer les comptes visibles.</p>
-        </div>
+      <app-page-hero
+        badge="Admin"
+        title="Gerer les utilisateurs"
+        subtitle="Recherchez les comptes par nom, email ou identifiant, puis filtrez rapidement les utilisateurs visibles."
+        theme="admin"
+        variant="management"
+        [breadcrumbs]="[
+          { label: 'Accueil', link: '/home' },
+          { label: 'Admin', link: '/admin-dashboard' },
+          { label: 'Utilisateurs' }
+        ]"
+        [highlights]="[
+          { title: 'Vue centralisee', description: 'Gardez candidats et recruteurs accessibles depuis la meme page.', icon: 'users' },
+          { title: 'Recherche rapide', description: 'Filtrez les comptes importants sans perdre de temps.', icon: 'search' },
+          { title: 'Gestion securisee', description: 'Accedez aux actions utiles depuis une interface claire.', icon: 'shield' }
+        ]"
+      ></app-page-hero>
 
+      <section class="workspace-page-header admin-user-header">
         <div class="admin-search-field">
           <input
             type="text"
@@ -15,6 +28,24 @@
             (ngModelChange)="onSearchChange($event)"
           />
         </div>
+      </section>
+
+      <section class="admin-summary-grid">
+        <article class="admin-summary-card">
+          <span>Tous les comptes</span>
+          <strong>{{ users.length }}</strong>
+          <small>Vue globale des utilisateurs disponibles</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Candidats</span>
+          <strong>{{ candidateCount }}</strong>
+          <small>Profils candidats actifs</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Recruteurs</span>
+          <strong>{{ recruiterCount }}</strong>
+          <small>Comptes recruteurs visibles</small>
+        </article>
       </section>
 
       <section class="admin-filter-row">
@@ -65,18 +96,20 @@
 
             <button
               type="button"
-              class="admin-action-icon danger"
+              class="admin-action-btn danger"
               (click)="deleteUser(userItem)"
               [disabled]="isDeleting(userItem.id)"
               title="Supprimer"
             >
-              {{ isDeleting(userItem.id) ? '...' : 'X' }}
+              <span class="admin-action-btn__icon">{{ isDeleting(userItem.id) ? '...' : '×' }}</span>
+              {{ isDeleting(userItem.id) ? 'Suppression...' : 'Supprimer' }}
             </button>
           </div>
         </div>
 
         <div class="admin-empty-state" *ngIf="!loading && !filteredUsers.length">
-          Aucun utilisateur trouve.
+          <strong>Aucun utilisateur trouve</strong>
+          <p>Essayez une autre recherche ou changez le filtre actif.</p>
         </div>
       </section>
     </div>

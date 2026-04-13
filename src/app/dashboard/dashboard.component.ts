@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ApplicationResponse, ApplicationService, AtsStatus } from '../services/application.service';
 import { AuthService, AuthUser } from '../services/auth.service';
+import { OfferResponse, OfferService } from '../services/offer.service';
+import { PageHeroComponent } from '../shared/page-hero/page-hero.component';
 
 interface AtsColumn {
   key: AtsStatus;
@@ -13,7 +16,7 @@ interface AtsColumn {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, RouterModule, PageHeroComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -22,6 +25,8 @@ export class DashboardComponent implements OnInit {
   minScore = 70;
   draggedCandidateId: number | null = null;
   applications: ApplicationResponse[] = [];
+  recruiterOffers: OfferResponse[] = [];
+  selectedOfferId: number | null = null;
   loading = false;
   errorMessage = '';
 
@@ -35,6 +40,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly applicationService: ApplicationService,
+    private readonly offerService: OfferService,
     private readonly router: Router
   ) {
     this.user = this.authService.getCurrentUser();
@@ -45,7 +51,7 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadApplications();
+    this.loadRecruiterOffers();
   }
 
   get filteredApplications(): ApplicationResponse[] {
@@ -65,6 +71,14 @@ export class DashboardComponent implements OnInit {
     return Math.round(total / this.filteredApplications.length);
   }
 
+  get currentOfferTitle(): string {
+    if (!this.selectedOfferId) {
+      return 'Toutes les offres';
+    }
+
+    return this.recruiterOffers.find((item) => item.id === this.selectedOfferId)?.titre || 'Offre selectionnee';
+  }
+
   getColumnApplications(status: AtsStatus): ApplicationResponse[] {
     return this.filteredApplications.filter((candidate) => candidate.status === status);
   }
@@ -75,6 +89,10 @@ export class DashboardComponent implements OnInit {
 
   setMinScore(event: Event): void {
     this.minScore = Number((event.target as HTMLInputElement).value);
+  }
+
+  onOfferFilterChange(): void {
+    this.loadApplications();
   }
 
   onDragStart(candidateId: number): void {
@@ -124,16 +142,54 @@ export class DashboardComponent implements OnInit {
     return Math.round((matches / candidate.skills.length) * 100);
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+  getCandidateInitials(candidate: ApplicationResponse): string {
+    return candidate.candidateName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((item) => item.charAt(0).toUpperCase())
+      .join('');
+  }
+
+  getScoreTone(score: number): 'success' | 'warning' | 'danger' {
+    if (score >= 80) {
+      return 'success';
+    }
+
+    if (score >= 60) {
+      return 'warning';
+    }
+
+    return 'danger';
+  }
+
+  private loadRecruiterOffers(): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.offerService.getRecruiterOffers().subscribe({
+      next: (offers) => {
+        this.recruiterOffers = offers;
+        if (this.selectedOfferId && !offers.some((item) => item.id === this.selectedOfferId)) {
+          this.selectedOfferId = null;
+        }
+        this.loadApplications();
+      },
+      error: (error: { message?: string }) => {
+        this.loading = false;
+        this.errorMessage = error.message || 'Chargement des offres impossible.';
+      }
+    });
   }
 
   private loadApplications(): void {
     this.loading = true;
     this.errorMessage = '';
 
-    this.applicationService.getRecruiterApplications().subscribe({
+    this.applicationService.getRecruiterApplications({
+      offerId: this.selectedOfferId,
+      minScore: null
+    }).subscribe({
       next: (applications) => {
         this.applications = applications;
         this.loading = false;

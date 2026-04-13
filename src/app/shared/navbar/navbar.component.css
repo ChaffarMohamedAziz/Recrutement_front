@@ -24,11 +24,11 @@
 }
 
 .main-nav {
-  padding: 18px 20px 0;
+  padding: 18px var(--app-shell-gutter, 24px) 0;
 }
 
 .container {
-  width: min(1240px, 100%);
+  width: min(var(--app-shell-max, 1480px), 100%);
   margin: 0 auto;
 }
 
@@ -36,9 +36,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 34px;
-  min-height: 114px;
-  padding: 20px 34px 20px 36px;
+  gap: 38px;
+  min-height: 118px;
+  padding: 22px 38px 22px 40px;
   border-radius: 30px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.995) 0%, rgba(251, 253, 255, 0.985) 100%);
   box-shadow: 0 28px 60px rgba(35, 67, 123, 0.14);
@@ -88,7 +88,7 @@
   align-items: center;
   justify-content: space-between;
   flex: 1;
-  gap: 48px;
+  gap: 54px;
   min-width: 0;
 }
 

@@ -1,0 +1,269 @@
+<section class="page-hero" [attr.data-theme]="theme" [attr.data-variant]="variant">
+  <div class="page-hero__content">
+    <span class="page-hero__badge" *ngIf="badge">{{ badge }}</span>
+
+    <div class="page-hero__copy">
+      <h1>{{ title }}</h1>
+      <p *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <div class="page-hero__actions" *ngIf="primaryActionLabel || secondaryActionLabel">
+      <a
+        *ngIf="primaryActionLabel && primaryActionLink"
+        class="page-hero__action page-hero__action--primary"
+        [routerLink]="primaryActionLink"
+      >
+        {{ primaryActionLabel }}
+      </a>
+
+      <a
+        *ngIf="secondaryActionLabel && secondaryActionLink"
+        class="page-hero__action page-hero__action--secondary"
+        [routerLink]="secondaryActionLink"
+      >
+        {{ secondaryActionLabel }}
+      </a>
+    </div>
+
+    <div class="page-hero__highlights" *ngIf="highlights.length">
+      <article class="page-hero__highlight" *ngFor="let highlight of highlights">
+        <span class="page-hero__highlight-icon" [attr.data-icon]="highlight.icon || 'spark'">
+          <svg *ngIf="highlight.icon === 'briefcase'" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4.5" y="7.5" width="15" height="11" rx="2"></rect>
+            <path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5"></path>
+          </svg>
+          <svg *ngIf="highlight.icon === 'users'" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="9" cy="9" r="2.5"></circle>
+            <circle cx="16.5" cy="10" r="2"></circle>
+            <path d="M4.5 18a4.5 4.5 0 0 1 9 0"></path>
+            <path d="M13.5 18a3.5 3.5 0 0 1 6 0"></path>
+          </svg>
+          <svg *ngIf="highlight.icon === 'speed'" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M13 3.5 6.5 13h4l-1 7.5 6.5-9h-4.5l1.5-8Z"></path>
+          </svg>
+          <svg *ngIf="highlight.icon === 'shield'" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3.5 6.5 5.8v5.3c0 4 2.2 6.9 5.5 9.4 3.3-2.5 5.5-5.4 5.5-9.4V5.8L12 3.5Z"></path>
+            <path d="m9.5 12 1.7 1.7 3.4-3.8"></path>
+          </svg>
+          <svg *ngIf="highlight.icon === 'chart'" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.5 17.5v-6"></path>
+            <path d="M12 17.5v-10"></path>
+            <path d="M17.5 17.5v-4"></path>
+          </svg>
+          <svg *ngIf="highlight.icon === 'search'" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="5.5"></circle>
+            <path d="m15 15 4 4"></path>
+          </svg>
+          <svg *ngIf="highlight.icon === 'check'" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="7.5"></circle>
+            <path d="m9 12.5 2 2 4-4.5"></path>
+          </svg>
+          <svg *ngIf="!highlight.icon || highlight.icon === 'spark'" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m12 4 1.5 4.5L18 10l-4.5 1.5L12 16l-1.5-4.5L6 10l4.5-1.5L12 4Z"></path>
+          </svg>
+        </span>
+
+        <div>
+          <strong>{{ highlight.title }}</strong>
+          <p>{{ highlight.description }}</p>
+        </div>
+      </article>
+    </div>
+
+    <nav class="page-hero__breadcrumb" *ngIf="breadcrumbs.length" aria-label="Fil d'ariane">
+      <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+        <a *ngIf="crumb.link" [routerLink]="crumb.link">{{ crumb.label }}</a>
+        <span *ngIf="!crumb.link">{{ crumb.label }}</span>
+        <span class="page-hero__separator" *ngIf="!last">/</span>
+      </ng-container>
+    </nav>
+  </div>
+
+  <div class="page-hero__art" aria-hidden="true">
+    <div class="page-hero__glow page-hero__glow--one"></div>
+    <div class="page-hero__glow page-hero__glow--two"></div>
+
+    <ng-container [ngSwitch]="variant">
+      <div class="hero-visual hero-visual--analytics" *ngSwitchCase="'analytics'">
+        <div class="visual-card metric">
+          <span>Activite</span>
+          <strong>+24%</strong>
+        </div>
+        <div class="visual-chart">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="visual-donut"></div>
+      </div>
+
+      <div class="hero-visual hero-visual--journey" *ngSwitchCase="'journey'">
+        <div class="journey-card">
+          <span class="journey-step active">Profil</span>
+          <span class="journey-step">Offres</span>
+          <span class="journey-step">Candidatures</span>
+          <span class="journey-step">Suivi</span>
+        </div>
+        <div class="journey-progress">
+          <span></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--opportunities" *ngSwitchCase="'opportunities'">
+        <article class="job-mini-card">
+          <strong>Front-end Engineer</strong>
+          <span>Paris · CDI</span>
+        </article>
+        <article class="job-mini-card featured">
+          <strong>Data Analyst</strong>
+          <span>Tunis · Hybride</span>
+        </article>
+        <article class="job-mini-card">
+          <strong>Product Designer</strong>
+          <span>Lyon · Remote</span>
+        </article>
+      </div>
+
+      <div class="hero-visual hero-visual--publish" *ngSwitchCase="'publish'">
+        <div class="document-card">
+          <span class="document-dot"></span>
+          <div class="document-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div class="floating-action">+</div>
+      </div>
+
+      <div class="hero-visual hero-visual--workflow" *ngSwitchCase="'workflow'">
+        <div class="kanban-column">
+          <span></span>
+          <span></span>
+        </div>
+        <div class="kanban-column active">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="kanban-column success">
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--talent" *ngSwitchCase="'talent'">
+        <div class="talent-stack">
+          <span class="talent-avatar"></span>
+          <span class="talent-avatar second"></span>
+          <span class="talent-avatar third"></span>
+        </div>
+        <div class="talent-rank-card">
+          <strong>Top profils</strong>
+          <span>Score 92%</span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--communication" *ngSwitchCase="'communication'">
+        <div class="chat-window">
+          <span class="bubble light"></span>
+          <span class="bubble dark"></span>
+          <span class="bubble light short"></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--settings" *ngSwitchCase="'settings'">
+        <div class="settings-card">
+          <span class="setting-line"></span>
+          <span class="setting-toggle active"></span>
+          <span class="setting-line short"></span>
+          <span class="setting-toggle"></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--taxonomy" *ngSwitchCase="'taxonomy'">
+        <span class="tag-pill">Angular</span>
+        <span class="tag-pill">Spring</span>
+        <span class="tag-pill">UX</span>
+        <span class="tag-pill">Cloud</span>
+        <span class="tag-pill">Communication</span>
+      </div>
+
+      <div class="hero-visual hero-visual--enterprise" *ngSwitchCase="'enterprise'">
+        <div class="tower tower-main"></div>
+        <div class="tower tower-side"></div>
+        <div class="enterprise-card">
+          <strong>Entreprise</strong>
+          <span>Equipe · Secteur · Offres</span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--approval" *ngSwitchCase="'approval'">
+        <div class="approval-row">
+          <span class="approval-id"></span>
+          <span class="approval-status pending"></span>
+        </div>
+        <div class="approval-row">
+          <span class="approval-id"></span>
+          <span class="approval-status success"></span>
+        </div>
+        <div class="approval-actions">
+          <span class="action-ok"></span>
+          <span class="action-no"></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--management" *ngSwitchCase="'management'">
+        <div class="management-table">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="management-users">
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--upload" *ngSwitchCase="'upload'">
+        <div class="upload-cloud"></div>
+        <div class="upload-sheet">
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--profile" *ngSwitchCase="'profile'">
+        <div class="profile-card">
+          <span class="profile-avatar"></span>
+          <div class="profile-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--support" *ngSwitchCase="'support'">
+        <div class="support-card">
+          <span class="bubble light"></span>
+          <span class="bubble dark short"></span>
+          <span class="bubble light"></span>
+        </div>
+      </div>
+
+      <div class="hero-visual hero-visual--insight" *ngSwitchDefault>
+        <div class="insight-card primary">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="insight-card secondary">
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</section>
