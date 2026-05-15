@@ -1,0 +1,267 @@
+.profile-shell {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.profile-toast {
+  margin: 0;
+  padding: 0.95rem 1.1rem;
+  border-radius: 16px;
+  font-weight: 600;
+}
+
+.profile-toast.success {
+  color: #166534;
+  background: rgba(220, 252, 231, 0.95);
+  border: 1px solid rgba(134, 239, 172, 0.9);
+}
+
+.profile-toast.error {
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.96);
+  border: 1px solid rgba(252, 165, 165, 0.88);
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  padding: 1.5rem;
+}
+
+.profile-card--state {
+  text-align: center;
+  color: #475569;
+}
+
+.profile-showcase {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.cover-frame {
+  overflow: hidden;
+  border-radius: 24px;
+  min-height: 220px;
+  background: linear-gradient(135deg, #dbeafe, #eef4ff);
+}
+
+.cover-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.identity-panel {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.avatar-shell {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.15);
+  flex-shrink: 0;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.identity-copy {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.identity-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.identity-copy h2,
+.content-card h2 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.identity-copy p,
+.timeline-item p,
+.timeline-item span,
+.profile-card p {
+  margin: 0;
+  color: #475569;
+}
+
+.identity-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.identity-meta span,
+.meta-list span {
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.content-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.recruiter-actions-card__head p {
+  margin: 0;
+  color: #475569;
+}
+
+.recruiter-actions-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  gap: 1rem;
+  align-items: end;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 0;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.action-btn--secondary {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+}
+
+.action-btn--disabled {
+  background: #e2e8f0;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.action-helper {
+  color: #64748b;
+}
+
+.meta-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.meta-list div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.meta-list strong,
+.meta-list a,
+.timeline-item h3 {
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.tag small {
+  color: #475569;
+  font-weight: 500;
+}
+
+.timeline-item {
+  display: grid;
+  gap: 0.35rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+}
+
+.social-card {
+  display: grid;
+  gap: 0.2rem;
+  padding: 1rem;
+  border-radius: 18px;
+  text-decoration: none;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f172a;
+}
+
+.social-card small {
+  color: #64748b;
+}
+
+.social-card--disabled {
+  opacity: 0.65;
+}
+
+@media (max-width: 880px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recruiter-actions-card__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .identity-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

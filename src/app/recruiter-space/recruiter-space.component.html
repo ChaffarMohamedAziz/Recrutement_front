@@ -8,8 +8,8 @@
     [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Profil recruteur' }]"
     [primaryActionLabel]="'Publier une offre'"
     [primaryActionLink]="'/post-a-job'"
-    [secondaryActionLabel]="'Ouvrir le kanban'"
-    [secondaryActionLink]="'/dashboard'"
+    [secondaryActionLabel]="'Voir les candidats'"
+    [secondaryActionLink]="'/candidate-list'"
     [highlights]="[
       { title: 'Offres sous controle', description: 'Gardez vos campagnes de recrutement visibles et organisees.', icon: 'briefcase' },
       { title: 'Candidats qualifies', description: 'Reperez les profils les plus pertinents plus rapidement.', icon: 'users' },
@@ -18,6 +18,7 @@
   ></app-page-hero>
 
   <p class="recruiter-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="recruiter-toast success" *ngIf="successMessage">{{ successMessage }}</p>
 
   <section class="recruiter-profile-grid">
     <article class="recruiter-profile-card">
@@ -53,14 +54,165 @@
     </article>
   </section>
 
-  <section class="recruiter-command-grid">
-    <article class="recruiter-command-card" *ngFor="let action of workspaceActions" [attr.data-tone]="action.tone">
-      <div>
-        <span class="panel-kicker">Sprint 4</span>
-        <h2>{{ action.title }}</h2>
-        <p>{{ action.description }}</p>
+  <section class="recruiter-analytics-grid">
+    <article class="recruiter-panel recruiter-panel--chart">
+      <div class="recruiter-panel__head">
+        <div>
+          <span class="panel-kicker">Analytics</span>
+          <h2>Candidatures par semaine</h2>
+          <p>Volume des candidatures reçues par jour sur votre période récente.</p>
+        </div>
       </div>
-      <a [routerLink]="action.link">{{ action.label }}</a>
+      <div class="recruiter-chart-canvas">
+        <canvas baseChart [type]="'bar'" [data]="weeklyApplicationsChartData" [options]="lineChartOptions"></canvas>
+      </div>
+    </article>
+
+    <article class="recruiter-panel recruiter-panel--chart">
+      <div class="recruiter-panel__head">
+        <div>
+          <span class="panel-kicker">Pipeline</span>
+          <h2>Répartition du recrutement</h2>
+          <p>Suivi global entre candidatures reçues, Test IA, entretien et décisions.</p>
+        </div>
+      </div>
+      <div class="recruiter-chart-canvas recruiter-chart-canvas--doughnut">
+        <canvas baseChart [type]="'doughnut'" [data]="pipelineChartData" [options]="doughnutOptions"></canvas>
+      </div>
+    </article>
+
+    <article class="recruiter-panel recruiter-panel--insights">
+      <div class="recruiter-panel__head">
+        <div>
+          <span class="panel-kicker">Insights IA</span>
+          <h2>Recommandations prioritaires</h2>
+          <p>Observations intelligentes calculées localement à partir de vos offres et candidatures.</p>
+        </div>
+      </div>
+
+      <div class="insight-list">
+        <article class="insight-card" *ngFor="let insight of recruiterInsights" [attr.data-tone]="insight.tone">
+          <h3>{{ insight.title }}</h3>
+          <p>{{ insight.description }}</p>
+        </article>
+      </div>
+    </article>
+  </section>
+
+  <section class="recruiter-company-grid">
+    <article class="recruiter-panel recruiter-company-panel">
+      <div class="recruiter-panel__head">
+        <div>
+          <span class="panel-kicker">Profil employeur</span>
+          <h2>Informations de l entreprise</h2>
+          <p>Renseignez les informations de votre entreprise pour enrichir votre profil employeur et renforcer votre credibilite.</p>
+        </div>
+      </div>
+
+      <form class="company-form" [formGroup]="companyForm" (ngSubmit)="saveCompanyProfile()">
+        <div class="company-form__grid">
+          <label class="company-field">
+            <span>Nom de l entreprise</span>
+            <input type="text" formControlName="nomEntreprise" placeholder="Ex: Smart Recruit" />
+            <small class="field-error" *ngIf="companyForm.get('nomEntreprise')?.invalid && companyForm.get('nomEntreprise')?.touched">
+              Le nom de l entreprise est obligatoire.
+            </small>
+          </label>
+
+          <label class="company-field">
+            <span>Secteur</span>
+            <input type="text" formControlName="secteur" placeholder="Ex: Recrutement digital" />
+            <small class="field-error" *ngIf="companyForm.get('secteur')?.invalid && companyForm.get('secteur')?.touched">
+              Le secteur est obligatoire.
+            </small>
+          </label>
+
+          <label class="company-field">
+            <span>Adresse</span>
+            <input type="text" formControlName="adresse" placeholder="Ex: Tunis, Centre Urbain Nord" />
+            <small class="field-error" *ngIf="companyForm.get('adresse')?.invalid && companyForm.get('adresse')?.touched">
+              L adresse est obligatoire.
+            </small>
+          </label>
+
+          <label class="company-field">
+            <span>Email</span>
+            <input type="email" formControlName="email" placeholder="Ex: contact@entreprise.tn" />
+            <small class="field-error" *ngIf="companyForm.get('email')?.invalid && companyForm.get('email')?.touched">
+              Un email valide est obligatoire.
+            </small>
+          </label>
+
+          <label class="company-field">
+            <span>Abonnement actif</span>
+            <select formControlName="abonnementActif">
+              <option *ngFor="let option of subscriptionOptions" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <label class="company-field">
+            <span>Site web</span>
+            <input type="text" formControlName="siteWeb" placeholder="Ex: https://www.entreprise.com" />
+          </label>
+
+          <label class="company-field company-field--full">
+            <span>Description</span>
+            <textarea
+              rows="6"
+              formControlName="description"
+              placeholder="Presentez votre entreprise, son activite, son positionnement et sa culture."
+            ></textarea>
+            <small class="field-error" *ngIf="companyForm.get('description')?.invalid && companyForm.get('description')?.touched">
+              La description est obligatoire et doit etre suffisamment detaillee.
+            </small>
+          </label>
+        </div>
+
+        <div class="company-form__actions">
+          <button type="submit" class="recruiter-panel__action recruiter-panel__action--primary" [disabled]="companySaving || companyLoading">
+            {{ companySaving ? 'Enregistrement...' : 'Enregistrer l entreprise' }}
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="recruiter-panel recruiter-company-summary">
+      <div class="recruiter-panel__head recruiter-panel__head--stack">
+        <div>
+          <span class="panel-kicker">Entreprise</span>
+          <h2>{{ companyProfile?.nomEntreprise || 'Entreprise a completer' }}</h2>
+          <p>Les informations ci-dessous sont celles visibles dans votre profil employeur.</p>
+        </div>
+        <span class="profile-badge" [class.neutral]="!companyProfile?.profileCompleted">{{ companyCompletionLabel }}</span>
+      </div>
+
+      <div class="company-summary-card" *ngIf="!companyLoading; else companyLoadingState">
+        <div class="company-summary-row">
+          <strong>Secteur</strong>
+          <span>{{ companyProfile?.secteur || 'Non renseigne' }}</span>
+        </div>
+        <div class="company-summary-row">
+          <strong>Adresse</strong>
+          <span>{{ companyProfile?.adresse || 'Non renseignee' }}</span>
+        </div>
+        <div class="company-summary-row">
+          <strong>Email</strong>
+          <span>{{ companyProfile?.email || 'Non renseigne' }}</span>
+        </div>
+        <div class="company-summary-row">
+          <strong>Abonnement</strong>
+          <span>{{ companyProfile?.abonnementActif || 'NON' }}</span>
+        </div>
+        <div class="company-summary-row">
+          <strong>Site web</strong>
+          <span>{{ companyProfile?.siteWeb || 'Non renseigne' }}</span>
+        </div>
+
+        <div class="company-description-box">
+          <strong>Description</strong>
+          <p>{{ companyProfile?.description || 'Ajoutez une description pour presenter votre entreprise.' }}</p>
+        </div>
+      </div>
     </article>
   </section>
 
@@ -69,23 +221,108 @@
       <div class="recruiter-panel__head">
         <div>
           <span class="panel-kicker">Offres d emploi</span>
-          <h2>Publications recentes</h2>
-          <p>Reprenez vos annonces recentes et gardez un oeil sur les campagnes ouvertes.</p>
+          <h2>Liste des offres publiees</h2>
+          <p>Retrouvez vos offres actives, leur statut, le volume de candidatures et les actions de gestion essentielles.</p>
         </div>
+        <button type="button" class="recruiter-panel__action recruiter-panel__action--primary" (click)="createNewOffer()">
+          Creer une nouvelle offre
+        </button>
       </div>
 
-      <div class="entity-list" *ngIf="recentOffers.length; else noOffers">
-        <article class="entity-row" *ngFor="let offer of recentOffers">
-          <div>
-            <h3>{{ offer.titre }}</h3>
-            <p>{{ offer.localisation }} - {{ offer.typeContrat }} - {{ offer.experienceRequise }}</p>
+      <div class="mini-empty-state" *ngIf="offersLoading">
+        Chargement des offres...
+      </div>
+
+      <div class="offer-card-grid" *ngIf="!offersLoading && visibleOffers.length; else noOffers">
+        <article class="offer-card" *ngFor="let offer of visibleOffers">
+          <div class="offer-card__head">
+            <div>
+              <h3>{{ offer.titre }}</h3>
+              <p>{{ offer.localisation }} - {{ offer.typeContrat }} - {{ offer.experienceRequise }}</p>
+            </div>
+            <span class="offer-status-badge" [attr.data-tone]="getOfferStatusTone(offer.statut)">
+              {{ getOfferStatusLabel(offer.statut) }}
+            </span>
           </div>
-          <div class="entity-row__aside">
-            <span class="entity-pill">{{ offer.salaire }} {{ offer.devise }}</span>
-            <small>{{ offer.competences.length }} competence(s)</small>
+
+          <div class="offer-card__meta">
+            <span class="offer-meta-pill">Publiee le {{ formatOfferDate(offer.datePublication) }}</span>
+            <span class="offer-meta-pill">{{ getOfferApplicationsCount(offer) }} candidature(s)</span>
+            <span class="offer-meta-pill">{{ offer.competences.length }} competence(s)</span>
+            <span class="offer-meta-pill">{{ offer.salaire }} {{ offer.devise }}</span>
+          </div>
+
+          <div class="offer-card__actions">
+            <button type="button" class="recruiter-panel__action" (click)="editOffer(offer)" [disabled]="isOfferProcessing(offer.id)">
+              Modifier
+            </button>
+            <button
+              type="button"
+              class="recruiter-panel__action recruiter-panel__action--warning"
+              (click)="archiveOffer(offer)"
+              [disabled]="isOfferArchived(offer) || isOfferProcessing(offer.id)"
+            >
+              {{ isOfferProcessing(offer.id, 'archive') ? 'Archivage...' : (isOfferArchived(offer) ? 'Archivee' : 'Archiver') }}
+            </button>
+            <button
+              type="button"
+              class="recruiter-panel__action recruiter-panel__action--danger"
+              (click)="deleteOffer(offer)"
+              [disabled]="isOfferProcessing(offer.id)"
+            >
+              {{ isOfferProcessing(offer.id, 'delete') ? 'Suppression...' : 'Supprimer' }}
+            </button>
           </div>
         </article>
       </div>
+
+      <section class="archived-offers-section" *ngIf="!offersLoading && archivedOffers.length">
+        <div class="archived-offers-head">
+          <div>
+            <span class="panel-kicker">Archives</span>
+            <h3>Offres archivees</h3>
+            <p>Ces offres ne sont plus visibles cote candidat. Vous pouvez les desarchiver a tout moment.</p>
+          </div>
+        </div>
+
+        <div class="offer-card-grid offer-card-grid--archived">
+          <article class="offer-card offer-card--archived" *ngFor="let offer of archivedOffers">
+            <div class="offer-card__head">
+              <div>
+                <h3>{{ offer.titre }}</h3>
+                <p>{{ offer.localisation }} - {{ offer.typeContrat }} - {{ offer.experienceRequise }}</p>
+              </div>
+              <span class="offer-status-badge" [attr.data-tone]="getOfferStatusTone(offer.statut)">
+                {{ getOfferStatusLabel(offer.statut) }}
+              </span>
+            </div>
+
+            <div class="offer-card__meta">
+              <span class="offer-meta-pill">Publiee le {{ formatOfferDate(offer.datePublication) }}</span>
+              <span class="offer-meta-pill">{{ getOfferApplicationsCount(offer) }} candidature(s)</span>
+              <span class="offer-meta-pill">{{ offer.competences.length }} competence(s)</span>
+              <span class="offer-meta-pill">{{ offer.salaire }} {{ offer.devise }}</span>
+            </div>
+
+            <div class="offer-card__actions">
+              <button type="button" class="recruiter-panel__action recruiter-panel__action--success" (click)="unarchiveOffer(offer)" [disabled]="isOfferProcessing(offer.id)">
+                {{ isOfferProcessing(offer.id, 'unarchive') ? 'Desarchivage...' : 'Desarchiver' }}
+              </button>
+              <button type="button" class="recruiter-panel__action" (click)="editOffer(offer)" [disabled]="isOfferProcessing(offer.id)">
+                Modifier
+              </button>
+              <button
+                type="button"
+                class="recruiter-panel__action recruiter-panel__action--danger"
+                (click)="deleteOffer(offer)"
+                [disabled]="isOfferProcessing(offer.id)"
+              >
+                {{ isOfferProcessing(offer.id, 'delete') ? 'Suppression...' : 'Supprimer' }}
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
     </article>
 
     <article class="recruiter-panel">
@@ -93,19 +330,78 @@
         <div>
           <span class="panel-kicker">Talents</span>
           <h2>Candidats prioritaires</h2>
-          <p>Profils classes selon le score de compatibilite pour accelerer vos prochaines decisions.</p>
+          <p>Identifiez les profils les plus compatibles avec une offre, meme s ils n ont pas encore postule.</p>
         </div>
+        <a class="recruiter-panel__action" routerLink="/candidate-list">Voir tous les candidats</a>
       </div>
 
-      <div class="entity-list" *ngIf="candidateSpotlights.length; else noCandidates">
-        <article class="entity-row" *ngFor="let candidate of candidateSpotlights">
-          <div>
-            <h3>{{ candidate.candidateName }}</h3>
-            <p>{{ candidate.offerTitle }} - {{ candidate.candidateJobTitle || 'Profil candidat' }}</p>
+      <div class="priority-filters">
+        <label class="company-field">
+          <span>Offre suivie</span>
+          <select [ngModel]="selectedOfferId" (ngModelChange)="onPriorityOfferChange($event)">
+            <option *ngFor="let offer of recruiterOffers" [ngValue]="offer.id">{{ offer.titre }}</option>
+          </select>
+        </label>
+
+        <label class="company-field">
+          <span>Score minimum</span>
+          <div class="score-filter-card">
+            <input type="range" min="0" max="100" [ngModel]="scoreMinimum" (ngModelChange)="onPriorityScoreChange($event)" />
+            <strong>{{ scoreMinimum }}%</strong>
           </div>
-          <div class="entity-row__aside">
-            <span class="entity-pill score">{{ candidate.score }}%</span>
-            <small>{{ candidate.status }}</small>
+          <small>Affiche les profils avec un matching superieur ou egal au score selectionne.</small>
+        </label>
+      </div>
+
+      <div class="priority-candidates-grid" *ngIf="priorityCandidates.length; else noCandidates">
+        <article class="priority-candidate-card" *ngFor="let candidate of priorityCandidates">
+          <div class="priority-candidate-card__head">
+            <div>
+              <h3>{{ candidate.fullName }}</h3>
+              <p>{{ candidate.profileTitle || 'Profil candidat' }}</p>
+            </div>
+            <span class="entity-pill score">{{ candidate.matchingScore }}%</span>
+          </div>
+
+          <div class="priority-candidate-meta">
+            <span>{{ candidate.email || 'Email non disponible' }}</span>
+            <span>{{ candidate.location || 'Localisation non disponible' }}</span>
+            <span>{{ candidate.experience || 0 }} an(s) d experience</span>
+          </div>
+
+          <div class="profile-badges">
+            <span class="profile-badge neutral" *ngIf="candidate.hasApplied">A deja postule</span>
+            <span class="profile-badge" *ngIf="candidate.alreadyInvited">Invite</span>
+          </div>
+
+          <div class="skill-stack">
+            <div>
+              <strong>Competences compatibles</strong>
+              <div class="skill-pills">
+                <span class="offer-meta-pill offer-meta-pill--success" *ngFor="let skill of candidate.compatibleSkills">{{ skill }}</span>
+              </div>
+            </div>
+
+            <div>
+              <strong>Competences manquantes</strong>
+              <div class="skill-pills">
+                <span class="offer-meta-pill offer-meta-pill--warning" *ngFor="let skill of getMissingSkillsLabel(candidate)">{{ skill }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="offer-card__actions">
+            <button type="button" class="recruiter-panel__action" (click)="viewCandidateProfile(candidate)">
+              Voir profil
+            </button>
+            <button
+              type="button"
+              class="recruiter-panel__action recruiter-panel__action--primary"
+              (click)="inviteCandidate(candidate)"
+              [disabled]="candidate.alreadyInvited || candidate.inviting"
+            >
+              {{ candidate.alreadyInvited ? 'Invitation envoyee' : (candidate.inviting ? 'Envoi...' : 'Inviter a postuler') }}
+            </button>
           </div>
         </article>
       </div>
@@ -113,14 +409,24 @@
   </section>
 
   <ng-template #noOffers>
-    <div class="mini-empty-state">
-      {{ loading ? 'Chargement des offres...' : 'Aucune offre publiee pour le moment.' }}
+    <div class="mini-empty-state mini-empty-state--offers">
+      <strong>Aucune offre disponible pour le moment</strong>
+      <p>Commencez par creer une nouvelle offre pour lancer votre pipeline de recrutement.</p>
+      <button type="button" class="recruiter-panel__action recruiter-panel__action--primary" (click)="createNewOffer()">
+        Creer une nouvelle offre
+      </button>
     </div>
   </ng-template>
 
   <ng-template #noCandidates>
     <div class="mini-empty-state">
-      {{ loading ? 'Chargement des candidatures...' : 'Aucun candidat a afficher pour le moment.' }}
+      {{ matchingCandidatesLoading ? 'Chargement des candidats compatibles...' : 'Aucun candidat ne correspond au score selectionne.' }}
+    </div>
+  </ng-template>
+
+  <ng-template #companyLoadingState>
+    <div class="mini-empty-state">
+      Chargement du profil entreprise...
     </div>
   </ng-template>
 </div>

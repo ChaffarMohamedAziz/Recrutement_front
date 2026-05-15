@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ConversationMessage, ConversationSummary, MessagingService } from '../services/messaging.service';
 import { PageHeroComponent } from '../shared/page-hero/page-hero.component';
@@ -17,6 +17,7 @@ export class MessagesHubComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly messagingService = inject(MessagingService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly user = this.authService.getCurrentUser();
   readonly role = this.authService.getCurrentRole();
@@ -34,8 +35,29 @@ export class MessagesHubComponent implements OnInit, OnDestroy {
   private pendingApplicationId: number | null = null;
 
   ngOnInit(): void {
+    const initialApplicationId = Number(this.route.snapshot.queryParamMap.get('applicationId'));
+    const initialMode = (this.route.snapshot.queryParamMap.get('mode') || '').trim().toLowerCase();
+
+    if (this.role === 'RECRUITER' && Number.isFinite(initialApplicationId) && initialApplicationId > 0 && initialMode !== 'chat') {
+      void this.router.navigate(['/dashboard'], {
+        queryParams: { planInterviewFor: initialApplicationId },
+        replaceUrl: true
+      });
+      return;
+    }
+
     this.route.queryParamMap.subscribe((params) => {
       const applicationId = Number(params.get('applicationId'));
+      const mode = (params.get('mode') || '').trim().toLowerCase();
+
+      if (this.role === 'RECRUITER' && Number.isFinite(applicationId) && applicationId > 0 && mode !== 'chat') {
+        void this.router.navigate(['/dashboard'], {
+          queryParams: { planInterviewFor: applicationId },
+          replaceUrl: true
+        });
+        return;
+      }
+
       this.pendingApplicationId = Number.isFinite(applicationId) && applicationId > 0 ? applicationId : null;
       if (this.conversations.length) {
         this.reconcileSelectedConversation();

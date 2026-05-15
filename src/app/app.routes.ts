@@ -1,4 +1,6 @@
+import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
 import { AdminSpaceComponent } from './admin-space/admin-space.component';
+import { AdminSubscriptionsComponent } from './admin/subscriptions/admin-subscriptions.component';
 import { AssistantHubComponent } from './assistant/assistant-hub.component';
 import { RecruiterActivationComponent } from './admin/recruiter-activation/recruiter-activation.component';
 import { UserDetailComponent } from './admin/user-detail/user-detail.component';
@@ -7,7 +9,8 @@ import { TagsComponent } from './admin/tags/tags.component';
 import { AboutComponent } from './about/about.component';
 import { Routes } from '@angular/router';
 import { AccessDeniedComponent } from './auth/access-denied/access-denied.component';
-import { adminGuard, candidateGuard, candidateOrRecruiterGuard, recruiterGuard } from './auth/access.guard';
+import { adminGuard, authGuard, candidateGuard, candidateOrRecruiterGuard, recruiterGuard } from './auth/access.guard';
+import { ChangePasswordComponent } from './auth/change-password/change-password.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
@@ -16,8 +19,11 @@ import { VerifyEmailComponent } from './auth/verify-email/verify-email.component
 import { BlogDetailsComponent } from './blog/blog-details.component';
 import { BlogListComponent } from './blog/blog-list.component';
 import { CandidateSpaceComponent } from './candidate-space/candidate-space.component';
+import { CandidateAiTestComponent } from './ai-tests/candidate-ai-test.component';
+import { candidateAiTestExitGuard } from './ai-tests/candidate-ai-test-exit.guard';
 import { CandidateDetailsComponent } from './candidates/candidate-details/candidate-details.component';
 import { CandidateListComponent } from './candidates/candidate-list/candidate-list.component';
+import { RecruiterCandidateProfileComponent } from './candidates/recruiter-candidate-profile/recruiter-candidate-profile.component';
 import { CompanyDetailsComponent } from './companies/company-details/company-details.component';
 import { CompanyListComponent } from './companies/company-list/company-list.component';
 import { ContactComponent } from './contact/contact.component';
@@ -42,12 +48,17 @@ export const routes: Routes = [
   { path: 'auth/register', component: RegisterComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'change-password', component: ChangePasswordComponent, canActivate: [authGuard] },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'access-denied', component: AccessDeniedComponent },
   { path: 'home', component: RoleHomeComponent },
   { path: 'public-home', component: HomeComponent },
   { path: 'candidate-space', component: CandidateSpaceComponent, canActivate: [candidateGuard] },
-  { path: 'admin-dashboard', component: AdminSpaceComponent, canActivate: [adminGuard] },
+  { path: 'candidate-ai-tests/application/:applicationId', component: CandidateAiTestComponent, canActivate: [candidateGuard], canDeactivate: [candidateAiTestExitGuard] },
+  { path: 'candidate-ai-tests/:id', component: CandidateAiTestComponent, canActivate: [candidateGuard], canDeactivate: [candidateAiTestExitGuard] },
+  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
+  { path: 'admin/statistics', component: AdminSpaceComponent, canActivate: [adminGuard] },
+  { path: 'admin/subscriptions', component: AdminSubscriptionsComponent, canActivate: [adminGuard] },
   { path: 'admin/recruiter-activation', component: RecruiterActivationComponent, canActivate: [adminGuard] },
   { path: 'admin/users', component: UserListComponent, canActivate: [adminGuard] },
   { path: 'admin/tags', component: TagsComponent, canActivate: [adminGuard] },
@@ -71,6 +82,7 @@ export const routes: Routes = [
   { path: 'company-details/:id', component: CompanyDetailsComponent, canActivate: [adminGuard] },
   { path: 'candidate-list', component: CandidateListComponent, canActivate: [recruiterGuard] },
   { path: 'candidate-details/:id', component: CandidateDetailsComponent, canActivate: [recruiterGuard] },
+  { path: 'recruiter-candidate-profile/:candidateId', component: RecruiterCandidateProfileComponent, canActivate: [recruiterGuard] },
   {
     path: 'submit-resume',
     component: UploadResumeComponent,

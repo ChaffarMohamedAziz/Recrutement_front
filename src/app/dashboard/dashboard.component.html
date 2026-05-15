@@ -1,42 +1,43 @@
-<div class="dashboard-shell app-page-layout" *ngIf="user">
-  <app-page-hero
-    badge="Recruteur"
-    title="Suivi des candidatures"
-    subtitle="Glissez les candidats entre les colonnes, filtrez les profils par score minimum et analysez rapidement les competences correspondantes ou manquantes."
-    theme="recruiter"
-    variant="workflow"
-    [breadcrumbs]="[
-      { label: 'Accueil', link: '/home' },
-      { label: 'Recruteur', link: '/recruiter-space' },
-      { label: 'Kanban ATS' }
-    ]"
-    [highlights]="[
-      { title: 'Pipeline visuel', description: 'Suivez chaque candidature par etape avec une lecture immediate.', icon: 'chart' },
-      { title: 'Filtre score', description: 'Concentrez-vous sur les meilleurs profils grace au score minimum.', icon: 'search' },
-      { title: 'Action rapide', description: 'Deplacez les candidats entre les colonnes sans perdre le contexte.', icon: 'speed' }
-    ]"
-    [primaryActionLabel]="'Messagerie'"
-    [primaryActionLink]="'/messages'"
-    [secondaryActionLabel]="'Assistant IA'"
-    [secondaryActionLink]="'/assistant'"
-  ></app-page-hero>
+﻿<div class="dashboard-shell app-page-layout" *ngIf="user">
+  <section class="kanban-hero">
+    <div class="kanban-hero__copy">
+      <span class="kanban-hero__eyebrow">Kanban ATS premium</span>
+      <h1>Vue unifiée des candidatures, tests IA et entretiens</h1>
+      <p>
+        Pilotez votre recrutement avec un workflow plus premium, plus lisible, plus intelligent
+        et plus rapide, sans perdre le contexte candidat.
+      </p>
+    </div>
 
-  <div class="toolbar-card">
-    <div class="metric-grid">
-      <article class="metric-card">
-        <span>Profils visibles</span>
-        <strong>{{ totalVisibleCandidates }}</strong>
-      </article>
+    <div class="kanban-hero__signals" aria-label="Outils rapides du Kanban">
+      <span class="signal-pill">Score &amp; matching</span>
+      <span class="signal-pill">Workflow IA</span>
+      <span class="signal-pill">Smart Interview Planner</span>
+    </div>
+  </section>
 
-      <article class="metric-card">
-        <span>Score moyen</span>
-        <strong>{{ averageVisibleScore }}%</strong>
-      </article>
+  <section class="overview-strip">
+    <article class="overview-card" *ngFor="let metric of overviewMetrics" [attr.data-accent]="metric.accent">
+      <span class="overview-card__marker">{{ metric.marker }}</span>
+      <div class="overview-card__body">
+        <p>{{ metric.label }}</p>
+        <strong>{{ metric.value }}</strong>
+        <small>{{ metric.detail }}</small>
+      </div>
+    </article>
+  </section>
 
-      <article class="metric-card">
-        <span>Filtre actif</span>
-        <strong>>= {{ minScore }}%</strong>
-      </article>
+  <section class="control-surface">
+    <div class="control-surface__head">
+      <div>
+        <span class="control-surface__eyebrow">Filtres &amp; réglages</span>
+        <h2>Tableau recruteur unifié</h2>
+        <p>Ajustez l’offre suivie, le score minimum et les règles IA sans quitter le Kanban.</p>
+      </div>
+      <div class="control-surface__meta">
+        <span class="meta-chip">Profils visibles {{ totalVisibleCandidates }}</span>
+        <span class="meta-chip">Offre suivie {{ currentOfferTitle }}</span>
+      </div>
     </div>
 
     <div class="kanban-controls">
@@ -46,6 +47,14 @@
           <option [ngValue]="null">Toutes les offres</option>
           <option *ngFor="let offer of recruiterOffers" [ngValue]="offer.id">{{ offer.titre }}</option>
         </select>
+        <button
+          *ngIf="hasActiveFilters"
+          type="button"
+          class="filter-reset-btn"
+          (click)="resetFilters()"
+        >
+          Réinitialiser
+        </button>
       </label>
 
       <label class="filter-panel">
@@ -61,94 +70,443 @@
           />
           <strong>{{ minScore }}%</strong>
         </div>
-        <p>{{ currentOfferTitle }}</p>
+        <p>Filtre les cartes pour ne garder que les profils au niveau voulu.</p>
+      </label>
+
+      <label class="filter-panel">
+        <span>Seuil entretien Test IA</span>
+        <div class="filter-row">
+          <input
+            id="interviewThreshold"
+            type="range"
+            min="0"
+            max="100"
+            [value]="interviewThreshold"
+            (input)="setInterviewThreshold($event)"
+          />
+          <strong>{{ interviewThreshold }}%</strong>
+        </div>
+        <p>Score minimum pour basculer automatiquement le candidat vers l’entretien.</p>
       </label>
     </div>
-  </div>
+  </section>
 
   <p class="board-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="board-toast success" *ngIf="successMessage">{{ successMessage }}</p>
 
-  <div class="kanban-board">
-    <section
-      class="kanban-column"
-      *ngFor="let column of columns"
-      [attr.data-accent]="column.accent"
-      (dragover)="allowDrop($event)"
-      (drop)="onDrop(column.key)"
-    >
-      <div class="column-header">
-        <div>
-          <h2>{{ column.title }}</h2>
-          <p>{{ getColumnCount(column.key) }} candidat(s)</p>
-        </div>
-        <span class="count-pill">{{ getColumnCount(column.key) }}</span>
-      </div>
-
-      <div class="candidate-list">
-        <article
-          class="candidate-card"
-          *ngFor="let candidate of getColumnApplications(column.key)"
-          draggable="true"
-          (dragstart)="onDragStart(candidate.id)"
-        >
-          <div class="candidate-top">
-            <div class="candidate-identity">
-              <span class="candidate-avatar">{{ getCandidateInitials(candidate) }}</span>
-              <div>
-                <h3>{{ candidate.candidateName }}</h3>
-                <p>{{ candidate.offerTitle }} - {{ candidate.candidateJobTitle || 'Profil candidat' }}</p>
-              </div>
-            </div>
-            <span class="score-badge" [attr.data-tone]="getScoreTone(candidate.score)">{{ candidate.score }}%</span>
-          </div>
-
-          <p class="summary">{{ candidate.candidateSummary || 'Profil en cours de mise a jour.' }}</p>
-
-          <div class="meta-row">
-            <span>{{ candidate.candidateLocation || 'Localisation non precisee' }}</span>
-            <span>{{ candidate.candidateExperience }} an(s) d experience</span>
-            <span>{{ candidate.appliedAt }}</span>
-          </div>
-
-          <div class="match-box">
-            <div class="match-head">
-              <span>Matching</span>
-              <strong>{{ getMatchRatio(candidate) }}%</strong>
-            </div>
-
-            <div class="skills-grid">
-              <span
-                class="skill-pill"
-                *ngFor="let skill of candidate.skills.slice(0, 6)"
-                [class.skill-match]="skill.matched"
-                [class.skill-miss]="!skill.matched"
-              >
-                {{ skill.nom }}
-              </span>
-            </div>
-          </div>
-
-          <div class="quick-compare">
-            <div>
-              <span class="compare-label ok">Correspond</span>
-              <p>{{ candidate.matchingSkills.length ? candidate.matchingSkills.join(', ') : 'Aucune' }}</p>
-            </div>
-            <div>
-              <span class="compare-label ko">Manque</span>
-              <p>{{ candidate.missingSkills.length ? candidate.missingSkills.join(', ') : 'Aucune' }}</p>
-            </div>
-          </div>
-
-          <div class="candidate-actions">
-            <a [routerLink]="['/candidate-details', candidate.candidateId]">Voir profil</a>
-            <a [routerLink]="['/messages']" [queryParams]="{ applicationId: candidate.id }">Messagerie</a>
-          </div>
-        </article>
-
-        <p class="empty-state" *ngIf="!getColumnApplications(column.key).length">
-          {{ loading ? 'Chargement des candidatures...' : 'Aucun candidat avec le filtre actuel.' }}
+  <section class="board-surface" aria-label="Kanban de recrutement">
+    <div class="board-surface__head">
+      <div class="board-surface__copy">
+        <span class="board-kicker">Vue recruteur</span>
+        <h2>Tableau de suivi des candidatures</h2>
+        <p class="board-surface__subtitle">
+          Chaque colonne rassemble les bons signaux, les bonnes actions et les informations utiles pour accélérer la décision.
         </p>
       </div>
-    </section>
+
+      <div class="board-surface__legend">
+        <span class="legend-pill">Cartes denses</span>
+        <span class="legend-pill">Actions directes</span>
+        <span class="legend-pill">Statuts IA & entretiens</span>
+      </div>
+    </div>
+
+    <div class="kanban-board">
+      <section
+        class="kanban-column"
+        *ngFor="let column of columns"
+        [attr.data-accent]="column.accent"
+        (dragover)="allowDrop($event)"
+          (drop)="onDrop($event, column.key)"
+      >
+        <div class="column-header">
+          <div class="column-header__content">
+            <span class="column-kicker">{{ column.eyebrow }}</span>
+            <h3>{{ column.title }}</h3>
+            <p>{{ column.description }}</p>
+          </div>
+          <span class="count-pill">{{ getColumnCount(column.key) }}</span>
+        </div>
+
+        <div class="candidate-list">
+          <article
+            class="candidate-card"
+            *ngFor="let candidate of getColumnApplications(column.key)"
+            draggable="true"
+            (dragstart)="onDragStart($event, candidate.id)"
+            (dragend)="onDragEnd()"
+          >
+            <div class="candidate-card__head">
+              <div class="candidate-identity">
+                <span class="candidate-avatar">{{ getCandidateInitials(candidate) }}</span>
+                <div class="candidate-identity__copy">
+                  <h4>{{ candidate.candidateName }}</h4>
+                  <p>{{ candidate.candidateJobTitle || 'Profil candidat' }}</p>
+                </div>
+              </div>
+              <span class="score-badge" [attr.data-tone]="getScoreTone(getDisplayScore(candidate))">
+                {{ getDisplayScore(candidate) }}%
+              </span>
+            </div>
+
+            <div class="candidate-card__meta">
+              <span>{{ candidate.offerTitle }}</span>
+              <span>{{ candidate.candidateLocation || 'Localisation non précisée' }}</span>
+              <span>{{ candidate.candidateExperience }} an(s)</span>
+            </div>
+
+            <p class="summary">{{ candidate.candidateSummary || 'Profil en cours de mise à jour.' }}</p>
+
+            <div class="card-chip-row">
+              <span class="state-chip" [attr.data-tone]="getAiStateTone(candidate)" *ngIf="candidate.aiTestId">
+                {{ getAiStateLabel(candidate) }}
+              </span>
+              <span class="state-chip neutral">{{ candidate.appliedAt }}</span>
+              <span class="state-chip neutral" *ngIf="candidate.aiTestThreshold !== null">Seuil {{ candidate.aiTestThreshold }}%</span>
+            </div>
+
+            <div class="interview-box interview-box--compact" *ngIf="candidate.interviewId && candidate.interviewDateTime">
+              <div class="interview-box__head">
+                <div>
+                  <span class="interview-kicker">Entretien</span>
+                  <strong>{{ getInterviewDateLabel(candidate) }}</strong>
+                </div>
+                <span class="status-chip status-chip--compact" [attr.data-tone]="candidate.status === 'ABSENCE_A_VERIFIER' ? 'warning' : 'success'">
+                  {{ getStatusLabel(candidate.status) }}
+                </span>
+              </div>
+
+              <div class="interview-pills">
+                <span class="interview-pill">{{ getInterviewTypeLabel(candidate.interviewType) }}</span>
+                <span class="interview-pill">{{ getInterviewModeLabel(candidate.interviewMode) }}</span>
+                <span class="interview-pill" *ngIf="candidate.interviewDurationMinutes">{{ candidate.interviewDurationMinutes }} min</span>
+              </div>
+            </div>
+
+            <div class="ai-security-box" *ngIf="showAiSecurityBox(candidate)" [attr.data-tone]="getAiSecurityTone(candidate)">
+              <div class="ai-security-box__head">
+                <div>
+                    <span class="interview-kicker">Contrôle Test IA</span>
+                  <strong>{{ getAiSecurityHeadline(candidate) }}</strong>
+                </div>
+                <span class="status-chip status-chip--compact" [attr.data-tone]="getAiSecurityTone(candidate)">
+                  {{ candidate.aiTestWarningCount ?? 0 }} avert.
+                </span>
+              </div>
+
+              <p class="ai-security-box__reason">{{ getAiSecurityReason(candidate) }}</p>
+
+              <div class="ai-security-box__metrics">
+                <span class="interview-pill">Onglets {{ candidate.aiTestTabSwitchCount ?? 0 }}</span>
+                <span class="interview-pill" *ngIf="candidate.aiTestStartedAt">Début {{ candidate.aiTestStartedAt | date:'dd/MM HH:mm' }}</span>
+                <span class="interview-pill">{{ getAiUsageLabel(candidate) }}</span>
+              </div>
+            </div>
+
+            <div class="match-box">
+              <div class="match-head">
+                <span>Matching</span>
+                <strong>{{ getMatchRatio(candidate) }}%</strong>
+              </div>
+
+              <div class="skills-grid">
+                <span
+                  class="skill-pill"
+                  *ngFor="let skill of candidate.skills.slice(0, 4)"
+                  [class.skill-match]="skill.matched"
+                  [class.skill-miss]="!skill.matched"
+                >
+                  {{ skill.nom }}
+                </span>
+              </div>
+            </div>
+
+            <div class="candidate-actions" (mousedown)="stopCardAction($event)" (click)="stopCardAction($event)">
+              <label class="status-select-wrap">
+                <span>Changer statut</span>
+                <select
+                  class="status-select"
+                  [value]="getSelectedStatus(candidate)"
+                  (change)="onStatusSelect(candidate, $event)"
+                >
+                  <option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </label>
+              <a class="action-link" [routerLink]="['/candidate-details', candidate.id]" draggable="false">Voir détail</a>
+
+              <button
+                type="button"
+                class="action-btn action-btn--primary"
+                *ngIf="canSendAiTest(candidate)"
+                (click)="sendAiTest(candidate)"
+                [disabled]="sendingAiTestId === candidate.id"
+                draggable="false"
+              >
+                {{ sendingAiTestId === candidate.id ? 'Envoi...' : 'Envoyer Test IA' }}
+              </button>
+
+              <button
+                type="button"
+                class="action-btn"
+                *ngIf="candidate.aiTestId && candidate.status !== 'AI_TEST_SENT'"
+                (click)="openAiReport(candidate)"
+                draggable="false"
+              >
+                Voir rapport IA
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-btn--success"
+                *ngIf="canPlanInterview(candidate)"
+                (click)="openInterviewPlanner(candidate)"
+                draggable="false"
+              >
+                Planifier entretien
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-btn--success-outline"
+                *ngIf="canRescheduleInterview(candidate)"
+                (click)="openInterviewPlanner(candidate, 'reschedule')"
+                draggable="false"
+              >
+                Replanifier
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-btn--success"
+                *ngIf="canMarkPresent(candidate)"
+                (click)="markCandidatePresent(candidate)"
+                draggable="false"
+              >
+                Marquer présent
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-btn--danger"
+                *ngIf="canConfirmAbsence(candidate)"
+                (click)="confirmCandidateAbsence(candidate)"
+                draggable="false"
+              >
+                Confirmer absence
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-btn--danger"
+                *ngIf="canConfirmAiRejection(candidate)"
+                (click)="confirmAiRejection(candidate)"
+                draggable="false"
+              >
+                Confirmer refus
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-btn--success-outline"
+                *ngIf="canReopenAiTest(candidate)"
+                (click)="reopenAiTest(candidate)"
+                draggable="false"
+              >
+                Réouvrir test
+              </button>
+
+              <a
+                class="action-link action-link--chat"
+                [routerLink]="['/messages']"
+                [queryParams]="{ applicationId: candidate.id, mode: 'chat' }"
+                draggable="false"
+              >
+                Contacter
+              </a>
+            </div>
+          </article>
+
+          <p class="empty-state" *ngIf="!getColumnApplications(column.key).length">
+            {{ getEmptyStateMessage(column.key) }}
+          </p>
+        </div>
+
+        <div class="column-footer">
+          {{ getColumnCount(column.key) }} candidat(s) dans cette étape
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+
+<div
+  class="planner-overlay"
+  *ngIf="plannerOpen && plannerApplication"
+  (click)="onPlannerOverlayClick($event)"
+>
+  <div class="planner-modal" role="dialog" aria-modal="true" aria-labelledby="plannerTitle">
+    <div class="planner-modal__head">
+      <div>
+        <span class="planner-kicker">Smart Interview Planner</span>
+        <h2 id="plannerTitle">{{ plannerTitle }}</h2>
+        <p>{{ getInterviewPlannerIntro(plannerApplication) }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="planner-close"
+        (click)="closeInterviewPlanner()"
+        [disabled]="plannerSaving"
+        aria-label="Fermer"
+      >
+        &times;
+      </button>
+    </div>
+
+    <div class="planner-modal__body">
+      <div class="planner-summary-grid">
+        <article class="planner-summary-card">
+          <span>Candidat</span>
+          <strong>{{ plannerApplication.candidateName }}</strong>
+          <small>{{ plannerApplication.candidateEmail }}</small>
+        </article>
+
+        <article class="planner-summary-card">
+          <span>Offre</span>
+          <strong>{{ plannerApplication.offerTitle }}</strong>
+          <small>{{ plannerApplication.companyName }}</small>
+        </article>
+
+        <article class="planner-summary-card">
+          <span>Score Test IA</span>
+          <strong>{{ plannerAiScoreLabel }}</strong>
+          <small>{{ plannerRecommendationLabel }}</small>
+        </article>
+      </div>
+
+      <div class="planner-loading" *ngIf="plannerLoading">
+        Génération de la préparation IA...
+      </div>
+
+      <form class="planner-form" *ngIf="!plannerLoading">
+        <div class="planner-form-grid">
+          <label class="planner-field">
+            <span>Type d’entretien</span>
+            <select [(ngModel)]="plannerForm.interviewType" (ngModelChange)="onPlannerFieldChange()" name="interviewType">
+              <option value="RH">RH</option>
+              <option value="TECHNIQUE">Technique</option>
+              <option value="FINAL">Final</option>
+            </select>
+          </label>
+
+          <label class="planner-field">
+            <span>Mode</span>
+            <select [(ngModel)]="plannerForm.mode" (ngModelChange)="onPlannerFieldChange()" name="mode">
+              <option value="EN_LIGNE">En ligne</option>
+              <option value="PRESENTIEL">Présentiel</option>
+              <option value="TELEPHONE">Téléphone</option>
+            </select>
+          </label>
+
+          <label class="planner-field">
+            <span>Date</span>
+            <input [(ngModel)]="plannerForm.date" (ngModelChange)="onPlannerFieldChange()" name="date" type="date" />
+          </label>
+
+          <label class="planner-field">
+            <span>Heure début</span>
+            <input [(ngModel)]="plannerForm.startTime" (ngModelChange)="onPlannerFieldChange()" name="startTime" type="time" />
+          </label>
+
+          <label class="planner-field">
+            <span>Durée</span>
+            <input [(ngModel)]="plannerForm.durationMinutes" (ngModelChange)="onPlannerFieldChange()" name="durationMinutes" type="number" min="15" step="15" />
+          </label>
+
+          <label class="planner-field" *ngIf="plannerForm.mode === 'EN_LIGNE'">
+            <span>Lien de réunion</span>
+            <input
+              [(ngModel)]="plannerForm.meetingLink"
+              (ngModelChange)="onPlannerFieldChange()"
+              name="meetingLink"
+              type="url"
+              placeholder="https://meet.google.com/..."
+            />
+          </label>
+
+          <label class="planner-field" *ngIf="plannerForm.mode === 'PRESENTIEL'">
+            <span>Adresse</span>
+            <input
+              [(ngModel)]="plannerForm.location"
+              (ngModelChange)="onPlannerFieldChange()"
+              name="location"
+              type="text"
+              placeholder="Adresse de l’entretien"
+            />
+          </label>
+        </div>
+
+        <label class="planner-field planner-field--full">
+          <span>Message d’invitation</span>
+          <textarea
+            [ngModel]="plannerForm.invitationMessage"
+            (ngModelChange)="onInvitationMessageChange($event)"
+            name="invitationMessage"
+            rows="8"
+            placeholder="Le message d’invitation sera généré automatiquement et reste modifiable."
+          ></textarea>
+        </label>
+
+        <div class="action-row ai-question-actions">
+          <button type="button" class="ghost-btn-inline" (click)="regenerateInvitationMessage()">
+            Régénérer le message
+          </button>
+        </div>
+
+        <div class="planner-form-errors" *ngIf="plannerValidationAttempted && plannerValidationErrors.length">
+          <p *ngFor="let error of plannerValidationErrors">{{ error }}</p>
+        </div>
+      </form>
+
+      <section class="planner-prep" *ngIf="!plannerLoading">
+        <div class="planner-prep__head">
+          <div>
+            <span class="planner-kicker">Préparation IA pour l’entretien</span>
+            <h3>Questions suggérées</h3>
+          </div>
+          <span class="planner-prep__tag">{{ plannerSuggestedQuestions.length || 0 }} question(s)</span>
+        </div>
+
+        <div class="planner-question-list" *ngIf="plannerSuggestedQuestions.length; else noSuggestedQuestions">
+          <article class="planner-question-card" *ngFor="let question of plannerSuggestedQuestions; index as idx">
+            <span>{{ idx + 1 }}</span>
+            <p>{{ question }}</p>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="planner-modal__foot">
+      <button type="button" class="planner-ghost-btn" (click)="closeInterviewPlanner()" [disabled]="plannerSaving">
+        Annuler
+      </button>
+      <button
+        type="button"
+        class="planner-primary-btn"
+        (click)="submitInterviewPlanner()"
+        [disabled]="plannerSaving || !plannerFormValid"
+      >
+        {{ plannerPrimaryActionLabel }}
+      </button>
+    </div>
   </div>
 </div>
+
+<ng-template #noSuggestedQuestions>
+  <div class="planner-prep__empty">
+    Aucune question IA détaillée n’a été retournée. Le planner reste disponible avec une base locale.
+  </div>
+</ng-template>
+

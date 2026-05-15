@@ -17,6 +17,11 @@ export interface ResetPasswordPayload {
   newPassword: string;
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface AuthUser {
   id: number;
   email: string;
@@ -254,6 +259,14 @@ export class AuthService {
   resetPassword(payload: ResetPasswordPayload): Observable<MessageResult> {
     return this.http.post<MessageResult>(`${this.apiUrl}/reset-password`, payload).pipe(
       catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, 'Reinitialisation du mot de passe impossible.'))))
+    );
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<MessageResult> {
+    return this.http.post<MessageResult>(`${this.apiUrl}/change-password`, payload, {
+      headers: this.buildAuthHeaders()
+    }).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, 'Changement du mot de passe impossible.'))))
     );
   }
 

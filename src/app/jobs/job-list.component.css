@@ -10,6 +10,7 @@
 
 .job-overview-panel,
 .filter-panel,
+.score-filter-card,
 .job-card,
 .empty-state {
   border: 1px solid #e1e8f3;
@@ -65,6 +66,60 @@
   margin: 0;
   color: #66768f;
   line-height: 1.7;
+}
+
+.score-filter-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px;
+  margin-bottom: 18px;
+  border-radius: 24px;
+}
+
+.score-filter-card__copy {
+  display: grid;
+  gap: 8px;
+}
+
+.score-filter-card__eyebrow {
+  color: #6a7a95;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.score-filter-card__copy h2 {
+  margin: 0;
+  color: #10213f;
+  font-size: 1.18rem;
+}
+
+.score-filter-card__copy p {
+  margin: 0;
+  color: #66768f;
+  line-height: 1.7;
+}
+
+.score-filter-card__control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: min(100%, 380px);
+}
+
+.score-filter-card__control input[type='range'] {
+  width: 100%;
+  accent-color: #214f97;
+}
+
+.score-filter-card__control strong {
+  min-width: 60px;
+  text-align: right;
+  color: #173159;
+  font-size: 1rem;
 }
 
 .filter-panel {
@@ -465,10 +520,18 @@
   background: #ffffff;
 }
 
+.ai-test-action {
+  text-decoration: none;
+}
+
 .applied-action {
   border-color: #d6e4d8;
   color: #16814e;
   background: #eefbf3;
+}
+
+.completed-action {
+  cursor: default;
 }
 
 .primary-action {
@@ -610,6 +673,11 @@
 @media (max-width: 900px) {
   .job-list-shell {
     padding-top: 18px;
+  }
+
+  .score-filter-card {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .jobs-toolbar {

@@ -21,6 +21,22 @@ export interface AssistantOfferDraftResponse {
   keywords: string[];
 }
 
+export interface AssistantCompanyDescriptionPayload {
+  nomEntreprise: string;
+  secteur: string;
+  adresse: string;
+  email: string;
+  abonnementActif: string;
+  siteWeb: string;
+  currentDescription: string;
+}
+
+export interface AssistantCompanyDescriptionResponse {
+  message: string;
+  generatedDescription: string;
+  highlights: string[];
+}
+
 export interface AssistantInterviewQuestionsPayload {
   offerTitle: string;
   jobDescription: string;
@@ -42,7 +58,7 @@ export interface AssistantCandidateSearchPayload {
 }
 
 export interface AssistantCandidateSuggestion {
-  candidateId: number;
+  candidateId?: number | null;
   name: string;
   email: string;
   jobTitle: string;
@@ -60,13 +76,31 @@ export interface AssistantCandidateSearchResponse {
 }
 
 export interface AssistantChatPayload {
-  prompt: string;
+  message: string;
+  prompt?: string;
+  contextType?: 'GENERAL' | 'CANDIDATE_PROFILE' | 'JOB_OFFER' | 'APPLICATION' | 'INTERVIEW' | 'AI_TEST';
+  targetId?: number | null;
+  history?: string[];
 }
 
 export interface AssistantChatResponse {
   message: string;
   content: string;
+  response?: string;
   suggestions: string[];
+  source?: string;
+  createdAt?: string;
+}
+
+export interface CandidateTopMatchingOfferResponse {
+  offerId: number;
+  title: string;
+  companyName: string;
+  location: string;
+  contractType: string;
+  matchingScore: number;
+  matchingSkills: string[];
+  missingSkills: string[];
 }
 
 @Injectable({
@@ -80,6 +114,14 @@ export class AssistantService {
     return this.http.post<AssistantOfferDraftResponse>(`${this.apiUrl}/recruiter/generate-offer`, payload).pipe(
       catchError((error: HttpErrorResponse) =>
         throwError(() => new Error(this.extractErrorMessage(error, "Generation de la description impossible.")))
+      )
+    );
+  }
+
+  generateCompanyDescription(payload: AssistantCompanyDescriptionPayload): Observable<AssistantCompanyDescriptionResponse> {
+    return this.http.post<AssistantCompanyDescriptionResponse>(`${this.apiUrl}/recruiter/company-description`, payload).pipe(
+      catchError((error: HttpErrorResponse) =>
+        throwError(() => new Error(this.extractErrorMessage(error, "Generation de la description entreprise impossible.")))
       )
     );
   }
@@ -100,10 +142,28 @@ export class AssistantService {
     );
   }
 
+  getCandidateTopMatchingOffers(minScore = 70): Observable<CandidateTopMatchingOfferResponse[]> {
+    return this.http.get<CandidateTopMatchingOfferResponse[]>(
+      `http://localhost:8081/api/candidate/assistant/top-matching-offers?minScore=${minScore}`
+    ).pipe(
+      catchError((error: HttpErrorResponse) =>
+        throwError(() => new Error(this.extractErrorMessage(error, 'Chargement des offres les plus compatibles impossible.')))
+      )
+    );
+  }
+
   coachCandidate(payload: AssistantChatPayload): Observable<AssistantChatResponse> {
     return this.http.post<AssistantChatResponse>(`${this.apiUrl}/candidate/coach`, payload).pipe(
       catchError((error: HttpErrorResponse) =>
         throwError(() => new Error(this.extractErrorMessage(error, "L'assistant candidat est indisponible.")))
+      )
+    );
+  }
+
+  chat(payload: AssistantChatPayload): Observable<AssistantChatResponse> {
+    return this.http.post<AssistantChatResponse>(`${this.apiUrl}/chat`, payload).pipe(
+      catchError((error: HttpErrorResponse) =>
+        throwError(() => new Error(this.extractErrorMessage(error, "L'assistant IA est indisponible.")))
       )
     );
   }

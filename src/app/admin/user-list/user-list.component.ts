@@ -1,25 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { AuthService, UserSummary } from '../../services/auth.service';
+import { AuthService, UserProfile, UserSummary } from '../../services/auth.service';
 import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
-type UserFilter = 'ALL' | 'CANDIDATE' | 'RECRUITER';
+type UserFilter = 'ALL' | 'CANDIDATE' | 'RECRUITER' | 'ADMIN';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, PageHeroComponent],
+  imports: [CommonModule, FormsModule, PageHeroComponent],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css'
 })
 export class UserListComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
 
-  readonly user = this.authService.getCurrentUser();
   users: UserSummary[] = [];
   searchQuery = '';
   loading = false;
@@ -27,6 +25,10 @@ export class UserListComponent implements OnInit, OnDestroy {
   successMessage = '';
   deletingUserId: number | null = null;
   activeFilter: UserFilter = 'ALL';
+  selectedProfile: UserProfile | null = null;
+  selectedSummary: UserSummary | null = null;
+  loadingProfile = false;
+  showUserModal = false;
   private latestRequestId = 0;
   private searchSubject = new Subject<string>();
   private subscriptions = new Subscription();
@@ -44,16 +46,6 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  get userInitials(): string {
-    const name = this.user?.username || 'Admin';
-    return name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((item) => item.charAt(0).toUpperCase())
-      .join('');
-  }
-
   get candidateCount(): number {
     return this.users.filter((item) => item.role === 'CANDIDATE').length;
   }
@@ -62,16 +54,15 @@ export class UserListComponent implements OnInit, OnDestroy {
     return this.users.filter((item) => item.role === 'RECRUITER').length;
   }
 
+  get adminCount(): number {
+    return this.users.filter((item) => item.role === 'ADMIN').length;
+  }
+
   get filteredUsers(): UserSummary[] {
-    if (this.activeFilter === 'CANDIDATE') {
-      return this.users.filter((item) => item.role === 'CANDIDATE');
+    if (this.activeFilter === 'ALL') {
+      return this.users;
     }
-
-    if (this.activeFilter === 'RECRUITER') {
-      return this.users.filter((item) => item.role === 'RECRUITER');
-    }
-
-    return this.users;
+    return this.users.filter((item) => item.role === this.activeFilter);
   }
 
   setFilter(filter: UserFilter): void {
@@ -96,9 +87,7 @@ export class UserListComponent implements OnInit, OnDestroy {
         }
 
         this.loading = false;
-        this.users = items
-          .map((userItem) => this.normalizeUser(userItem))
-          .filter((userItem) => userItem.role !== 'ADMIN');
+        this.users = items.map((userItem) => this.normalizeUser(userItem));
       },
       error: (error: Error) => {
         if (requestId !== this.latestRequestId) {
@@ -109,6 +98,31 @@ export class UserListComponent implements OnInit, OnDestroy {
         this.errorMessage = error.message;
       }
     });
+  }
+
+  openDetails(userItem: UserSummary): void {
+    this.selectedSummary = userItem;
+    this.selectedProfile = null;
+    this.showUserModal = true;
+    this.loadingProfile = true;
+    this.errorMessage = '';
+
+    this.authService.getUserById(userItem.id).subscribe({
+      next: (profile) => {
+        this.selectedProfile = profile;
+        this.loadingProfile = false;
+      },
+      error: (error: Error) => {
+        this.loadingProfile = false;
+        this.errorMessage = error.message;
+      }
+    });
+  }
+
+  closeDetails(): void {
+    this.showUserModal = false;
+    this.selectedProfile = null;
+    this.selectedSummary = null;
   }
 
   deleteUser(userItem: UserSummary): void {
@@ -129,6 +143,7 @@ export class UserListComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.deletingUserId = null;
         this.successMessage = response.message;
+        this.closeDetails();
         this.loadUsers(this.searchQuery);
       },
       error: (error: Error) => {
@@ -136,6 +151,22 @@ export class UserListComponent implements OnInit, OnDestroy {
         this.errorMessage = error.message;
       }
     });
+  }
+
+  exportUsersCsv(): void {
+    const rows = [
+      ['Nom', 'Email', 'Rôle']
+    ];
+
+    this.filteredUsers.forEach((item) => rows.push([item.nom, item.email, this.getRoleLabel(item.role)]));
+    const content = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'admin-users.csv';
+    anchor.click();
+    URL.revokeObjectURL(url);
   }
 
   isDeleting(userId: number): boolean {
@@ -146,12 +177,23 @@ export class UserListComponent implements OnInit, OnDestroy {
     if (role === 'CANDIDATE') {
       return 'Candidat';
     }
-
     if (role === 'RECRUITER') {
       return 'Recruteur';
     }
-
+    if (role === 'ADMIN') {
+      return 'Admin';
+    }
     return 'Utilisateur';
+  }
+
+  profileValue(value: string | number | boolean | undefined | null): string {
+    if (value === null || value === undefined || value === '') {
+      return 'Non disponible';
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Oui' : 'Non';
+    }
+    return String(value);
   }
 
   private normalizeUser(userItem: UserSummary): UserSummary {

@@ -28,6 +28,27 @@
     </div>
   </section>
 
+  <section class="score-filter-card">
+    <div class="score-filter-card__copy">
+      <span class="score-filter-card__eyebrow">Score minimum</span>
+      <h2>Score minimum</h2>
+      <p>Affiche uniquement les offres avec un matching supérieur ou égal au score sélectionné.</p>
+    </div>
+
+    <div class="score-filter-card__control">
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        [ngModel]="scoreMinimum"
+        (ngModelChange)="onScoreMinimumChange($event)"
+        aria-label="Score minimum"
+      />
+      <strong>{{ scoreMinimum }}%</strong>
+    </div>
+  </section>
+
   <section class="filter-panel">
     <div class="filter-grid">
       <label class="filter-field search-field">
@@ -222,22 +243,26 @@
         <button
           type="button"
           class="secondary-action"
+          *ngIf="!canPassAiTest(job) && !isAiTestInProgress(job) && !isAiTestCompleted(job)"
           [class.applied-action]="job.alreadyApplied"
           [disabled]="job.alreadyApplied || applyingJobId === job.id"
           (click)="applyToJob(job)"
         >
-          {{
-            job.alreadyApplied
-              ? (job.applicationStatus === 'ENTRETIEN'
-                ? 'En entretien'
-                : job.applicationStatus === 'RETENU'
-                  ? 'Retenu'
-                  : job.applicationStatus === 'REFUSE'
-                    ? 'Refuse'
-                    : 'Postule')
-              : (applyingJobId === job.id ? 'Envoi...' : 'Postuler')
-          }}
+          {{ getOfferActionLabel(job) }}
         </button>
+        <a
+          *ngIf="canPassAiTest(job) || isAiTestInProgress(job)"
+          class="secondary-action ai-test-action"
+          [routerLink]="['/candidate-ai-tests/application', job.applicationId]"
+        >
+          {{ getOfferActionLabel(job) }}
+        </a>
+        <span
+          *ngIf="isAiTestCompleted(job)"
+          class="secondary-action applied-action completed-action"
+        >
+          {{ getOfferActionLabel(job) }}
+        </span>
       </div>
     </article>
   </section>

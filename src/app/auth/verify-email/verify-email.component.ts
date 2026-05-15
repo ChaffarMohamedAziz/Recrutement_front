@@ -13,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
 export class VerifyEmailComponent {
   isLoading = true;
   isSuccess = false;
-  message = 'Verification en cours...';
+  message = 'Verification de votre adresse e-mail en cours...';
 
   constructor(
     private route: ActivatedRoute,

@@ -1,21 +1,40 @@
 <div class="verify-shell">
   <div class="verify-card">
-    <div class="brand-lockup">
-      <img src="/smart-recruit-logo.svg" alt="Smart Recruit" class="brand-image" />
+    <div class="verify-hero">
+      <div class="brand-lockup">
+        <span class="brand-frame">
+          <img src="/Logo_site.png" alt="Smart Recruit" class="brand-image" />
+        </span>
+        <div class="brand-copy">
+          <span class="verify-badge">Smart Recruit</span>
+          <p>Validation securisee de votre compte</p>
+        </div>
+      </div>
+
+      <div
+        class="status-orb"
+        [class.success]="!isLoading && isSuccess"
+        [class.loading]="isLoading"
+        [class.error]="!isLoading && !isSuccess"
+        aria-hidden="true"
+      >
+        <span *ngIf="isLoading">...</span>
+        <span *ngIf="!isLoading && isSuccess">&#10003;</span>
+        <span *ngIf="!isLoading && !isSuccess">!</span>
+      </div>
     </div>
-    <span class="verify-badge">Smart Recruit</span>
 
-    <h1 *ngIf="isLoading">Activation du compte</h1>
-    <h1 *ngIf="!isLoading && isSuccess">Compte active</h1>
-    <h1 *ngIf="!isLoading && !isSuccess">Activation impossible</h1>
+    <div class="verify-content">
+      <h1 *ngIf="isLoading">Activation du compte</h1>
+      <h1 *ngIf="!isLoading && isSuccess">Activation reussie</h1>
+      <h1 *ngIf="!isLoading && !isSuccess">Activation impossible</h1>
 
-    <p>{{ message }}</p>
+      <p class="verify-message">{{ message }}</p>
 
-    <div class="status-dot" [class.success]="isSuccess" [class.loading]="isLoading"></div>
-
-    <div class="action-row" *ngIf="!isLoading">
-      <button type="button" class="primary-btn" (click)="goToLogin()">Aller a la connexion</button>
-      <a routerLink="/register" class="ghost-btn">Retour inscription</a>
+      <div class="action-row" *ngIf="!isLoading">
+        <button type="button" class="primary-btn" (click)="goToLogin()">Se connecter</button>
+        <a routerLink="/register" class="ghost-btn">Retour inscription</a>
+      </div>
     </div>
   </div>
 </div>

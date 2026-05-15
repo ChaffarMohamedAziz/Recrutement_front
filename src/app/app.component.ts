@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { ThemeService } from './services/theme.service';
 import { NavbarComponent } from './shared/navbar/navbar.component';
 
 @Component({
@@ -15,7 +16,8 @@ export class AppComponent {
   title = 'Recrutement_front';
   currentUrl = '';
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private themeService: ThemeService) {
+    this.themeService.initializeTheme();
     this.currentUrl = this.router.url;
 
     this.router.events

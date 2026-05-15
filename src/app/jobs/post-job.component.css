@@ -93,6 +93,10 @@
   gap: 14px;
 }
 
+.field-head--compact {
+  gap: 10px;
+}
+
 .form-group input,
 .form-group textarea,
 .form-group select {
@@ -173,7 +177,7 @@
 
 .skill-item {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
   gap: 14px;
   align-items: end;
   padding: 18px;
@@ -181,6 +185,19 @@
   background: #ffffff;
   border: 1px solid #e3ebf7;
   box-shadow: 0 14px 24px rgba(15, 23, 42, 0.04);
+}
+
+.skill-hint {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .danger-link {
@@ -197,6 +214,8 @@
 .action-row {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
 }
 
 .action-row--stack {
@@ -361,9 +380,19 @@
   padding: 18px;
 }
 
+.offer-content {
+  min-width: 0;
+}
+
 .offer-row strong {
   display: block;
   color: #18234d;
+}
+
+.offer-side {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
 }
 
 .offer-meta {
@@ -372,6 +401,138 @@
   justify-items: end;
   color: #294976;
   font-weight: 800;
+}
+
+.offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.offer-action-btn {
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+.action-secondary-btn {
+  min-width: 132px;
+}
+
+.ai-test-section {
+  display: grid;
+  gap: 18px;
+}
+
+.section-helper {
+  margin: 8px 0 0;
+  color: #6f7f99;
+  line-height: 1.6;
+}
+
+.ai-test-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid #e7edf7;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.ai-test-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #10213f;
+  font-weight: 700;
+}
+
+.ai-test-config-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ai-test-summary-grid {
+  margin-top: -4px;
+}
+
+.ai-skill-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ai-skill-chip {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid #d6e2f3;
+  background: #f8fbff;
+  color: #35527f;
+  font-weight: 700;
+}
+
+.ai-skill-chip.active {
+  border-color: rgba(35, 92, 196, 0.24);
+  background: rgba(35, 92, 196, 0.12);
+  color: #214f97;
+}
+
+.ai-test-actions-row {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.ai-test-questions {
+  display: grid;
+  gap: 16px;
+}
+
+.ai-question-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid #dbe6f5;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 255, 0.98));
+}
+
+.ai-question-card__head,
+.ai-question-badges,
+.ai-question-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.ai-question-badges {
+  justify-content: flex-start;
+}
+
+.question-type-badge,
+.question-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.question-type-badge {
+  background: rgba(35, 92, 196, 0.1);
+  color: #1d4ed8;
+}
+
+.question-meta-badge {
+  background: rgba(148, 163, 184, 0.12);
+  color: #475569;
 }
 
 @media (max-width: 1100px) {
@@ -387,7 +548,8 @@
 @media (max-width: 900px) {
   .form-grid,
   .summary-grid,
-  .salary-row {
+  .salary-row,
+  .ai-test-config-grid {
     grid-template-columns: 1fr;
   }
 
@@ -418,11 +580,23 @@
     align-items: flex-start;
   }
 
+  .offer-side,
+  .offer-meta,
+  .offer-actions {
+    width: 100%;
+    justify-items: start;
+    justify-content: flex-start;
+  }
+
   .action-row {
     justify-content: stretch;
   }
 
   .primary-btn {
+    width: 100%;
+  }
+
+  .action-secondary-btn {
     width: 100%;
   }
 }

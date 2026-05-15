@@ -1,0 +1,175 @@
+<div class="ai-test-shell app-page-layout">
+  <app-page-hero
+    badge="Candidat"
+    title="Passez votre test IA de présélection"
+    subtitle="Une seule question s’affiche à la fois, avec un temps dédié. Restez sur cette page jusqu’à la soumission pour éviter toute fermeture automatique du test."
+    theme="candidate"
+    variant="journey"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Mes candidatures', link: '/candidate-space' },
+      { label: 'Test IA' }
+    ]"
+    [primaryActionLabel]="'Retour aux candidatures'"
+    [primaryActionLink]="'/candidate-space'"
+  ></app-page-hero>
+
+  <p class="ai-test-toast success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="ai-test-toast warning" *ngIf="warningMessage">{{ warningMessage }}</p>
+  <p class="ai-test-toast warning" *ngIf="autoProgressMessage && isInProgress">{{ autoProgressMessage }}</p>
+  <p class="ai-test-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="ai-test-card" *ngIf="test; else stateBlock">
+    <div class="ai-test-head">
+      <div>
+        <span class="panel-kicker">Test IA sécurisé</span>
+        <h2>{{ test.offerTitle }}</h2>
+        <p>{{ test.companyName }} · Seuil d’entretien : {{ test.passingScore || test.threshold }}%</p>
+      </div>
+
+      <div class="ai-test-head__aside">
+        <span class="test-status" [attr.data-status]="normalizedStatus">{{ statusLabel }}</span>
+        <div class="timer-card" *ngIf="isInProgress">
+          <small>Temps restant</small>
+          <strong>{{ timerLabel }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-test-summary">
+      <article class="summary-chip">
+        <span>Progression</span>
+        <strong>{{ currentQuestionNumber }}/{{ totalQuestions }}</strong>
+      </article>
+
+      <article class="summary-chip">
+        <span>Durée totale</span>
+        <strong>{{ durationLabel }}</strong>
+      </article>
+
+      <article class="summary-chip">
+        <span>Avertissements</span>
+        <strong>{{ warningCount }}/2</strong>
+      </article>
+
+      <article class="summary-chip">
+        <span>Changements d’onglet</span>
+        <strong>{{ tabSwitchCount }}</strong>
+      </article>
+    </div>
+
+    <div class="progress-line" *ngIf="totalQuestions">
+      <span [style.width.%]="progressPercent"></span>
+    </div>
+
+    <div class="security-panel" *ngIf="isInProgress || isClosedForSuspicion || isExpired">
+      <div class="security-panel__item">
+        <span>Politique de surveillance</span>
+        <p>Premier écart : avertissement. Deuxième écart : fermeture automatique du test et signalement au recruteur.</p>
+      </div>
+      <div class="security-panel__item" *ngIf="test.closedReason">
+        <span>Motif enregistré</span>
+        <p>{{ test.closedReason }}</p>
+      </div>
+    </div>
+
+    <p class="ai-test-copy" *ngIf="test.report">{{ test.report }}</p>
+
+    <section class="start-panel" *ngIf="isPreStart">
+      <div class="start-panel__copy">
+        <h3>Avant de commencer</h3>
+        <p>
+          Une fois le test démarré, le chrono se lance immédiatement. Évitez de changer d’onglet,
+          de recharger la page ou de quitter Smart Recruit pendant l’examen.
+        </p>
+        <ul>
+          <li>Le test contient {{ totalQuestions || test.numberOfQuestions || test.questions.length }} question(s).</li>
+          <li>Chaque question possède son propre temps.</li>
+          <li>Le second écart ferme automatiquement le test.</li>
+        </ul>
+      </div>
+
+      <div class="start-panel__actions">
+        <button type="button" class="primary-btn" (click)="startTest()" [disabled]="starting">
+          {{ starting ? 'Démarrage...' : 'Commencer le test' }}
+        </button>
+      </div>
+    </section>
+
+    <ng-container *ngIf="!isPreStart && currentQuestion">
+      <article class="question-card question-card--single">
+        <div class="question-card__head">
+          <div class="question-card__meta">
+            <span class="question-type">{{ currentQuestionTypeLabel }}</span>
+            <span class="question-order">Question {{ currentQuestionNumber }} / {{ totalQuestions }}</span>
+          </div>
+          <div class="question-card__meta">
+            <strong>{{ currentQuestion.points }} pts</strong>
+            <strong>{{ currentQuestionTimeLimitLabel }}</strong>
+          </div>
+        </div>
+
+        <h3>{{ currentQuestion.questionText }}</h3>
+
+        <ng-container [ngSwitch]="currentQuestion.questionType">
+          <div class="options-list" *ngSwitchCase="'MCQ'">
+            <label class="option-row" *ngFor="let option of currentQuestion.options">
+              <input
+                type="radio"
+                [name]="'question-' + currentQuestion.id"
+                [value]="option"
+                [checked]="currentAnswer === option"
+                [disabled]="isReadonly"
+                (change)="currentAnswer = option"
+              />
+              <span>{{ option }}</span>
+            </label>
+          </div>
+
+          <div class="options-list" *ngSwitchCase="'QCM'">
+            <label class="option-row" *ngFor="let option of currentQuestion.options">
+              <input
+                type="radio"
+                [name]="'question-' + currentQuestion.id"
+                [value]="option"
+                [checked]="currentAnswer === option"
+                [disabled]="isReadonly"
+                (change)="currentAnswer = option"
+              />
+              <span>{{ option }}</span>
+            </label>
+          </div>
+
+          <textarea
+            *ngSwitchDefault
+            rows="7"
+            [ngModel]="currentAnswer"
+            [disabled]="isReadonly"
+            (ngModelChange)="currentAnswer = $event"
+            [placeholder]="currentQuestion.questionType === 'SCENARIO' ? 'Décrivez votre raisonnement, les priorités et les actions proposées.' : 'Saisissez votre réponse ici.'"
+          ></textarea>
+        </ng-container>
+      </article>
+
+      <div class="readonly-report" *ngIf="isReadonly && test.generatedReport">
+        <h3>Retour sur votre test</h3>
+        <p>{{ test.generatedReport }}</p>
+      </div>
+
+      <div class="ai-test-actions">
+        <a routerLink="/candidate-space" class="secondary-link">Retour à mes candidatures</a>
+        <button type="button" class="primary-btn" (click)="goNext()" [disabled]="!canSubmitCurrentQuestion">
+          {{ submitting ? 'Traitement...' : (isLastQuestion ? 'Terminer le test' : 'Question suivante') }}
+        </button>
+      </div>
+    </ng-container>
+  </section>
+
+  <ng-template #stateBlock>
+    <section class="ai-test-card ai-test-card--empty">
+      <h3>{{ loading ? 'Chargement du test IA...' : 'Test introuvable.' }}</h3>
+      <p *ngIf="!loading">Le test demandé n’est pas accessible pour le moment.</p>
+      <a routerLink="/candidate-space">Retour à mes candidatures</a>
+    </section>
+  </ng-template>
+</div>

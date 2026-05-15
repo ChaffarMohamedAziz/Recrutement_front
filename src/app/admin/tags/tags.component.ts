@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CompetenceItem, CompetencePayload, CompetenceService } from '../../services/competence.service';
 import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
@@ -64,6 +63,10 @@ export class TagsComponent implements OnInit {
     this.loadCompetences();
   }
 
+  get activeCategoriesCount(): number {
+    return new Set(this.competences.map((item) => item.type).filter(Boolean)).size;
+  }
+
   loadCompetences(): void {
     this.loading = true;
     this.errorMessage = '';
@@ -78,7 +81,7 @@ export class TagsComponent implements OnInit {
       },
       error: (error: { message?: string }) => {
         this.loading = false;
-        this.errorMessage = error.message || 'Chargement des competences impossible.';
+        this.errorMessage = error.message || 'Chargement des compétences impossible.';
       }
     });
   }
@@ -131,14 +134,14 @@ export class TagsComponent implements OnInit {
       next: () => {
         this.saving = false;
         this.successMessage = this.editingId
-          ? 'Competence mise a jour avec succes.'
-          : 'Competence ajoutee avec succes.';
+          ? 'Compétence mise à jour avec succès.'
+          : 'Compétence ajoutée avec succès.';
         this.cancelEdit();
         this.loadCompetences();
       },
       error: (error: { message?: string }) => {
         this.saving = false;
-        this.errorMessage = error.message || 'Enregistrement de la competence impossible.';
+        this.errorMessage = error.message || 'Enregistrement de la compétence impossible.';
       }
     });
   }
@@ -148,7 +151,7 @@ export class TagsComponent implements OnInit {
       return;
     }
 
-    const confirmed = window.confirm(`Supprimer la competence ${item.nom} ?`);
+    const confirmed = window.confirm(`Supprimer la compétence ${item.nom} ?`);
     if (!confirmed) {
       return;
     }
@@ -158,12 +161,35 @@ export class TagsComponent implements OnInit {
 
     this.competenceService.deleteCompetence(item.id).subscribe({
       next: (response) => {
-        this.successMessage = response.message || 'Competence supprimee.';
+        this.successMessage = response.message || 'Compétence supprimée.';
         this.competences = this.competences.filter((competence) => competence.id !== item.id);
       },
       error: (error: { message?: string }) => {
-        this.errorMessage = error.message || 'Suppression de la competence impossible.';
+        this.errorMessage = error.message || 'Suppression de la compétence impossible.';
       }
     });
+  }
+
+  categoryBadge(type: string): string {
+    const label = (type || '').toLowerCase();
+    if (label.includes('frontend')) {
+      return 'frontend';
+    }
+    if (label.includes('backend')) {
+      return 'backend';
+    }
+    if (label.includes('base de données')) {
+      return 'database';
+    }
+    if (label.includes('devops') || label.includes('cloud')) {
+      return 'devops';
+    }
+    if (label.includes('intelligence artificielle') || label.includes('data')) {
+      return 'ai';
+    }
+    if (label.includes('design') || label.includes('ui/ux')) {
+      return 'design';
+    }
+    return 'default';
   }
 }

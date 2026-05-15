@@ -3,19 +3,19 @@
     <div class="workspace-main-inner">
       <app-page-hero
         badge="Admin"
-        title="Bibliotheque des competences"
-        subtitle="Centralisez les tags et uniformisez le vocabulaire metier utilise dans les profils et les offres."
+        title="Bibliothèque des compétences"
+        subtitle="Centralisez les tags et uniformisez le vocabulaire métier utilisé dans les profils et les offres."
         theme="admin"
         variant="taxonomy"
         [breadcrumbs]="[
           { label: 'Accueil', link: '/home' },
           { label: 'Admin', link: '/admin-dashboard' },
-          { label: 'Tags competences' }
+          { label: 'Tags compétences' }
         ]"
         [highlights]="[
-          { title: 'Referentiel commun', description: 'Evitez les doublons et gardez une nomenclature stable.', icon: 'check' },
-          { title: 'Gestion rapide', description: 'Ajoutez, modifiez et filtrez les competences depuis une seule vue.', icon: 'speed' },
-          { title: 'Qualite du matching', description: 'Des tags propres renforcent la pertinence des resultats.', icon: 'chart' }
+          { title: 'Référentiel commun', description: 'Évitez les doublons et gardez une nomenclature stable.', icon: 'check' },
+          { title: 'Gestion rapide', description: 'Ajoutez, modifiez et filtrez les compétences depuis une seule vue.', icon: 'speed' },
+          { title: 'Qualité du matching', description: 'Des tags propres renforcent la pertinence des résultats.', icon: 'chart' }
         ]"
       ></app-page-hero>
 
@@ -27,24 +27,29 @@
 
       <section class="tags-summary-grid">
         <article class="tags-summary-card">
-          <span>Competences visibles</span>
+          <span>Compétences visibles</span>
           <strong>{{ competences.length }}</strong>
-          <small>Tags remontes selon votre filtre actuel</small>
+          <small>Tags remontés selon votre filtre actuel</small>
         </article>
         <article class="tags-summary-card">
-          <span>Categorie active</span>
+          <span>Catégories actives</span>
+          <strong>{{ activeCategoriesCount }}</strong>
+          <small>Familles actuellement présentes dans la liste</small>
+        </article>
+        <article class="tags-summary-card">
+          <span>Filtre courant</span>
           <strong>{{ selectedType }}</strong>
-          <small>Filtre courant du referentiel</small>
+          <small>Catégorie active : {{ selectedType }}</small>
         </article>
       </section>
 
       <section class="tags-layout">
         <article class="workspace-card tags-form-card">
           <div class="tags-form-head">
-            <span class="tags-form-badge">{{ editingId ? 'Mode edition' : 'Nouveau tag' }}</span>
-            <h2>{{ editingId ? 'Modifier une competence' : 'Ajouter une competence' }}</h2>
+            <span class="tags-form-badge">{{ editingId ? 'Mode édition' : 'Nouveau tag' }}</span>
+            <h2>{{ editingId ? 'Modifier une compétence' : 'Ajouter une compétence' }}</h2>
             <p class="tags-form-note">
-              Renseignez le nom, la categorie et une courte description pour enrichir le referentiel commun.
+              Renseignez le nom, la catégorie et une courte description pour enrichir le référentiel commun.
             </p>
           </div>
 
@@ -55,7 +60,7 @@
             </div>
 
             <div class="form-group">
-              <label>Categorie</label>
+              <label>Catégorie</label>
               <select formControlName="type">
                 <option *ngFor="let type of filterTypes.slice(1)" [value]="type">{{ type }}</option>
               </select>
@@ -63,12 +68,12 @@
 
             <div class="form-group full-width">
               <label>Description</label>
-              <textarea rows="4" formControlName="description" placeholder="Description courte de la competence."></textarea>
+              <textarea rows="4" formControlName="description" placeholder="Description courte de la compétence."></textarea>
             </div>
 
             <div class="actions-row">
               <button type="submit" class="admin-action-btn primary" [disabled]="saving">
-                {{ saving ? 'Enregistrement...' : (editingId ? 'Mettre a jour' : 'Ajouter') }}
+                {{ saving ? 'Enregistrement...' : (editingId ? 'Mettre à jour' : 'Ajouter') }}
               </button>
               <button type="button" class="admin-action-btn delete" *ngIf="editingId" (click)="cancelEdit()">
                 Annuler
@@ -80,7 +85,7 @@
         <article class="workspace-card tags-list-card">
           <div class="tags-toolbar">
             <label class="search-box">
-              <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher une competence..." />
+              <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher une compétence..." />
             </label>
 
             <label class="filter-box">
@@ -98,8 +103,10 @@
           <div class="tag-list">
             <article class="tag-row" *ngFor="let item of competences">
               <div class="tag-copy">
-                <strong>{{ item.nom }}</strong>
-                <span>{{ item.type }}</span>
+                <div class="tag-copy__head">
+                  <strong>{{ item.nom }}</strong>
+                  <span class="tag-type-badge" [attr.data-tone]="categoryBadge(item.type)">{{ item.type }}</span>
+                </div>
                 <p>{{ item.description || 'Aucune description.' }}</p>
               </div>
 
@@ -111,8 +118,8 @@
           </div>
 
           <div class="admin-empty-state" *ngIf="!loading && !competences.length">
-            <strong>Aucune competence disponible</strong>
-            <p>Ajoutez un premier tag ou ajustez vos filtres pour retrouver les competences existantes.</p>
+            <strong>Aucune compétence disponible</strong>
+            <p>Ajoutez un premier tag ou ajustez vos filtres pour retrouver les compétences existantes.</p>
           </div>
         </article>
       </section>

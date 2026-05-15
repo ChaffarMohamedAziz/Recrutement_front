@@ -1,9 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Subject, interval } from 'rxjs';
+import { startWith, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
+import { MessagingService } from '../../services/messaging.service';
 import { NotificationItem, NotificationService } from '../../services/notification.service';
+import { ThemeService } from '../../services/theme.service';
 import { filter } from 'rxjs/operators';
 
 interface NavbarItem {
@@ -19,9 +23,10 @@ interface NavbarItem {
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   readonly exactRouteOptions = { exact: true };
   readonly partialRouteOptions = { exact: false };
+  private readonly destroy$ = new Subject<void>();
 
   isMobileMenuOpen = false;
   unreadCount = 0;
@@ -36,15 +41,21 @@ export class NavbarComponent implements OnInit {
   roleLabel = 'Visiteur';
   userInitials = 'SR';
   notificationsOpen = false;
+  profileMenuOpen = false;
   notificationsLoading = false;
   notificationsError = '';
   notifications: NotificationItem[] = [];
+  isScrolled = false;
+  currentTheme: 'light' | 'dark' = 'light';
+  unreadMessagesCount = 0;
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private elementRef: ElementRef<HTMLElement>
+    private messagingService: MessagingService,
+    private elementRef: ElementRef<HTMLElement>,
+    private themeService: ThemeService
   ) {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
@@ -53,6 +64,29 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.syncViewModel();
+    this.updateScrolledState();
+    this.currentTheme = this.themeService.currentTheme;
+    this.themeService.currentTheme$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((theme) => {
+        this.currentTheme = theme;
+      });
+    interval(30000)
+      .pipe(startWith(0), takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.isLoggedIn) {
+          this.refreshUnreadCount();
+          this.refreshUnreadMessagesCount();
+          if (this.notificationsOpen) {
+            this.loadNotifications(false);
+          }
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   toggleMobileMenu(): void {
@@ -72,7 +106,13 @@ export class NavbarComponent implements OnInit {
 
     if (!this.elementRef.nativeElement.contains(target)) {
       this.notificationsOpen = false;
+      this.profileMenuOpen = false;
     }
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.updateScrolledState();
   }
 
   trackByLink(_: number, item: NavbarItem): string {
@@ -87,9 +127,30 @@ export class NavbarComponent implements OnInit {
     this.authService.logout();
     this.closeMobileMenu();
     this.notificationsOpen = false;
+    this.profileMenuOpen = false;
     this.notifications = [];
     this.syncViewModel();
     this.router.navigate(['/login']);
+  }
+
+  toggleProfileMenu(event: MouseEvent): void {
+    event.stopPropagation();
+
+    if (!this.isLoggedIn) {
+      return;
+    }
+
+    this.profileMenuOpen = !this.profileMenuOpen;
+    if (this.profileMenuOpen) {
+      this.notificationsOpen = false;
+    }
+  }
+
+  goToChangePassword(event: MouseEvent): void {
+    event.stopPropagation();
+    this.profileMenuOpen = false;
+    this.closeMobileMenu();
+    this.router.navigate(['/change-password']);
   }
 
   toggleNotifications(event: MouseEvent): void {
@@ -101,8 +162,20 @@ export class NavbarComponent implements OnInit {
 
     this.notificationsOpen = !this.notificationsOpen;
     if (this.notificationsOpen) {
+      this.profileMenuOpen = false;
       this.loadNotifications(true);
     }
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+
+  openMessaging(): void {
+    this.closeMobileMenu();
+    this.notificationsOpen = false;
+    this.profileMenuOpen = false;
+    void this.router.navigate(['/messages']);
   }
 
   markNotificationAsRead(notification: NotificationItem, event: MouseEvent): void {
@@ -144,6 +217,8 @@ export class NavbarComponent implements OnInit {
   }
 
   private syncViewModel(): void {
+    this.profileMenuOpen = false;
+    this.notificationsOpen = false;
     this.currentUser = this.authService.getCurrentUser();
     this.isLoggedIn = this.authService.isLoggedIn();
     this.isAdmin = this.authService.isAdmin();
@@ -156,19 +231,15 @@ export class NavbarComponent implements OnInit {
     this.userInitials = this.buildUserInitials(this.currentUser?.username);
 
     if (this.isLoggedIn) {
-      this.notificationService.getUnreadCount().subscribe({
-        next: (response) => {
-          this.unreadCount = response.count ?? 0;
-        },
-        error: () => {
-          this.unreadCount = 0;
-        }
-      });
+      this.refreshUnreadCount();
+      this.refreshUnreadMessagesCount();
       return;
     }
 
     this.unreadCount = 0;
+    this.unreadMessagesCount = 0;
     this.notificationsOpen = false;
+    this.profileMenuOpen = false;
     this.notifications = [];
   }
 
@@ -176,8 +247,10 @@ export class NavbarComponent implements OnInit {
     if (this.isAdmin) {
       return [
         { label: 'Dashboard', link: '/admin-dashboard', exact: true },
-        { label: 'Gerer les demandes recruteurs', link: '/admin/recruiter-activation' },
-        { label: 'Gerer les utilisateurs', link: '/admin/users' },
+        { label: 'Statistiques', link: '/admin/statistics', exact: true },
+        { label: 'Abonnements', link: '/admin/subscriptions', exact: true },
+        { label: 'Gérer les demandes recruteurs', link: '/admin/recruiter-activation' },
+        { label: 'Gérer les utilisateurs', link: '/admin/users' },
         { label: 'Tags', link: '/admin/tags' }
       ];
     }
@@ -186,7 +259,8 @@ export class NavbarComponent implements OnInit {
       return [
         { label: 'Profil', link: '/recruiter-space', exact: true },
         { label: "Offre d'emploi", link: '/post-a-job', exact: true },
-        { label: 'Kanban', link: '/dashboard', exact: true }
+        { label: 'Kanban', link: '/dashboard', exact: true },
+        { label: 'Assistant IA', link: '/assistant', exact: true }
       ];
     }
 
@@ -194,7 +268,8 @@ export class NavbarComponent implements OnInit {
       return [
         { label: 'Profil', link: '/profile', exact: true },
         { label: "Offres d'emploi", link: '/job-list', exact: true },
-        { label: 'Mes candidatures', link: '/candidate-space', exact: true }
+        { label: 'Mes candidatures', link: '/candidate-space', exact: true },
+        { label: 'Assistant IA', link: '/assistant', exact: true }
       ];
     }
 
@@ -250,5 +325,36 @@ export class NavbarComponent implements OnInit {
         this.notificationsError = error.message;
       }
     });
+  }
+
+  private refreshUnreadCount(): void {
+    this.notificationService.getUnreadCount().subscribe({
+      next: (response) => {
+        this.unreadCount = response.count ?? 0;
+      },
+      error: () => {
+        this.unreadCount = 0;
+      }
+    });
+  }
+
+  private refreshUnreadMessagesCount(): void {
+    if (!this.isRecruiter && !this.isCandidate) {
+      this.unreadMessagesCount = 0;
+      return;
+    }
+
+    this.messagingService.getConversations().subscribe({
+      next: (conversations) => {
+        this.unreadMessagesCount = conversations.reduce((sum, item) => sum + (item.unreadCount || 0), 0);
+      },
+      error: () => {
+        this.unreadMessagesCount = 0;
+      }
+    });
+  }
+
+  private updateScrolledState(): void {
+    this.isScrolled = window.scrollY > 8;
   }
 }

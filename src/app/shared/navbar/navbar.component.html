@@ -1,4 +1,4 @@
-<div class="navbar-area fixed-top">
+<div class="navbar-area" [class.scrolled]="isScrolled">
   <div class="mobile-nav">
     <a [routerLink]="homeLink" class="logo" (click)="closeMobileMenu()">
       <span class="brand-logo-frame">
@@ -15,14 +15,14 @@
 
   <div class="main-nav" [class.open]="isMobileMenuOpen">
     <div class="container">
-      <nav class="navbar" [class.role-navbar]="isLoggedIn" [class.admin-navbar]="isAdmin">
+      <nav class="navbar" [class.role-navbar]="isLoggedIn" [class.admin-navbar]="isAdmin" [class.public-navbar]="!isLoggedIn">
         <a class="navbar-brand" [routerLink]="homeLink" (click)="closeMobileMenu()">
           <span class="brand-logo-frame">
             <img src="/Logo_site.png" alt="Smart Recruit" class="brand-logo-image" />
           </span>
         </a>
 
-        <div class="navbar-menu" [class.role-navbar-menu]="isLoggedIn" [class.admin-navbar-menu]="isAdmin">
+        <div class="navbar-menu" [class.role-navbar-menu]="isLoggedIn" [class.admin-navbar-menu]="isAdmin" [class.public-navbar-menu]="!isLoggedIn">
           <ul class="navbar-nav" [class.role-navbar-nav]="isLoggedIn" [class.admin-navbar-nav]="isAdmin">
             <li class="nav-item" *ngFor="let item of navItems; trackBy: trackByLink">
               <a
@@ -37,7 +37,35 @@
             </li>
           </ul>
 
+          <div class="public-nav-actions" *ngIf="!isLoggedIn">
+            <a routerLink="/login" class="nav-auth-link nav-auth-link-secondary" (click)="closeMobileMenu()">
+              Se connecter
+            </a>
+            <a routerLink="/register" class="nav-auth-link nav-auth-link-primary" (click)="closeMobileMenu()">
+              Demarrer maintenant
+            </a>
+          </div>
+
           <div class="common-btn" *ngIf="isLoggedIn" [class.role-common-btn]="isLoggedIn" [class.admin-common-btn]="isAdmin">
+            <button
+              *ngIf="isRecruiter || isCandidate"
+              type="button"
+              class="message-btn"
+              aria-label="Messagerie"
+              (click)="openMessaging()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 10.5h10"></path>
+                <path d="M7 14h6"></path>
+                <path d="M5.5 5.5h13a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 3v-3H5.5A2.5 2.5 0 0 1 3 15V8a2.5 2.5 0 0 1 2.5-2.5Z"></path>
+              </svg>
+              <span class="message-count" *ngIf="unreadMessagesCount > 0">{{ unreadMessagesCount }}</span>
+            </button>
+
+            <button type="button" class="theme-btn" (click)="toggleTheme()" [attr.aria-label]="currentTheme === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre'">
+              <span>{{ currentTheme === 'dark' ? '☀' : '☾' }}</span>
+            </button>
+
             <div class="notify-shell" (click)="$event.stopPropagation()">
               <button type="button" class="notify-btn" aria-label="Notifications" (click)="toggleNotifications($event)">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -90,22 +118,25 @@
               </div>
             </div>
 
-            <a [routerLink]="homeLink" class="profile-chip" (click)="closeMobileMenu()">
-              <span class="profile-avatar">{{ userInitials }}</span>
-              <span class="profile-copy">
-                <strong>{{ currentUser?.username || roleLabel }}</strong>
-                <small>{{ roleLabel }}</small>
-              </span>
-            </a>
+            <div class="profile-menu-shell" (click)="$event.stopPropagation()">
+              <button type="button" class="profile-chip profile-chip-button" (click)="toggleProfileMenu($event)" aria-label="Ouvrir le menu profil">
+                <span class="profile-avatar">{{ userInitials }}</span>
+                <span class="profile-copy">
+                  <strong>{{ currentUser?.username || roleLabel }}</strong>
+                  <small>{{ roleLabel }}</small>
+                </span>
+                <span class="profile-caret" [class.open]="profileMenuOpen"></span>
+              </button>
 
-            <button type="button" class="logout-btn" (click)="logout()" aria-label="Se deconnecter">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M14 7l5 5-5 5"></path>
-                <path d="M19 12H10"></path>
-                <path d="M10 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"></path>
-              </svg>
-              <span>Deconnexion</span>
-            </button>
+              <div class="profile-dropdown" *ngIf="profileMenuOpen">
+                <button type="button" class="profile-dropdown-item" (click)="goToChangePassword($event)">
+                  Changer le mot de passe
+                </button>
+                <button type="button" class="profile-dropdown-item danger" (click)="logout()">
+                  Deconnexion
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </nav>

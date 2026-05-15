@@ -3,8 +3,8 @@
     <div class="workspace-main-inner">
       <app-page-hero
         badge="Admin"
-        title="Gerer les demandes recruteurs"
-        subtitle="Examinez les comptes en attente, les activations valides et les refus depuis un espace commun, lisible et rapide."
+        title="Gérer les demandes recruteurs"
+        subtitle="Examinez les comptes en attente, les activations validées et les refus depuis un espace clair et rapide."
         theme="admin"
         variant="approval"
         [breadcrumbs]="[
@@ -13,9 +13,9 @@
           { label: 'Demandes recruteurs' }
         ]"
         [highlights]="[
-          { title: 'Validation rapide', description: 'Approuvez ou refusez les comptes recruteurs avec une vue centralisee.', icon: 'shield' },
-          { title: 'Liste claire', description: 'Gardez les statuts visibles sans changer d ecran.', icon: 'chart' },
-          { title: 'Suivi fiable', description: 'Conservez un historique clair entre attente, actif et refuse.', icon: 'check' }
+          { title: 'Validation rapide', description: 'Approuvez ou refusez les comptes recruteurs avec une vue centralisée.', icon: 'shield' },
+          { title: 'Liste claire', description: 'Gardez les statuts visibles sans changer d’écran.', icon: 'chart' },
+          { title: 'Suivi fiable', description: 'Conservez un historique clair entre attente, actif et refusé.', icon: 'check' }
         ]"
       ></app-page-hero>
 
@@ -29,17 +29,17 @@
         <article class="admin-summary-card">
           <span>Demandes en attente</span>
           <strong>{{ pendingCount }}</strong>
-          <small>Comptes a verifier en priorite</small>
+          <small>Comptes à vérifier en priorité</small>
         </article>
         <article class="admin-summary-card">
-          <span>Comptes approuves</span>
+          <span>Comptes approuvés</span>
           <strong>{{ approvedCount }}</strong>
-          <small>Recruteurs autorises a publier</small>
+          <small>Recruteurs autorisés à publier</small>
         </article>
         <article class="admin-summary-card">
-          <span>Comptes refuses</span>
+          <span>Comptes refusés</span>
           <strong>{{ refusedCount }}</strong>
-          <small>Historique des validations refusees</small>
+          <small>Historique des validations refusées</small>
         </article>
       </section>
 
@@ -49,11 +49,11 @@
           <strong>{{ pendingCount }}</strong>
         </button>
         <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'APPROVED'" (click)="setFilter('APPROVED')">
-          Approuves
+          Approuvés
           <strong>{{ approvedCount }}</strong>
         </button>
         <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'REFUSED'" (click)="setFilter('REFUSED')">
-          Refuses
+          Refusés
           <strong>{{ refusedCount }}</strong>
         </button>
         <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
@@ -92,6 +92,8 @@
           </span>
 
           <div class="admin-actions-cell" [class.single-action]="isDeleteOnlyAction(recruiter)">
+            <button type="button" class="admin-action-btn delete" (click)="openDetails(recruiter)">Voir détails</button>
+
             <button
               *ngIf="shouldShowApproveButton(recruiter)"
               type="button"
@@ -126,10 +128,50 @@
         </div>
 
         <div class="admin-empty-state" *ngIf="!loading && !filteredRecruiters.length">
-          <strong>Aucun compte recruteur a afficher</strong>
-          <p>Cette vue est vide pour le filtre selectionne. Changez de liste ou rechargez les demandes.</p>
+          <strong>Aucun compte recruteur à afficher</strong>
+          <p>Cette vue est vide pour le filtre sélectionné. Changez de liste ou rechargez les demandes.</p>
         </div>
       </section>
     </div>
   </main>
+
+  <div class="admin-modal-backdrop" *ngIf="selectedRecruiter" (click)="closeDetails()">
+    <div class="admin-modal" (click)="$event.stopPropagation()">
+      <div class="admin-modal__head">
+        <div>
+          <span class="admin-modal__badge">Détail recruteur</span>
+          <h2>{{ selectedRecruiter?.nom || 'Compte recruteur' }}</h2>
+          <p>{{ selectedRecruiter?.email || 'Non disponible' }}</p>
+        </div>
+        <button type="button" class="admin-modal__close" (click)="closeDetails()">Fermer</button>
+      </div>
+
+      <div class="detail-grid">
+        <article class="detail-card">
+          <span>Statut</span>
+          <strong>{{ getApprovalLabel(selectedRecruiter!) }}</strong>
+        </article>
+        <article class="detail-card">
+          <span>Compte actif</span>
+          <strong>{{ recruiterValue(selectedRecruiter?.statutCompte) }}</strong>
+        </article>
+        <article class="detail-card">
+          <span>Entreprise</span>
+          <strong>Non disponible</strong>
+        </article>
+        <article class="detail-card">
+          <span>Date de demande</span>
+          <strong>Non disponible</strong>
+        </article>
+      </div>
+
+      <article class="detail-panel">
+        <h3>Informations disponibles</h3>
+        <p><strong>Nom :</strong> {{ recruiterValue(selectedRecruiter?.nom) }}</p>
+        <p><strong>Email :</strong> {{ recruiterValue(selectedRecruiter?.email) }}</p>
+        <p><strong>Statut :</strong> {{ getApprovalLabel(selectedRecruiter!) }}</p>
+        <p><strong>Justification :</strong> Non disponible</p>
+      </article>
+    </div>
+  </div>
 </div>

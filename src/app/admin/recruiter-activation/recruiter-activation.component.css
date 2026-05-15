@@ -289,9 +289,107 @@
   line-height: 1.6;
 }
 
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+}
+
+.admin-modal {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(219, 230, 246, 0.85);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.2);
+  padding: 24px;
+}
+
+.admin-modal__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.admin-modal__badge {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-modal__head h2 {
+  margin: 10px 0 6px;
+  color: #10213f;
+}
+
+.admin-modal__head p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-modal__close {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #dbe6f5;
+  background: #f8fbff;
+  color: #173d78;
+  font-weight: 800;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.detail-card,
+.detail-panel {
+  border-radius: 18px;
+  border: 1px solid #e7eef8;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  padding: 18px;
+}
+
+.detail-card span {
+  display: block;
+  color: #6f7f99;
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.detail-card strong,
+.detail-panel h3 {
+  color: #10213f;
+}
+
+.detail-panel h3 {
+  margin: 0 0 12px;
+}
+
+.detail-panel p {
+  margin: 0 0 8px;
+  color: #64748b;
+}
+
 @media (max-width: 1200px) {
   .admin-summary-grid,
-  .recruiter-grid {
+  .recruiter-grid,
+  .detail-grid {
     grid-template-columns: 1fr;
   }
 
@@ -302,5 +400,10 @@
   .admin-actions-cell {
     justify-content: flex-start;
     flex-wrap: wrap;
+  }
+
+  .admin-modal__head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

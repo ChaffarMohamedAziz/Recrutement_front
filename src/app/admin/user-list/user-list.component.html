@@ -3,8 +3,8 @@
     <div class="workspace-main-inner">
       <app-page-hero
         badge="Admin"
-        title="Gerer les utilisateurs"
-        subtitle="Recherchez les comptes par nom, email ou identifiant, puis filtrez rapidement les utilisateurs visibles."
+        title="Gérer les utilisateurs"
+        subtitle="Recherchez les comptes, filtrez par rôle et ouvrez une fiche détail claire sans quitter l’écran."
         theme="admin"
         variant="management"
         [breadcrumbs]="[
@@ -13,9 +13,9 @@
           { label: 'Utilisateurs' }
         ]"
         [highlights]="[
-          { title: 'Vue centralisee', description: 'Gardez candidats et recruteurs accessibles depuis la meme page.', icon: 'users' },
+          { title: 'Vue centralisée', description: 'Gardez candidats, recruteurs et admins accessibles depuis la même page.', icon: 'users' },
           { title: 'Recherche rapide', description: 'Filtrez les comptes importants sans perdre de temps.', icon: 'search' },
-          { title: 'Gestion securisee', description: 'Accedez aux actions utiles depuis une interface claire.', icon: 'shield' }
+          { title: 'Gestion claire', description: 'Ouvrez les détails utiles avant toute suppression.', icon: 'shield' }
         ]"
       ></app-page-hero>
 
@@ -23,11 +23,12 @@
         <div class="admin-search-field">
           <input
             type="text"
-            placeholder="Recherche..."
+            placeholder="Rechercher un nom ou un email..."
             [ngModel]="searchQuery"
             (ngModelChange)="onSearchChange($event)"
           />
         </div>
+        <button type="button" class="admin-action-btn secondary" (click)="exportUsersCsv()">Exporter CSV</button>
       </section>
 
       <section class="admin-summary-grid">
@@ -46,6 +47,11 @@
           <strong>{{ recruiterCount }}</strong>
           <small>Comptes recruteurs visibles</small>
         </article>
+        <article class="admin-summary-card">
+          <span>Admins</span>
+          <strong>{{ adminCount }}</strong>
+          <small>Comptes administrateurs actifs</small>
+        </article>
       </section>
 
       <section class="admin-filter-row">
@@ -61,6 +67,10 @@
           Recruteurs
           <strong>{{ recruiterCount }}</strong>
         </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ADMIN'" (click)="setFilter('ADMIN')">
+          Admins
+          <strong>{{ adminCount }}</strong>
+        </button>
       </section>
 
       <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -70,7 +80,7 @@
         <div class="admin-table-head user-grid">
           <span>Nom</span>
           <span>Email</span>
-          <span>Role</span>
+          <span>Rôle</span>
           <span>Actions</span>
         </div>
 
@@ -85,14 +95,14 @@
 
           <span class="admin-email-cell">{{ userItem.email }}</span>
 
-          <span class="workspace-chip" [ngClass]="userItem.role === 'RECRUITER' ? 'warning' : 'success'">
+          <span class="workspace-chip" [ngClass]="userItem.role === 'RECRUITER' ? 'warning' : (userItem.role === 'ADMIN' ? 'primary' : 'success')">
             {{ getRoleLabel(userItem.role) }}
           </span>
 
           <div class="admin-actions-cell">
-            <a class="admin-action-btn secondary" [routerLink]="['/admin/users', userItem.id]">
-              Voir
-            </a>
+            <button type="button" class="admin-action-btn secondary" (click)="openDetails(userItem)">
+              Voir détails
+            </button>
 
             <button
               type="button"
@@ -101,17 +111,77 @@
               [disabled]="isDeleting(userItem.id)"
               title="Supprimer"
             >
-              <span class="admin-action-btn__icon">{{ isDeleting(userItem.id) ? '...' : '×' }}</span>
               {{ isDeleting(userItem.id) ? 'Suppression...' : 'Supprimer' }}
             </button>
           </div>
         </div>
 
         <div class="admin-empty-state" *ngIf="!loading && !filteredUsers.length">
-          <strong>Aucun utilisateur trouve</strong>
+          <strong>Aucun utilisateur trouvé</strong>
           <p>Essayez une autre recherche ou changez le filtre actif.</p>
         </div>
       </section>
     </div>
   </main>
+
+  <div class="admin-modal-backdrop" *ngIf="showUserModal" (click)="closeDetails()">
+    <div class="admin-modal" (click)="$event.stopPropagation()">
+      <div class="admin-modal__head">
+        <div>
+          <span class="admin-modal__badge">Détail utilisateur</span>
+          <h2>{{ selectedSummary?.nom || 'Utilisateur' }}</h2>
+          <p>{{ selectedSummary?.email || 'Non disponible' }}</p>
+        </div>
+        <button type="button" class="admin-modal__close" (click)="closeDetails()">Fermer</button>
+      </div>
+
+      <div class="admin-modal__body" *ngIf="!loadingProfile; else loadingProfileState">
+        <div class="detail-grid">
+          <article class="detail-card">
+            <span>Rôle</span>
+            <strong>{{ getRoleLabel(selectedProfile?.role || selectedSummary?.role || '') }}</strong>
+          </article>
+          <article class="detail-card">
+            <span>Compte actif</span>
+            <strong>{{ profileValue(selectedProfile?.statutCompte) }}</strong>
+          </article>
+          <article class="detail-card">
+            <span>Email vérifié</span>
+            <strong>{{ profileValue(selectedProfile?.emailVerified) }}</strong>
+          </article>
+          <article class="detail-card">
+            <span>Profil détaillé</span>
+            <strong>{{ profileValue(selectedProfile?.profileExists) }}</strong>
+          </article>
+        </div>
+
+        <div class="detail-stack">
+          <article class="detail-panel">
+            <h3>Informations générales</h3>
+            <p><strong>Nom :</strong> {{ profileValue(selectedProfile?.nom) }}</p>
+            <p><strong>Email :</strong> {{ profileValue(selectedProfile?.email) }}</p>
+            <p><strong>Téléphone :</strong> {{ profileValue(selectedProfile?.numTelephone) }}</p>
+          </article>
+
+          <article class="detail-panel">
+            <h3>Données métier</h3>
+            <p><strong>Poste recherché :</strong> {{ profileValue(selectedProfile?.posteRecherche) }}</p>
+            <p><strong>Localisation :</strong> {{ profileValue(selectedProfile?.localisation) }}</p>
+            <p><strong>Expérience :</strong> {{ profileValue(selectedProfile?.experience) }}</p>
+            <p><strong>Fonction :</strong> {{ profileValue(selectedProfile?.fonction) }}</p>
+            <p><strong>Poste :</strong> {{ profileValue(selectedProfile?.poste) }}</p>
+            <p><strong>Département :</strong> {{ profileValue(selectedProfile?.departement) }}</p>
+            <p><strong>Entreprise :</strong> {{ profileValue(selectedProfile?.entreprise) }}</p>
+          </article>
+        </div>
+      </div>
+
+      <ng-template #loadingProfileState>
+        <div class="admin-empty-state">
+          <strong>Chargement du profil...</strong>
+          <p>Nous récupérons les informations détaillées de cet utilisateur.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
 </div>

@@ -95,9 +95,18 @@ export interface CandidateProfileAutofillResponse {
 export class CandidateProfileService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:8081/api/candidate/profile';
+  private readonly recruiterApiUrl = 'http://localhost:8081/api/recruiter/candidates';
 
   getCurrentProfile(): Observable<CandidateProfileResponse> {
     return this.http.get<CandidateProfileResponse>(this.apiUrl).pipe(
+      catchError((error: HttpErrorResponse) =>
+        throwError(() => new Error(this.extractErrorMessage(error, 'Chargement du profil candidat impossible.')))
+      )
+    );
+  }
+
+  getRecruiterCandidateProfile(candidateId: number): Observable<CandidateProfileResponse> {
+    return this.http.get<CandidateProfileResponse>(`${this.recruiterApiUrl}/${candidateId}/profile`).pipe(
       catchError((error: HttpErrorResponse) =>
         throwError(() => new Error(this.extractErrorMessage(error, 'Chargement du profil candidat impossible.')))
       )

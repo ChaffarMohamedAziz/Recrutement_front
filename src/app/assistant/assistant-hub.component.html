@@ -14,19 +14,20 @@
     [secondaryActionLabel]="isRecruiter ? 'Messagerie' : 'Mes candidatures'"
     [secondaryActionLink]="isRecruiter ? '/messages' : '/candidate-space'"
     [highlights]="[
-      { title: 'Copilote concret', description: 'L IA intervient sur des taches utiles et directement exploitables.', icon: 'spark' },
-      { title: 'Actions reliees au metier', description: 'Descriptions d offres, recherche talents, coaching profil.', icon: 'briefcase' },
-      { title: 'Toujours contextualise', description: 'Les suggestions tiennent compte du role et de vos donnees.', icon: 'chart' }
+      { title: 'Chat utile', description: 'Des reponses exploitables avec historique de session et actions rapides.', icon: 'spark' },
+      { title: 'Outils metier', description: 'Generations, sourcing, coaching et preparation centralises.', icon: 'briefcase' },
+      { title: 'Toujours resilient', description: 'Fallback local prevu si l IA externe est momentanement indisponible.', icon: 'chart' }
     ]"
   ></app-page-hero>
 
+  <p class="assistant-toast success" *ngIf="successMessage">{{ successMessage }}</p>
   <p class="assistant-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
   <section class="assistant-kpis" *ngIf="isRecruiter; else candidateKpis">
     <article class="assistant-kpi">
-      <span>Outils actifs</span>
-      <strong>3</strong>
-      <small>description, sourcing, entretien</small>
+      <span>Conversations IA</span>
+      <strong>{{ conversationCount }}</strong>
+      <small>reponses generees dans cette session</small>
     </article>
     <article class="assistant-kpi">
       <span>Offres connectees</span>
@@ -35,8 +36,8 @@
     </article>
     <article class="assistant-kpi">
       <span>Assistant pret</span>
-      <strong>IA</strong>
-      <small>reponses contextualisees et exploitables</small>
+      <strong>{{ askingAssistant ? '...' : 'OK' }}</strong>
+      <small>chat, sourcing, offres et entretiens</small>
     </article>
   </section>
 
@@ -44,23 +45,119 @@
     <section class="assistant-kpis">
       <article class="assistant-kpi">
         <span>Guidage profil</span>
-        <strong>IA</strong>
-        <small>conseils concrets pour mieux valoriser votre dossier</small>
+        <strong>{{ conversationCount }}</strong>
+        <small>reponses IA deja disponibles dans cette session</small>
       </article>
       <article class="assistant-kpi">
-        <span>Demandes rapides</span>
-        <strong>3</strong>
-        <small>prompts prets a l emploi pour avancer plus vite</small>
+        <span>Actions rapides</span>
+        <strong>{{ quickActions.length }}</strong>
+        <small>prompts prets pour CV, matching et entretien</small>
       </article>
       <article class="assistant-kpi">
-        <span>Orientation</span>
-        <strong>360</strong>
-        <small>aide pour comprendre la plateforme et vos priorites</small>
+        <span>Assistant pret</span>
+        <strong>{{ askingAssistant ? '...' : 'OK' }}</strong>
+        <small>toujours accessible pendant votre navigation</small>
       </article>
     </section>
   </ng-template>
 
-  <section class="assistant-grid" *ngIf="isRecruiter; else candidateAssistant">
+  <section class="assistant-chat-card">
+    <div class="assistant-chat-card__head">
+      <div>
+        <span class="panel-kicker">{{ isRecruiter ? 'Copilote recruteur' : 'Coach candidat' }}</span>
+        <h2>{{ isRecruiter ? 'Discutez avec votre Assistant IA' : 'Posez votre question a l Assistant IA' }}</h2>
+        <p>
+          {{ isRecruiter
+            ? 'Utilisez les actions rapides ou formulez votre besoin librement pour obtenir des suggestions exploitables.'
+            : 'Demandez des conseils sur votre profil, votre CV, votre matching ou votre preparation aux entretiens.' }}
+        </p>
+      </div>
+
+      <button type="button" class="assistant-clear-btn" (click)="clearConversation()">
+        Effacer la conversation
+      </button>
+    </div>
+
+    <div class="assistant-quick-actions">
+      <button
+        type="button"
+        class="assistant-quick-actions__item"
+        *ngFor="let action of quickActions"
+        (click)="runQuickAction(action)"
+      >
+        {{ action.label }}
+      </button>
+    </div>
+
+    <div class="assistant-chat-thread">
+      <article
+        class="assistant-bubble"
+        *ngFor="let item of chatHistory"
+        [class.assistant-bubble--user]="item.sender === 'user'"
+        [class.assistant-bubble--assistant]="item.sender === 'assistant'"
+      >
+        <div class="assistant-bubble__meta">
+          <strong>{{ item.sender === 'user' ? 'Vous' : 'Assistant IA' }}</strong>
+          <span>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        <p>{{ item.text }}</p>
+
+        <div class="result-tags" *ngIf="item.sender === 'assistant' && item.suggestions?.length">
+          <button type="button" *ngFor="let suggestion of item.suggestions" (click)="runQuickAction(suggestion)">
+            {{ suggestion }}
+          </button>
+        </div>
+
+        <small class="assistant-bubble__source" *ngIf="item.sender === 'assistant' && item.source">
+          Source : {{ item.source }}
+        </small>
+      </article>
+
+      <article class="assistant-bubble assistant-bubble--assistant assistant-bubble--loading" *ngIf="askingAssistant">
+        <div class="assistant-bubble__meta">
+          <strong>Assistant IA</strong>
+          <span>Generation...</span>
+        </div>
+        <div class="assistant-loading-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </article>
+    </div>
+
+    <div class="assistant-chat-composer">
+      <label class="assistant-textarea">
+        <span>Votre message</span>
+        <textarea
+          [(ngModel)]="chatInput"
+          rows="4"
+          placeholder="Expliquez votre besoin, votre question ou le resultat que vous voulez obtenir..."
+        ></textarea>
+      </label>
+
+      <div class="assistant-composer-actions">
+        <div class="assistant-context">
+          <span>Contexte</span>
+          <select [(ngModel)]="activeContextType">
+            <option value="GENERAL">General</option>
+            <option value="CANDIDATE_PROFILE">Profil candidat</option>
+            <option value="JOB_OFFER">Offre</option>
+            <option value="APPLICATION">Candidature</option>
+            <option value="INTERVIEW">Entretien</option>
+            <option value="AI_TEST">Test IA</option>
+          </select>
+        </div>
+
+        <button type="button" (click)="sendChatMessage()" [disabled]="askingAssistant || !chatInput.trim()">
+          {{ askingAssistant ? 'Generation...' : 'Envoyer' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="assistant-grid" *ngIf="isRecruiter; else candidateExtra">
     <article class="assistant-card">
       <div class="assistant-card__head">
         <div>
@@ -170,7 +267,16 @@
             <div class="result-tags">
               <span *ngFor="let skill of candidate.matchingSkills">{{ skill }}</span>
             </div>
-            <a [routerLink]="['/candidate-details', candidate.candidateId]">Voir le profil</a>
+            <a
+              *ngIf="canOpenCandidateProfile(candidate); else missingProfileLink"
+              [routerLink]="['/recruiter-candidate-profile', candidate.candidateId]"
+              [queryParams]="candidateSearchForm.offerId ? { offerId: candidateSearchForm.offerId } : null"
+            >
+              Voir le profil
+            </a>
+            <ng-template #missingProfileLink>
+              <span class="assistant-link-disabled">Profil indisponible</span>
+            </ng-template>
           </article>
         </div>
       </div>
@@ -224,47 +330,114 @@
     </article>
   </section>
 
-  <ng-template #candidateAssistant>
+  <ng-template #candidateExtra>
     <section class="assistant-grid assistant-grid--candidate">
       <article class="assistant-card assistant-card--wide">
         <div class="assistant-card__head">
           <div>
-            <span class="panel-kicker">Coach candidat</span>
-            <h2>Posez votre question a l assistant</h2>
+            <span class="panel-kicker">Top Matching Offres</span>
+            <h2>Offres les plus compatibles avec votre profil</h2>
           </div>
         </div>
 
-        <div class="prompt-list">
-          <button
-            type="button"
-            class="prompt-chip"
-            *ngFor="let prompt of candidatePrompts"
-            (click)="askCandidateAssistant(prompt)"
-          >
-            {{ prompt }}
-          </button>
-        </div>
+        <p class="assistant-card__intro">
+          Recherchez une offre, ajustez le score minimum et concentrez-vous sur les opportunites les plus pertinentes.
+          Par defaut, seules les 6 meilleures offres sont affichees.
+        </p>
 
-        <label class="assistant-textarea">
-          <span>Votre demande</span>
-          <textarea [(ngModel)]="candidatePrompt" rows="6" placeholder="Expliquez ce que vous voulez ameliorer sur votre profil ou sur votre navigation dans la plateforme..."></textarea>
-        </label>
+        <div class="matching-offers-filters">
+          <label class="assistant-textarea">
+            <span>Rechercher une offre</span>
+            <input
+              type="text"
+              [(ngModel)]="candidateOfferSearch"
+              placeholder="Titre, entreprise, localisation, competence..."
+            />
+          </label>
 
-        <div class="assistant-actions">
-          <button type="button" (click)="askCandidateAssistant()" [disabled]="askingAssistant">
-            {{ askingAssistant ? 'Analyse...' : 'Interroger l assistant' }}
-          </button>
-          <a routerLink="/profile">Revenir a mon profil</a>
-        </div>
-
-        <div class="assistant-result" *ngIf="candidateResponse">
-          <strong>{{ candidateResponse.message }}</strong>
-          <p>{{ candidateResponse.content }}</p>
-          <div class="result-tags" *ngIf="candidateResponse.suggestions.length">
-            <span *ngFor="let suggestion of candidateResponse.suggestions">{{ suggestion }}</span>
+          <div class="matching-score-filter">
+            <div class="matching-score-filter__head">
+              <span>Score minimum</span>
+              <strong>{{ candidateMatchingMinScore }}%</strong>
+            </div>
+            <input type="range" min="0" max="100" step="5" [(ngModel)]="candidateMatchingMinScore" />
+            <small>Affiche uniquement les offres dont le matching est superieur ou egal au score choisi.</small>
           </div>
+        </div>
+
+        <div class="matching-offers-summary" *ngIf="topMatchingOffers.length">
+          <strong>{{ filteredTopMatchingOffers.length }}</strong>
+          <span>offre(s) visible(s) avec les filtres actuels</span>
+        </div>
+
+        <div class="matching-offers-list" *ngIf="topMatchingOffers.length && filteredTopMatchingOffers.length; else noTopMatchingOffers">
+          <article class="matching-offer-card" *ngFor="let offer of filteredTopMatchingOffers">
+            <div class="matching-offer-card__head">
+              <div>
+                <h3>{{ offer.title }}</h3>
+                <p>{{ offer.companyName }} &middot; {{ offer.location }} &middot; {{ offer.contractType }}</p>
+              </div>
+              <span class="matching-offer-score">{{ offer.matchingScore | number:'1.0-0' }}%</span>
+            </div>
+
+            <div class="matching-offer-skills">
+              <div class="matching-offer-skill-block">
+                <strong>Competences compatibles</strong>
+                <div class="result-tags">
+                  <span *ngFor="let skill of offer.matchingSkills.slice(0, 5)">{{ skill }}</span>
+                  <span *ngIf="!offer.matchingSkills.length">Aucune detectee</span>
+                </div>
+              </div>
+
+              <div class="matching-offer-skill-block">
+                <strong>Competences manquantes</strong>
+                <div class="result-tags result-tags--danger">
+                  <span *ngFor="let skill of offer.missingSkills.slice(0, 5)">{{ skill }}</span>
+                  <span *ngIf="!offer.missingSkills.length">Aucune</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="assistant-actions">
+              <a [routerLink]="['/job-details', offer.offerId]">Voir l offre</a>
+              <button type="button" (click)="askForOfferAdvice(offer)" [disabled]="askingAssistant">
+                {{ askingAssistant ? 'Generation...' : 'Demander conseil a l IA' }}
+              </button>
+            </div>
+          </article>
+        </div>
+      </article>
+
+      <article class="assistant-card assistant-card--wide">
+        <div class="assistant-card__head">
+          <div>
+            <span class="panel-kicker">Guides utiles</span>
+            <h2>Ce que l assistant peut faire pour vous</h2>
+          </div>
+        </div>
+
+        <div class="assistant-guides">
+          <article class="assistant-guide">
+            <strong>Profil et competences</strong>
+            <p>Comprendre quelles competences renforcer et comment rendre votre profil plus lisible pour les recruteurs.</p>
+          </article>
+          <article class="assistant-guide">
+            <strong>CV et candidature</strong>
+            <p>Obtenir des conseils concrets pour mieux valoriser vos experiences, vos projets et vos resultats.</p>
+          </article>
+          <article class="assistant-guide">
+            <strong>Matching et entretien</strong>
+            <p>Identifier ce qui influence votre matching et preparer vos entretiens avec un plan d action simple.</p>
+          </article>
         </div>
       </article>
     </section>
+
+    <ng-template #noTopMatchingOffers>
+      <div class="assistant-empty-state">
+        <h3>{{ loadingTopMatchingOffers ? 'Chargement des offres compatibles...' : 'Aucune offre ne correspond aux filtres actuels.' }}</h3>
+        <p>Essayez un score minimum plus bas ou une recherche plus large pour retrouver davantage d opportunites pertinentes.</p>
+      </div>
+    </ng-template>
   </ng-template>
 </div>

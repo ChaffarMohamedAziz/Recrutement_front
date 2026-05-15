@@ -1,0 +1,200 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <app-page-hero
+    badge="Admin"
+    title="Pilotez les abonnements recruteurs et entreprises"
+    subtitle="Activez les plans, ajustez les limites métier et pilotez l’accès IA depuis une seule interface."
+    theme="admin"
+    variant="analytics"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Dashboard admin', link: '/admin-dashboard' }, { label: 'Abonnements' }]"
+    [primaryActionLabel]="'Voir les statistiques'"
+    [primaryActionLink]="'/admin/statistics'"
+    [secondaryActionLabel]="'Demandes recruteurs'"
+    [secondaryActionLink]="'/admin/recruiter-activation'"
+  ></app-page-hero>
+
+  <section class="subscription-toolbar">
+    <button type="button" class="admin-action-btn primary" routerLink="/admin/statistics">Voir les statistiques</button>
+    <button type="button" class="admin-action-btn ghost" (click)="exportSubscriptionsCsv()">Exporter CSV</button>
+  </section>
+
+  <section class="plans-grid">
+    <article class="plan-card" data-plan="FREE">
+      <span class="plan-badge">FREE</span>
+      <h3>Plan découverte</h3>
+      <ul>
+        <li *ngFor="let item of planHighlights.FREE">{{ item }}</li>
+      </ul>
+    </article>
+    <article class="plan-card" data-plan="STANDARD">
+      <span class="plan-badge">STANDARD</span>
+      <h3>Plan croissance</h3>
+      <ul>
+        <li *ngFor="let item of planHighlights.STANDARD">{{ item }}</li>
+      </ul>
+    </article>
+    <article class="plan-card" data-plan="PREMIUM">
+      <span class="plan-badge">PREMIUM</span>
+      <h3>Plan intelligent</h3>
+      <ul>
+        <li *ngFor="let item of planHighlights.PREMIUM">{{ item }}</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="subscription-summary-grid">
+    <article class="subscription-summary-card">
+      <span>Abonnements actifs</span>
+      <strong>{{ activeCount }}</strong>
+      <small>Plans actuellement opérationnels</small>
+    </article>
+    <article class="subscription-summary-card">
+      <span>Premium</span>
+      <strong>{{ premiumCount }}</strong>
+      <small>Recruteurs avec accès IA complet</small>
+    </article>
+    <article class="subscription-summary-card">
+      <span>Suspendus</span>
+      <strong>{{ suspendedCount }}</strong>
+      <small>Comptes limités ou à relancer</small>
+    </article>
+  </section>
+
+  <section class="subscription-layout">
+    <article class="workspace-card subscription-form-card">
+      <div class="subscription-panel-head">
+        <div>
+          <span class="panel-kicker">Édition</span>
+          <h2>{{ editingId ? 'Modifier un abonnement' : 'Créer un abonnement' }}</h2>
+          <p>Définissez le plan, la durée et les droits concrets du recruteur.</p>
+        </div>
+        <button type="button" class="admin-ghost-btn" *ngIf="editingId" (click)="cancelEdit()">Annuler</button>
+      </div>
+
+      <div class="subscription-form-grid">
+        <label>
+          <span>Recruteur</span>
+          <select [(ngModel)]="form.recruiterId" [disabled]="!!editingId">
+            <option [ngValue]="null">Choisir un recruteur</option>
+            <option *ngFor="let recruiter of recruiters" [ngValue]="recruiter.id">
+              {{ recruiter.nom }} · {{ recruiter.email }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Plan</span>
+          <select [(ngModel)]="form.planType" (ngModelChange)="usePlanPreset($event)">
+            <option *ngFor="let option of planOptions" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Statut</span>
+          <select [(ngModel)]="form.status">
+            <option *ngFor="let option of statusOptions" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Date de début</span>
+          <input type="date" [(ngModel)]="form.startDate" />
+        </label>
+
+        <label>
+          <span>Date de fin</span>
+          <input type="date" [(ngModel)]="form.endDate" />
+        </label>
+
+        <label>
+          <span>Offres maximum</span>
+          <input type="number" min="0" [(ngModel)]="form.maxJobOffers" />
+        </label>
+
+        <label>
+          <span>Vues candidats maximum</span>
+          <input type="number" min="0" [(ngModel)]="form.maxCandidateViews" />
+        </label>
+
+        <label class="toggle-field">
+          <span>Fonctionnalités IA</span>
+          <input type="checkbox" [(ngModel)]="form.aiFeaturesEnabled" />
+        </label>
+      </div>
+
+      <div class="plan-presets">
+        <button type="button" class="preset-btn" (click)="usePlanPreset('FREE')">FREE</button>
+        <button type="button" class="preset-btn" (click)="usePlanPreset('STANDARD')">STANDARD</button>
+        <button type="button" class="preset-btn" (click)="usePlanPreset('PREMIUM')">PREMIUM</button>
+      </div>
+
+      <div class="subscription-actions">
+        <button type="button" class="admin-action-btn primary" (click)="submit()" [disabled]="saving">
+          {{ saving ? 'Enregistrement...' : (editingId ? 'Mettre à jour' : 'Créer l’abonnement') }}
+        </button>
+      </div>
+    </article>
+
+    <article class="workspace-card subscription-table-card">
+      <div class="subscription-panel-head">
+        <div>
+          <span class="panel-kicker">Suivi</span>
+          <h2>Liste des abonnements</h2>
+          <p>Filtrez par statut et pilotez les actions critiques sans quitter la table.</p>
+        </div>
+      </div>
+
+      <section class="subscription-filter-row">
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ACTIVE'" (click)="setFilter('ACTIVE')">
+          <strong>Actifs</strong><span>{{ activeCount }}</span>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'SUSPENDED'" (click)="setFilter('SUSPENDED')">
+          <strong>Suspendus</strong><span>{{ suspendedCount }}</span>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'EXPIRED'" (click)="setFilter('EXPIRED')">
+          <strong>Expirés</strong><span>{{ subscriptions.length - activeCount - suspendedCount }}</span>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+          <strong>Tous</strong><span>{{ subscriptions.length }}</span>
+        </button>
+      </section>
+
+      <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="admin-status success" *ngIf="successMessage">{{ successMessage }}</p>
+
+      <div class="subscription-table-head subscription-grid">
+        <span>Recruteur</span>
+        <span>Entreprise</span>
+        <span>Plan</span>
+        <span>Statut</span>
+        <span>Fin</span>
+        <span>Offres max</span>
+        <span>IA</span>
+        <span>Actions</span>
+      </div>
+
+      <div class="subscription-table-row subscription-grid" *ngFor="let item of filteredSubscriptions">
+        <div class="subscription-identity">
+          <strong>{{ item.recruiterName || 'Non disponible' }}</strong>
+          <small>{{ item.recruiterEmail || 'Non disponible' }}</small>
+        </div>
+        <span>{{ item.entrepriseName || 'Non disponible' }}</span>
+        <span class="badge" [attr.data-plan]="item.planType">{{ item.planType }}</span>
+        <span class="badge" [attr.data-status]="item.status">{{ item.status }}</span>
+        <span>{{ item.endDate || 'Non définie' }}</span>
+        <span>{{ item.maxJobOffers ?? 0 }}</span>
+        <span>{{ item.aiFeaturesEnabled ? 'Oui' : 'Non' }}</span>
+        <div class="subscription-actions-cell">
+          <button type="button" class="admin-action-btn primary" (click)="editSubscription(item)">Modifier</button>
+          <button type="button" class="admin-action-btn success" (click)="activate(item)" [disabled]="saving">Activer</button>
+          <button type="button" class="admin-action-btn danger" (click)="suspend(item)" [disabled]="saving">Suspendre</button>
+          <button type="button" class="admin-action-btn ghost" (click)="renew(item)" [disabled]="saving">Renouveler +{{ renewDays }}j</button>
+        </div>
+      </div>
+
+      <div class="admin-empty-state" *ngIf="!loading && !filteredSubscriptions.length">
+        <strong>Aucun abonnement pour le moment.</strong>
+        <p>Créez un premier plan pour un recruteur ou changez le filtre actif.</p>
+      </div>
+    </article>
+  </section>
+</div>

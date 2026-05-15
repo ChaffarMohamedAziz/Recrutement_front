@@ -1,19 +1,19 @@
 <div class="candidate-shell app-page-layout">
   <app-page-hero
     badge="Candidat"
-    title="Suivez vos candidatures et ciblez les offres qui correspondent le mieux a votre profil."
-    subtitle="Retrouvez vos dossiers en cours, vos statuts de recrutement et les opportunites les plus pertinentes depuis un seul espace."
+    title="Mes candidatures"
+    subtitle="Suivez l&rsquo;&eacute;volution de vos candidatures et vos prochaines actions."
     theme="candidate"
     variant="journey"
     [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Mes candidatures' }]"
     [primaryActionLabel]="'Explorer les offres'"
     [primaryActionLink]="'/job-list'"
-    [secondaryActionLabel]="'Mettre a jour mon profil'"
+    [secondaryActionLabel]="'Mettre &agrave; jour mon profil'"
     [secondaryActionLink]="'/profile'"
     [highlights]="[
-      { title: 'Suivi continu', description: 'Visualisez rapidement l evolution de vos candidatures.', icon: 'chart' },
-      { title: 'Profil visible', description: 'Mettez a jour vos informations et votre CV au bon moment.', icon: 'users' },
-      { title: 'Offres ciblees', description: 'Concentrez-vous sur les opportunites les plus pertinentes.', icon: 'search' }
+      { title: 'Vision immediate', description: 'Reperez rapidement les candidatures qui demandent une action.', icon: 'chart' },
+      { title: 'Pipeline lisible', description: 'Chaque dossier garde une progression claire du depot jusqu a la decision finale.', icon: 'users' },
+      { title: 'Actions utiles', description: 'Test IA, offre et messagerie restent accessibles au bon moment.', icon: 'check' }
     ]"
   ></app-page-hero>
 
@@ -27,149 +27,134 @@
     </article>
   </section>
 
-  <section class="candidate-workspace">
-    <article class="candidate-panel candidate-panel--applications">
-      <div class="candidate-panel__head">
-        <div>
-          <span class="panel-kicker">Mes candidatures</span>
-          <h2>Pipeline de suivi</h2>
-          <p>Filtrez vos dossiers et suivez visuellement chaque etape du recrutement.</p>
-        </div>
+  <section class="candidate-panel candidate-panel--applications">
+    <div class="candidate-panel__head">
+      <div>
+        <span class="panel-kicker">Mes candidatures</span>
+        <h2>Pipeline de suivi</h2>
+        <p>Gardez une lecture simple de votre pipeline candidat avec des cartes plus lisibles, un statut clair et vos prochaines actions toujours visibles.</p>
       </div>
+    </div>
 
-      <div class="filter-chip-row">
-        <button
-          type="button"
-          class="filter-chip"
-          *ngFor="let filter of statusFilters"
-          [class.active]="activeStatusFilter === filter.value"
-          (click)="setStatusFilter(filter.value)"
-        >
-          {{ filter.label }}
-          <strong>{{ filter.count }}</strong>
-        </button>
-      </div>
+    <div class="filter-chip-row">
+      <button
+        type="button"
+        class="filter-chip"
+        *ngFor="let filter of statusFilters"
+        [class.active]="activeStatusFilter === filter.value"
+        (click)="setStatusFilter(filter.value)"
+      >
+        {{ filter.label }}
+        <strong>{{ filter.count }}</strong>
+      </button>
+    </div>
 
-      <div class="application-list" *ngIf="featuredApplications.length; else noApplications">
-        <article class="application-card" *ngFor="let application of featuredApplications">
-          <div class="application-card__top">
-            <div class="application-card__copy">
-              <div class="application-company">
-                <span class="application-company-mark">{{ application.companyName.charAt(0) }}</span>
-                <div>
-                  <h3>{{ application.offerTitle }}</h3>
-                  <p>{{ application.companyName }} - {{ application.offerLocation }} - {{ application.contractType }}</p>
-                </div>
-              </div>
-
-              <div class="application-meta">
-                <span>Deposee le {{ application.appliedAt }}</span>
-                <span>{{ application.candidateJobTitle || 'Profil candidat' }}</span>
+    <div class="application-list" *ngIf="filteredApplications.length; else noApplications">
+      <article class="application-card" *ngFor="let application of filteredApplications">
+        <div class="application-card__top">
+          <div class="application-card__copy">
+            <div class="application-company">
+              <span class="application-company-mark">{{ application.companyName.charAt(0) }}</span>
+              <div>
+                <h3>{{ application.offerTitle }}</h3>
+                <p>{{ application.companyName }} &middot; {{ application.offerLocation }} &middot; {{ application.contractType }}</p>
               </div>
             </div>
 
-            <div class="application-card__aside">
-              <span class="match-score" [attr.data-tone]="getMatchTone(application.score)">
-                {{ application.score }}%
-              </span>
-              <span class="status-chip" [attr.data-tone]="getStatusTone(application.status)">
-                {{ getStatusLabel(application.status) }}
-              </span>
+            <div class="application-meta">
+              <span>Deposee le {{ application.appliedAt }}</span>
+              <span>{{ application.candidateJobTitle || 'Profil candidat' }}</span>
             </div>
           </div>
 
-          <div class="application-timeline" aria-label="Progression de la candidature">
-            <div
-              class="timeline-step"
-              *ngFor="let step of timelineSteps"
-              [class.done]="isStepDone(application, step.key)"
-              [class.current]="isStepCurrent(application, step.key)"
+          <div class="application-card__aside">
+            <span class="match-score" [attr.data-tone]="getMatchTone(application.score)">
+              {{ application.score }}%
+            </span>
+            <span class="status-chip" [attr.data-tone]="getStatusTone(application.status)">
+              {{ getStatusLabel(application.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="application-timeline" aria-label="Progression de la candidature">
+          <div
+            class="timeline-step"
+            *ngFor="let step of timelineSteps"
+            [class.done]="isStepDone(application, step.key)"
+            [class.current]="isStepCurrent(application, step.key)"
+          >
+            <span class="timeline-dot"></span>
+            <small>{{ step.label }}</small>
+          </div>
+        </div>
+
+        <div class="application-interview" *ngIf="application.interviewId && application.interviewDateTime">
+          <div class="application-interview__head">
+            <div>
+              <span class="application-interview__kicker">Entretien</span>
+              <strong>{{ application.interviewDateTime | date:'dd/MM/yyyy HH:mm' }}</strong>
+            </div>
+            <span class="status-chip" [attr.data-tone]="getStatusTone(application.status)">
+              {{ getStatusLabel(application.status) }}
+            </span>
+          </div>
+
+          <div class="application-interview__meta">
+            <span>{{ application.interviewMode === 'EN_LIGNE' ? 'En ligne' : (application.interviewMode === 'PRESENTIEL' ? 'Presentiel' : 'Telephone') }}</span>
+            <span *ngIf="application.interviewDurationMinutes">{{ application.interviewDurationMinutes }} min</span>
+            <span *ngIf="application.interviewMeetingLink">{{ application.interviewMeetingLink }}</span>
+            <span *ngIf="!application.interviewMeetingLink && application.interviewLocation">{{ application.interviewLocation }}</span>
+          </div>
+        </div>
+
+        <div class="application-insights">
+          <div class="skills-block">
+            <span class="skills-title">Competences compatibles</span>
+            <div class="skills-badges">
+              <span class="skill-badge success" *ngFor="let skill of application.matchingSkills.slice(0, 4)">
+                {{ skill }}
+              </span>
+              <span class="skill-badge neutral" *ngIf="!application.matchingSkills.length">Aucune detectee</span>
+            </div>
+          </div>
+
+          <div class="skills-block">
+            <span class="skills-title">Competences manquantes</span>
+            <div class="skills-badges">
+              <span class="skill-badge danger" *ngFor="let skill of application.missingSkills.slice(0, 4)">
+                {{ skill }}
+              </span>
+              <span class="skill-badge neutral" *ngIf="!application.missingSkills.length">Aucune</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="application-footer">
+          <p class="application-advice">{{ getOfferAdvice(application) }}</p>
+          <div class="application-footer__actions">
+            <a
+              class="application-link"
+              *ngIf="hasAvailableAiTest(application)"
+              [routerLink]="['/candidate-ai-tests/application', application.id]"
             >
-              <span class="timeline-dot"></span>
-              <small>{{ step.label }}</small>
-            </div>
+              {{ getApplicationAiTestActionLabel(application) }}
+            </a>
+            <a
+              class="application-link secondary"
+              *ngIf="isAiTestCompleted(application)"
+              [routerLink]="['/candidate-ai-tests/application', application.id]"
+            >
+              Test IA termine
+            </a>
+            <a class="application-link secondary" [routerLink]="['/messages']" [queryParams]="{ applicationId: application.id, mode: 'chat' }">
+              Messagerie
+            </a>
+            <a class="application-link" [routerLink]="['/job-details', application.offerId]">Voir l offre</a>
           </div>
-
-          <div class="application-insights">
-            <div class="skills-block">
-              <span class="skills-title">Competences compatibles</span>
-              <div class="skills-badges">
-                <span class="skill-badge success" *ngFor="let skill of application.matchingSkills.slice(0, 4)">
-                  {{ skill }}
-                </span>
-                <span class="skill-badge neutral" *ngIf="!application.matchingSkills.length">Aucune detectee</span>
-              </div>
-            </div>
-
-            <div class="skills-block">
-              <span class="skills-title">Competences manquantes</span>
-              <div class="skills-badges">
-                <span class="skill-badge danger" *ngFor="let skill of application.missingSkills.slice(0, 4)">
-                  {{ skill }}
-                </span>
-                <span class="skill-badge neutral" *ngIf="!application.missingSkills.length">Aucune</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="application-footer">
-            <p class="application-advice">{{ getOfferAdvice(application) }}</p>
-            <div class="application-footer__actions">
-              <a class="application-link secondary" [routerLink]="['/messages']" [queryParams]="{ applicationId: application.id }">
-                Messagerie
-              </a>
-              <a class="application-link" [routerLink]="['/job-details', application.offerId]">Voir l offre</a>
-            </div>
-          </div>
-        </article>
-      </div>
-    </article>
-
-    <aside class="candidate-side">
-      <article class="candidate-panel candidate-panel--quick-actions">
-        <div class="candidate-panel__head">
-          <div>
-            <span class="panel-kicker">Actions rapides</span>
-            <h2>Gardez le bon rythme</h2>
-          </div>
-        </div>
-
-        <div class="quick-action-list">
-          <article class="quick-action-card" *ngFor="let action of quickActions">
-            <span class="quick-action-icon">{{ action.icon }}</span>
-            <div>
-              <h3>{{ action.title }}</h3>
-              <p>{{ action.description }}</p>
-            </div>
-            <a [routerLink]="action.link">{{ action.label }}</a>
-          </article>
         </div>
       </article>
-
-      <article class="candidate-panel candidate-panel--recommended">
-        <div class="candidate-panel__head">
-          <div>
-            <span class="panel-kicker">Offres recommandees</span>
-            <h2>Top matching</h2>
-          </div>
-        </div>
-
-        <div class="recommended-list" *ngIf="recommendedJobs.length; else noOffers">
-          <article class="recommended-card" *ngFor="let offer of recommendedJobs">
-            <div>
-              <h3>{{ offer.titre }}</h3>
-              <p>{{ offer.nomEntreprise }} - {{ offer.localisation }}</p>
-            </div>
-            <div class="recommended-meta">
-              <span class="match-score" [attr.data-tone]="getMatchTone(offer.compatibilityScore ?? 0)">
-                {{ offer.compatibilityScore ?? 0 }}%
-              </span>
-              <a [routerLink]="['/job-details', offer.id]">Voir</a>
-            </div>
-          </article>
-        </div>
-      </article>
-    </aside>
+    </div>
   </section>
 
   <ng-template #noApplications>
@@ -178,11 +163,5 @@
       <p>Commencez par explorer les offres actives et envoyez votre premiere candidature.</p>
       <a routerLink="/job-list">Parcourir les offres</a>
     </section>
-  </ng-template>
-
-  <ng-template #noOffers>
-    <div class="mini-empty-state">
-      {{ loading ? 'Chargement des offres...' : 'Aucune offre recommandee pour le moment.' }}
-    </div>
   </ng-template>
 </div>

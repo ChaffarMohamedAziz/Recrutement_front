@@ -26,7 +26,14 @@ interface JobListItem {
   postedAt: string;
   compatibilityScore: number | null;
   alreadyApplied: boolean;
+  applicationId: number | null;
   applicationStatus: string | null;
+  hasAiTest: boolean;
+  aiTestAvailable: boolean;
+  aiTestId: number | null;
+  aiTestStatus: string | null;
+  aiTestResultStatus: string | null;
+  canPassAiTest: boolean;
   offerSkills: string[];
   matchingSkills: string[];
   missingSkills: string[];
@@ -57,6 +64,7 @@ export class JobListComponent implements OnInit {
   errorMessage = '';
   applyMessage = '';
   applyingJobId: number | null = null;
+  scoreMinimum = 70;
   searchTerm = '';
   selectedLocation = this.defaultLocation;
   selectedContractType = this.defaultContractType;
@@ -110,8 +118,9 @@ export class JobListComponent implements OnInit {
       const matchesLocation = this.selectedLocation === this.defaultLocation || job.location === this.selectedLocation;
       const matchesContract = this.selectedContractType === this.defaultContractType || job.contractType === this.selectedContractType;
       const matchesExperience = this.selectedExperience === this.defaultExperience || job.experience === this.selectedExperience;
+      const matchesScoreMinimum = (job.compatibilityScore ?? 0) >= this.scoreMinimum;
 
-      return matchesSearch && matchesLocation && matchesContract && matchesExperience;
+      return matchesSearch && matchesLocation && matchesContract && matchesExperience && matchesScoreMinimum;
     });
 
     return filtered.sort((left, right) => {
@@ -175,8 +184,15 @@ export class JobListComponent implements OnInit {
     this.draftContractType = this.defaultContractType;
     this.draftExperience = this.defaultExperience;
     this.selectedSort = this.defaultSort;
+    this.scoreMinimum = 70;
     this.currentPage = 1;
     this.loadOffers(false);
+  }
+
+  onScoreMinimumChange(value: number | string): void {
+    const parsed = Number(value);
+    this.scoreMinimum = Number.isFinite(parsed) ? Math.max(0, Math.min(100, parsed)) : 70;
+    this.currentPage = 1;
   }
 
   goToPage(page: number): void {
@@ -213,7 +229,14 @@ export class JobListComponent implements OnInit {
         this.jobs = this.jobs.map((item) => item.id === job.id ? {
           ...item,
           alreadyApplied: true,
-          applicationStatus: application.status
+          applicationId: application.id,
+          applicationStatus: application.status,
+          hasAiTest: !!application.hasAiTest,
+          aiTestAvailable: !!application.aiTestAvailable,
+          aiTestId: application.aiTestId,
+          aiTestStatus: application.aiTestStatus,
+          aiTestResultStatus: null,
+          canPassAiTest: !!application.canPassAiTest
         } : item);
         this.applyMessage = `Votre candidature pour ${job.title} a bien ete envoyee.`;
         this.applyingJobId = null;
@@ -234,6 +257,81 @@ export class JobListComponent implements OnInit {
 
     this.persistSavedOffers();
     this.jobs = this.jobs.map((item) => item.id === job.id ? { ...item, saved: !item.saved } : item);
+  }
+
+  getApplicationStatusLabel(status: string | null): string {
+    switch ((status || '').toUpperCase()) {
+      case 'AI_TEST_SENT':
+        return 'Test IA envoye';
+      case 'AI_TEST_COMPLETED':
+        return 'Test soumis';
+      case 'INTERVIEW':
+      case 'ENTRETIEN':
+        return 'En entretien';
+      case 'REJECTION_SUGGESTED':
+        return 'Analyse en cours';
+      case 'REJECTED':
+      case 'REFUSE':
+        return 'Refuse';
+      case 'RETENU':
+        return 'Retenu';
+      default:
+        return 'Postule';
+    }
+  }
+
+  getOfferActionLabel(job: JobListItem): string {
+    if (this.isAiTestCompleted(job)) {
+      return 'Test IA terminé';
+    }
+
+    if (this.isAiTestInProgress(job)) {
+      return 'Continuer le Test IA';
+    }
+
+    if (this.canPassAiTest(job)) {
+      return 'Passer le Test IA';
+    }
+
+    if (job.alreadyApplied) {
+      return this.getApplicationStatusLabel(job.applicationStatus);
+    }
+
+    return this.applyingJobId === job.id ? 'Envoi...' : 'Postuler';
+  }
+
+  canPassAiTest(job: JobListItem): boolean {
+    const testStatus = (job.aiTestStatus || '').toUpperCase();
+    const resultStatus = (job.aiTestResultStatus || '').toUpperCase();
+
+    return !!job.alreadyApplied
+      && !!job.applicationId
+      && !this.isAiTestCompleted(job)
+      && !this.isAiTestInProgress(job)
+      && (
+        !!job.canPassAiTest
+        || !!job.aiTestAvailable
+        || !resultStatus
+        || ['NOT_STARTED', 'VALIDATED', 'PUBLISHED'].includes(testStatus)
+      );
+  }
+
+  isAiTestInProgress(job: JobListItem): boolean {
+    const resultStatus = (job.aiTestResultStatus || '').toUpperCase();
+    const testStatus = (job.aiTestStatus || '').toUpperCase();
+    const applicationStatus = (job.applicationStatus || '').toUpperCase();
+
+    return resultStatus === 'IN_PROGRESS'
+      || testStatus === 'IN_PROGRESS'
+      || applicationStatus === 'AI_TEST_IN_PROGRESS';
+  }
+
+  isAiTestCompleted(job: JobListItem): boolean {
+    const resultStatus = (job.aiTestResultStatus || '').toUpperCase();
+    const testStatus = (job.aiTestStatus || '').toUpperCase();
+
+    return resultStatus === 'SUBMITTED'
+      || ['SUBMITTED', 'EXPIRED', 'CHEATING_SUSPECTED', 'CLOSED'].includes(testStatus);
   }
 
   private loadCandidateProfile(): void {
@@ -309,7 +407,14 @@ export class JobListComponent implements OnInit {
       postedAt: item.datePublication || '2026-01-01',
       compatibilityScore: score,
       alreadyApplied: !!item.alreadyApplied,
+      applicationId: item.applicationId ?? null,
       applicationStatus: item.applicationStatus ?? null,
+      hasAiTest: !!item.hasAiTest,
+      aiTestAvailable: !!item.aiTestAvailable,
+      aiTestId: item.aiTestId ?? null,
+      aiTestStatus: item.aiTestStatus ?? null,
+      aiTestResultStatus: item.aiTestResultStatus ?? null,
+      canPassAiTest: !!item.canPassAiTest,
       offerSkills,
       matchingSkills,
       missingSkills,

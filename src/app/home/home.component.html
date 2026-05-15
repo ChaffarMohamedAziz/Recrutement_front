@@ -1,48 +1,110 @@
 <div class="home-shell">
   <section class="hero-banner">
     <div class="hero-overlay"></div>
-    <div class="hero-inner">
-      <span class="hero-kicker">Plateforme de recrutement moderne</span>
-      <h1>Trouvez le <span>poste ideal</span></h1>
-      <p>Offres, entreprises et candidats reunis dans une interface claire, rapide et professionnelle.</p>
+    <div class="hero-orb hero-orb-one"></div>
+    <div class="hero-orb hero-orb-two"></div>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="hero-kicker">Plateforme SaaS de recrutement moderne</span>
+        <h1>Le recrutement devient plus <span>fluide</span>, plus precis et plus convaincant.</h1>
+        <p>
+          Smart Recruit rassemble les offres, les entreprises et les profils dans une interface plus premium,
+          plus lisible et mieux pensee pour accelerer les decisions de recrutement.
+        </p>
 
-      <form class="hero-search-panel" (ngSubmit)="searchJobs()">
-        <div class="search-field">
-          <label>Titre du poste</label>
-          <input
-            type="text"
-            [(ngModel)]="jobTitleQuery"
-            (ngModelChange)="updateFilteredJobs()"
-            name="jobTitleQuery"
-            placeholder="Ex: Developpeur Angular"
-          />
+        <div class="hero-trust-row">
+          <span class="hero-inline-pill">Matching plus intelligent</span>
+          <span class="hero-inline-pill">Pilotage centralise</span>
+          <span class="hero-inline-pill">Parcours candidat plus clair</span>
         </div>
 
-        <div class="search-field">
-          <label>Ville ou region</label>
-          <input
-            type="text"
-            [(ngModel)]="locationQuery"
-            (ngModelChange)="updateFilteredJobs()"
-            name="locationQuery"
-            placeholder="Ex: Tunis, Sfax, Remote"
-          />
+        <form class="hero-search-panel" (ngSubmit)="searchJobs()">
+          <div class="search-field">
+            <label>Titre du poste</label>
+            <input
+              type="text"
+              [(ngModel)]="jobTitleQuery"
+              (ngModelChange)="updateFilteredJobs()"
+              name="jobTitleQuery"
+              placeholder="Ex: Developpeur Angular"
+            />
+          </div>
+
+          <div class="search-field">
+            <label>Ville ou region</label>
+            <input
+              type="text"
+              [(ngModel)]="locationQuery"
+              (ngModelChange)="updateFilteredJobs()"
+              name="locationQuery"
+              placeholder="Ex: Tunis, Sfax, Remote"
+            />
+          </div>
+
+          <div class="search-field">
+            <label>Categorie</label>
+            <select [(ngModel)]="selectedCategory" (ngModelChange)="updateFilteredJobs()" name="selectedCategory">
+              <option>Toutes les categories</option>
+              <option *ngFor="let category of categories">{{ category.title }}</option>
+            </select>
+          </div>
+
+          <button type="submit" class="hero-search-btn">Rechercher</button>
+        </form>
+
+        <div class="hero-actions">
+          <a [routerLink]="profileActionRoute" class="hero-primary-btn">{{ profileActionLabel }}</a>
+          <a [routerLink]="resumeActionRoute" class="hero-secondary-btn">{{ resumeActionLabel }}</a>
         </div>
 
-        <div class="search-field">
-          <label>Categorie</label>
-          <select [(ngModel)]="selectedCategory" (ngModelChange)="updateFilteredJobs()" name="selectedCategory">
-            <option>Toutes les categories</option>
-            <option *ngFor="let category of categories">{{ category.title }}</option>
-          </select>
+        <div class="hero-stats-grid">
+          <article class="hero-stat-card" *ngFor="let stat of heroStats">
+            <strong>{{ stat.value }}</strong>
+            <span>{{ stat.label }}</span>
+          </article>
         </div>
+      </div>
 
-        <button type="submit" class="hero-search-btn">Rechercher</button>
-      </form>
+      <div class="hero-showcase" *ngIf="companies.length && candidates.length && allJobs.length">
+        <article class="showcase-card showcase-card-main">
+          <div class="showcase-heading">
+            <span>Vue plateforme</span>
+            <strong>Decision plus rapide sur les talents et les opportunites</strong>
+          </div>
 
-      <div class="hero-actions">
-        <a [routerLink]="profileActionRoute" class="hero-primary-btn">{{ profileActionLabel }}</a>
-        <a [routerLink]="resumeActionRoute" class="hero-secondary-btn">{{ resumeActionLabel }}</a>
+          <div class="showcase-score-ring">
+            <div>
+              <strong>87%</strong>
+              <span>matching moyen observe</span>
+            </div>
+          </div>
+
+          <div class="showcase-mini-grid">
+            <article class="showcase-mini-card">
+              <span>Entreprise active</span>
+              <strong>{{ companies[0].name }}</strong>
+              <small>{{ companies[0].openJobs }} postes ouverts</small>
+            </article>
+
+            <article class="showcase-mini-card accent">
+              <span>Profil recommande</span>
+              <strong>{{ candidates[0].name }}</strong>
+              <small>Score {{ candidates[0].score }}% - {{ candidates[0].title }}</small>
+            </article>
+          </div>
+        </article>
+
+        <article class="showcase-floating-card showcase-offer-card">
+          <span>Offre du moment</span>
+          <strong>{{ allJobs[0].title }}</strong>
+          <small>{{ allJobs[0].companyName }} - {{ allJobs[0].location }}</small>
+        </article>
+
+        <article class="showcase-floating-card showcase-signal-card">
+          <span>Lecture immediate</span>
+          <strong>{{ categories.length }} domaines actifs</strong>
+          <small>Filtres rapides, cartes lisibles et navigation plus claire.</small>
+        </article>
       </div>
     </div>
   </section>
@@ -127,7 +189,13 @@
       <p>{{ filteredJobsList.length }} resultat(s) selon vos criteres de recherche.</p>
     </div>
 
-    <div class="job-grid">
+    <div class="job-empty-state" *ngIf="!filteredJobsList.length">
+      <strong>Aucune offre ne correspond a votre recherche.</strong>
+      <p>Essayez un autre titre, une autre localisation ou reinitialisez les filtres pour relancer l'exploration.</p>
+      <button type="button" class="job-empty-button" (click)="resetSearch()">Effacer les filtres</button>
+    </div>
+
+    <div class="job-grid" *ngIf="filteredJobsList.length">
       <article class="job-card" *ngFor="let job of filteredJobsList">
         <div class="job-top">
           <div>

@@ -1,23 +1,29 @@
 <div class="admin-shell app-page-layout">
   <app-page-hero
     badge="Admin"
-    title="Pilotez la plateforme Smart Recruit depuis un tableau de bord centralise."
-    subtitle="Validez les comptes recruteurs, supervisez les utilisateurs et gardez une vue claire sur les operations prioritaires de la plateforme."
+    title="Statistiques de la plateforme"
+    subtitle="Suivez les indicateurs globaux, les signaux IA, les tendances d’abonnement et la performance opérationnelle depuis un cockpit analytique Smart Recruit."
     theme="admin"
     variant="analytics"
-    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Dashboard admin' }]"
-    [primaryActionLabel]="'Voir les demandes'"
-    [primaryActionLink]="'/admin/recruiter-activation'"
-    [secondaryActionLabel]="'Ouvrir les utilisateurs'"
-    [secondaryActionLink]="'/admin/users'"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Statistiques admin' }]"
+    [primaryActionLabel]="'Gérer les abonnements'"
+    [primaryActionLink]="'/admin/subscriptions'"
+    [secondaryActionLabel]="'Retour au dashboard'"
+    [secondaryActionLink]="'/admin-dashboard'"
     [highlights]="[
-      { title: 'Validation centralisee', description: 'Gardez la main sur les activations et les demandes sensibles.', icon: 'shield' },
-      { title: 'Suivi plateforme', description: 'Retrouvez les indicateurs essentiels dans une vue claire.', icon: 'chart' },
-      { title: 'Actions rapides', description: 'Passez d un module a l autre sans perdre le contexte.', icon: 'speed' }
+      { title: 'Vue globale', description: 'Utilisateurs, offres, candidatures et IA dans la même lecture.', icon: 'chart' },
+      { title: 'Analytics PFE', description: 'Des graphiques lisibles pour démontrer la valeur métier de la plateforme.', icon: 'shield' },
+      { title: 'Pilotage clair', description: 'Les tendances importantes restent visibles sans surcharger l’écran.', icon: 'speed' }
     ]"
   ></app-page-hero>
 
   <p class="admin-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="admin-toolbar">
+    <button type="button" class="toolbar-btn primary" routerLink="/admin/subscriptions">Piloter les abonnements</button>
+    <button type="button" class="toolbar-btn" (click)="exportStatisticsCsv()">Exporter les statistiques CSV</button>
+    <button type="button" class="toolbar-btn" routerLink="/admin-dashboard">Retour au dashboard</button>
+  </section>
 
   <section class="admin-kpi-grid">
     <article class="admin-kpi-card" *ngFor="let card of kpis" [attr.data-tone]="card.tone">
@@ -27,23 +33,21 @@
     </article>
   </section>
 
-  <section class="admin-dashboard-grid">
+  <section class="admin-dashboard-grid admin-dashboard-grid--double">
     <article class="admin-panel">
       <div class="admin-panel__head">
         <div>
-          <span class="panel-kicker">Vue d ensemble</span>
-          <h2>Composition de la plateforme</h2>
-          <p>Lecture rapide des grands equilibres entre utilisateurs, recruteurs et referentiel.</p>
+          <span class="panel-kicker">Insights IA</span>
+          <h2>Observations intelligentes</h2>
+          <p>Recommandations synthétiques générées à partir des données actuelles de la plateforme.</p>
         </div>
       </div>
-
-      <div class="distribution-list">
-        <article class="distribution-row" *ngFor="let row of platformRows" [attr.data-tone]="row.tone">
+      <div class="distribution-list" *ngIf="insights.length; else emptyInsights">
+        <article class="distribution-row" *ngFor="let item of insights" [attr.data-tone]="item.tone">
           <div>
-            <h3>{{ row.label }}</h3>
-            <p>{{ row.helper }}</p>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
           </div>
-          <strong>{{ row.value }}</strong>
         </article>
       </div>
     </article>
@@ -51,21 +55,88 @@
     <article class="admin-panel">
       <div class="admin-panel__head">
         <div>
-          <span class="panel-kicker">Demandes recruteurs</span>
-          <h2>Etat des validations</h2>
-          <p>Suivez les comptes a approuver, les comptes actifs et l historique des refus.</p>
+          <span class="panel-kicker">Santé des services IA</span>
+          <h2>Disponibilité technique</h2>
+          <p>Contrôle simple des briques critiques utilisées dans Smart Recruit.</p>
         </div>
       </div>
-
-      <div class="distribution-list">
-        <article class="distribution-row" *ngFor="let row of recruiterRows" [attr.data-tone]="row.tone">
+      <div class="distribution-list" *ngIf="serviceHealth.length; else emptyHealth">
+        <article class="distribution-row distribution-row--health" *ngFor="let row of serviceHealth" [attr.data-tone]="row.tone">
           <div>
-            <h3>{{ row.label }}</h3>
-            <p>{{ row.helper }}</p>
+            <h3>{{ row.service }}</h3>
+            <p>{{ row.detail }}</p>
           </div>
-          <strong>{{ row.value }}</strong>
+          <strong>{{ row.status }}</strong>
         </article>
       </div>
+    </article>
+  </section>
+
+  <section class="admin-dashboard-grid admin-dashboard-grid--triple">
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 1</span>
+          <h2>Candidatures par mois</h2>
+          <p>Évolution mensuelle du volume de candidatures reçues.</p>
+        </div>
+      </div>
+      <div class="chart-canvas"><canvas baseChart [type]="'line'" [data]="applicationsByMonthChartData" [options]="lineChartOptions"></canvas></div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 2</span>
+          <h2>Offres publiées par mois</h2>
+          <p>Rythme de publication des offres dans le temps.</p>
+        </div>
+      </div>
+      <div class="chart-canvas"><canvas baseChart [type]="'bar'" [data]="offersByMonthChartData" [options]="verticalBarOptions"></canvas></div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 3</span>
+          <h2>Répartition des candidatures par statut</h2>
+          <p>Vision instantanée du pipeline candidat.</p>
+        </div>
+      </div>
+      <div class="chart-canvas chart-canvas--doughnut"><canvas baseChart [type]="'doughnut'" [data]="applicationsByStatusChartData" [options]="doughnutOptions"></canvas></div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 4</span>
+          <h2>Top compétences demandées</h2>
+          <p>Les compétences les plus présentes dans les offres.</p>
+        </div>
+      </div>
+      <div class="chart-canvas chart-canvas--horizontal"><canvas baseChart [type]="'bar'" [data]="topSkillsChartData" [options]="horizontalBarOptions"></canvas></div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 5</span>
+          <h2>Tests IA</h2>
+          <p>Réussite, échec, expiration et suspicions de triche.</p>
+        </div>
+      </div>
+      <div class="chart-canvas chart-canvas--doughnut"><canvas baseChart [type]="'doughnut'" [data]="aiTestsChartData" [options]="doughnutOptions"></canvas></div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 6</span>
+          <h2>Évolution des abonnements</h2>
+          <p>Répartition actuelle des plans FREE, STANDARD et PREMIUM.</p>
+        </div>
+      </div>
+      <div class="chart-canvas"><canvas baseChart [type]="'bar'" [data]="subscriptionsChartData" [options]="verticalBarOptions"></canvas></div>
     </article>
   </section>
 
@@ -73,34 +144,11 @@
     <article class="admin-panel">
       <div class="admin-panel__head">
         <div>
-          <span class="panel-kicker">Offres publiees</span>
-          <h2>Categories les plus presentes</h2>
-          <p>Reperes rapides pour voir ou se concentre l activite recrutement.</p>
-        </div>
-      </div>
-
-      <div class="category-list" *ngIf="offerHighlights.length; else noOffers">
-        <article class="category-row" *ngFor="let item of offerHighlights">
-          <div class="category-copy">
-            <strong>{{ item.label }}</strong>
-            <span>{{ item.count }} offre(s) dans cette categorie</span>
-          </div>
-          <div class="category-bar">
-            <span [style.width.%]="item.count / (offerHighlights[0].count || 1) * 100"></span>
-          </div>
-        </article>
-      </div>
-    </article>
-
-    <article class="admin-panel">
-      <div class="admin-panel__head">
-        <div>
           <span class="panel-kicker">Actions rapides</span>
           <h2>Modules administratifs</h2>
-          <p>Accedez directement aux zones les plus critiques du back-office.</p>
+          <p>Accédez rapidement aux zones critiques du back-office.</p>
         </div>
       </div>
-
       <div class="quick-link-list">
         <article class="quick-link-card" *ngFor="let link of quickLinks">
           <div>
@@ -113,9 +161,15 @@
     </article>
   </section>
 
-  <ng-template #noOffers>
-    <div class="mini-empty-state">
-      {{ loading ? 'Chargement des offres...' : 'Aucune offre publiee pour le moment.' }}
+  <ng-template #emptyInsights>
+    <div class="empty-state-card">
+      Aucun insight disponible pour le moment.
+    </div>
+  </ng-template>
+
+  <ng-template #emptyHealth>
+    <div class="empty-state-card">
+      Aucun signal technique à afficher actuellement.
     </div>
   </ng-template>
 </div>

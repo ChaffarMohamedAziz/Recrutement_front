@@ -92,6 +92,13 @@ export class HomeComponent {
     jobsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  resetSearch(): void {
+    this.jobTitleQuery = '';
+    this.locationQuery = '';
+    this.selectedCategory = 'Toutes les categories';
+    this.updateFilteredJobs();
+  }
+
   openJobAction(): void {
     if (this.authService.isCandidate()) {
       this.router.navigate(['/submit-resume']);

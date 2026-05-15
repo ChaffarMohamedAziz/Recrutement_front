@@ -18,7 +18,70 @@
     ]"
   ></app-page-hero>
 
+  <p class="details-toast success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="details-toast error" *ngIf="errorMessage && application">{{ errorMessage }}</p>
+
   <div class="details-card" *ngIf="application; else stateBlock">
+    <section class="profile-showcase">
+      <div class="cover-frame">
+        <img
+          class="cover-image"
+          [src]="coverPhotoUrl"
+          [alt]="'Photo de couverture de ' + application.candidateName"
+        />
+      </div>
+
+      <div class="identity-panel">
+        <div class="avatar-shell">
+          <img
+            class="avatar-image"
+            [src]="profilePhotoUrl"
+            [alt]="'Photo de profil de ' + application.candidateName"
+          />
+        </div>
+
+        <div class="identity-copy">
+          <span class="identity-kicker">Profil candidat</span>
+          <h2>{{ application.candidateName }}</h2>
+          <p>{{ application.candidateJobTitle || 'Profil candidat' }}</p>
+          <div class="identity-meta">
+            <span>{{ application.candidateLocation || 'Localisation non precisee' }}</span>
+            <span>{{ application.candidateEmail }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="link-row__head">
+          <span class="document-kicker">Liens du candidat</span>
+          <strong>Profils publics et reseaux</strong>
+        </div>
+
+        <div class="social-grid">
+          <ng-container *ngFor="let link of socialLinks">
+            <a
+              *ngIf="link.value; else missingLink"
+              class="social-card"
+              [attr.data-tone]="link.tone"
+              [href]="toExternalLink(link.value)"
+              target="_blank"
+              rel="noopener"
+            >
+              <span>{{ link.label }}</span>
+              <small>Ouvrir le profil</small>
+            </a>
+
+            <ng-template #missingLink>
+              <span class="social-card social-card--disabled" [attr.data-tone]="link.tone">
+                <span>{{ link.label }}</span>
+                <small>Non renseigne</small>
+              </span>
+            </ng-template>
+          </ng-container>
+        </div>
+      </div>
+    </section>
+
     <div class="content-grid">
       <section class="content-card">
         <h2>Profil</h2>
@@ -30,8 +93,81 @@
         <p>{{ application.offerTitle }} · {{ application.companyName }}</p>
         <div class="score-pill">Score de correspondance {{ application.score }}%</div>
         <div class="status-pill" [attr.data-status]="application.status">{{ application.status }}</div>
+        <div class="document-panel">
+          <div>
+            <span class="document-kicker">CV du candidat</span>
+            <strong>{{ application.candidateCvFileName || 'CV non disponible' }}</strong>
+          </div>
+          <button type="button" class="download-btn" (click)="downloadCv()" [disabled]="!hasCv || downloadingCv">
+            {{ !hasCv ? 'CV non disponible' : (downloadingCv ? 'Telechargement...' : 'Telecharger le CV') }}
+          </button>
+        </div>
       </section>
     </div>
+
+    <section class="content-card ai-report-card" *ngIf="hasAiReport">
+      <div class="ai-report-head">
+        <div>
+          <h2>Resultat du test IA</h2>
+          <p>{{ aiTestLoading ? 'Chargement du rapport IA...' : (aiTestResult?.report || 'Rapport IA disponible.') }}</p>
+        </div>
+
+        <div class="ai-report-score" *ngIf="aiTestResult">
+          <span>Score global</span>
+          <strong>{{ aiTestResult.score ?? 0 }}%</strong>
+          <small>Seuil {{ aiTestResult.threshold }}%</small>
+        </div>
+      </div>
+
+      <div class="ai-report-grid" *ngIf="aiTestResult">
+        <article class="ai-report-panel">
+          <span class="document-kicker">Points forts</span>
+          <div class="tag-row">
+            <span class="tag" *ngFor="let item of aiTestResult.strengths">{{ item }}</span>
+          </div>
+        </article>
+
+        <article class="ai-report-panel">
+          <span class="document-kicker">Points faibles</span>
+          <div class="tag-row">
+            <span class="tag tag-miss" *ngFor="let item of aiTestResult.weaknesses">{{ item }}</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="ai-report-narrative" *ngIf="aiTestResult?.generatedReport">
+        <span class="document-kicker">Rapport detaille</span>
+        <p>{{ aiTestResult?.generatedReport }}</p>
+      </div>
+
+      <div class="ai-report-actions" *ngIf="application.status === 'INTERVIEW'">
+        <a class="download-btn ai-link-btn" [routerLink]="['/dashboard']" [queryParams]="{ planInterviewFor: application.id }">
+          Planifier entretien
+        </a>
+      </div>
+
+      <div class="ai-rejection-box" *ngIf="canApproveAiRejection">
+        <div class="ai-rejection-box__head">
+          <div>
+            <span class="document-kicker">Refus propose</span>
+            <strong>Email de refus a valider</strong>
+          </div>
+          <span class="status-pill" data-status="REJECTION_SUGGESTED">Refus propose</span>
+        </div>
+
+        <textarea
+          rows="8"
+          [(ngModel)]="rejectionEmailDraft"
+          placeholder="Email de refus professionnel a envoyer au candidat."
+        ></textarea>
+
+        <div class="ai-report-actions">
+          <button type="button" class="download-btn download-btn--danger" (click)="approveAiRejection()" [disabled]="validatingRejection">
+            {{ validatingRejection ? 'Validation...' : 'Valider et envoyer le refus' }}
+          </button>
+        </div>
+      </div>
+    </section>
 
     <section class="content-card">
       <h2>Competences correspondantes</h2>

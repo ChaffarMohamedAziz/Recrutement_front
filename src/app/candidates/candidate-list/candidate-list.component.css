@@ -23,9 +23,10 @@
 .pill-row,.tag-row{display:flex;gap:10px;flex-wrap:wrap}
 .pill,.tag{padding:8px 10px;border-radius:999px;font-size:.84rem}
 .pill{background:#eef4ff;color:#255fd0;font-weight:800}
-.status-pill[data-status='ENTRETIEN']{background:#fff7e8;color:#c57f16}
+.status-pill[data-status='AI_TEST_SENT']{background:#f3e8ff;color:#7c3aed}
+.status-pill[data-status='ENTRETIEN'],.status-pill[data-status='INTERVIEW']{background:#fff7e8;color:#c57f16}
 .status-pill[data-status='RETENU']{background:#e8fff1;color:#16814e}
-.status-pill[data-status='REFUSE']{background:#fff0f0;color:#c43d3d}
+.status-pill[data-status='REJECTION_SUGGESTED'],.status-pill[data-status='REFUSE'],.status-pill[data-status='REJECTED']{background:#fff0f0;color:#c43d3d}
 .tag{background:#f7faff;color:#5d6c8c}
 .tag-match{background:#e8fff1;color:#16814e}
 .tag-miss{background:#fff0f0;color:#c43d3d}

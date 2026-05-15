@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { AuthService, RegisterResult } from '../../services/auth.service';
 import { PageHeroComponent } from '../../shared/page-hero/page-hero.component';
 
@@ -9,14 +8,13 @@ type RecruiterFilter = 'PENDING' | 'APPROVED' | 'REFUSED' | 'ALL';
 @Component({
   selector: 'app-recruiter-activation',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeroComponent],
+  imports: [CommonModule, PageHeroComponent],
   templateUrl: './recruiter-activation.component.html',
   styleUrl: './recruiter-activation.component.css'
 })
 export class RecruiterActivationComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
-  readonly user = this.authService.getCurrentUser();
   recruiters: RegisterResult[] = [];
   loading = false;
   errorMessage = '';
@@ -25,19 +23,10 @@ export class RecruiterActivationComponent implements OnInit {
   approvingRecruiterId: number | null = null;
   rejectingRecruiterId: number | null = null;
   deletingRecruiterId: number | null = null;
+  selectedRecruiter: RegisterResult | null = null;
 
   ngOnInit(): void {
     this.loadRecruiters();
-  }
-
-  get userInitials(): string {
-    const name = this.user?.username || 'Admin';
-    return name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((item) => item.charAt(0).toUpperCase())
-      .join('');
   }
 
   get pendingCount(): number {
@@ -56,15 +45,12 @@ export class RecruiterActivationComponent implements OnInit {
     if (this.activeFilter === 'APPROVED') {
       return this.recruiters.filter((item) => this.getApprovalStatus(item) === 'APPROVED');
     }
-
     if (this.activeFilter === 'REFUSED') {
       return this.recruiters.filter((item) => this.getApprovalStatus(item) === 'REFUSED');
     }
-
     if (this.activeFilter === 'PENDING') {
       return this.recruiters.filter((item) => this.getApprovalStatus(item) === 'PENDING');
     }
-
     return this.recruiters;
   }
 
@@ -92,6 +78,14 @@ export class RecruiterActivationComponent implements OnInit {
     });
   }
 
+  openDetails(recruiter: RegisterResult): void {
+    this.selectedRecruiter = recruiter;
+  }
+
+  closeDetails(): void {
+    this.selectedRecruiter = null;
+  }
+
   approveRecruiter(recruiter: RegisterResult): void {
     if (
       !recruiter?.id ||
@@ -110,7 +104,7 @@ export class RecruiterActivationComponent implements OnInit {
     this.authService.approveRecruiterAccount(recruiter.id).subscribe({
       next: (response) => {
         this.approvingRecruiterId = null;
-        this.actionMessage = response.message || 'Compte recruteur active.';
+        this.actionMessage = response.message || 'Compte recruteur activé.';
         this.updateRecruiterState(recruiter.id, 'APPROVED');
       },
       error: (error: Error) => {
@@ -143,7 +137,7 @@ export class RecruiterActivationComponent implements OnInit {
     this.authService.rejectRecruiterAccount(recruiter.id).subscribe({
       next: (response) => {
         this.rejectingRecruiterId = null;
-        this.actionMessage = response.message || 'Compte recruteur refuse. Un email a ete envoye.';
+        this.actionMessage = response.message || 'Compte recruteur refusé. Un email a été envoyé.';
         this.updateRecruiterState(recruiter.id, 'REFUSED');
       },
       error: (error: Error) => {
@@ -163,7 +157,7 @@ export class RecruiterActivationComponent implements OnInit {
       return;
     }
 
-    const confirmed = window.confirm(`Supprimer definitivement le compte recruteur ${recruiter.nom || ''} ?`);
+    const confirmed = window.confirm(`Supprimer définitivement le compte recruteur ${recruiter.nom || ''} ?`);
     if (!confirmed) {
       return;
     }
@@ -175,8 +169,9 @@ export class RecruiterActivationComponent implements OnInit {
     this.authService.deleteRecruiterAccount(recruiter.id).subscribe({
       next: (response) => {
         this.deletingRecruiterId = null;
-        this.actionMessage = response.message || 'Compte recruteur supprime.';
+        this.actionMessage = response.message || 'Compte recruteur supprimé.';
         this.recruiters = this.recruiters.filter((item) => item.id !== recruiter.id);
+        this.closeDetails();
       },
       error: (error: Error) => {
         this.deletingRecruiterId = null;
@@ -227,10 +222,10 @@ export class RecruiterActivationComponent implements OnInit {
   getApprovalLabel(recruiter: RegisterResult): string {
     const status = this.getApprovalStatus(recruiter);
     if (status === 'APPROVED') {
-      return 'Actif';
+      return 'Approuvé';
     }
     if (status === 'REFUSED') {
-      return 'Refuse';
+      return 'Refusé';
     }
     return 'En attente';
   }
@@ -246,17 +241,33 @@ export class RecruiterActivationComponent implements OnInit {
     return 'warning';
   }
 
+  recruiterValue(value: string | number | boolean | undefined | null): string {
+    if (value === null || value === undefined || value === '') {
+      return 'Non disponible';
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Oui' : 'Non';
+    }
+    return String(value);
+  }
+
   private updateRecruiterState(recruiterId: number, status: 'APPROVED' | 'REFUSED'): void {
     this.recruiters = this.recruiters.map((item) => {
       if (item.id !== recruiterId) {
         return item;
       }
 
-      return {
+      const updated = {
         ...item,
         approvalStatus: status,
         statutCompte: status === 'APPROVED'
       };
+
+      if (this.selectedRecruiter?.id === recruiterId) {
+        this.selectedRecruiter = updated;
+      }
+
+      return updated;
     });
   }
 }
