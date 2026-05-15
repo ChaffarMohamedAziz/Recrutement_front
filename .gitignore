@@ -36,6 +36,13 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+.codex-logs/
+*.log
+frontend-run.err.log
+frontend-run.out.log
+ngserve.err
+ngserve.out
+structure_front.txt
 
 # System files
 .DS_Store
