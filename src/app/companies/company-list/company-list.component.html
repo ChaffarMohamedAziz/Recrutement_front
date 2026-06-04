@@ -1,0 +1,39 @@
+<div class="directory-shell">
+  <app-page-hero
+    badge="Admin"
+    title="Entreprises populaires"
+    subtitle="Decouvrez les entreprises, leurs activites, leurs postes ouverts et leurs avantages."
+    theme="admin"
+    variant="enterprise"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Admin', link: '/admin-dashboard' },
+      { label: 'Entreprises' }
+    ]"
+    [highlights]="[
+      { title: 'Vue centralisee', description: 'Gardez les entreprises visibles avec leurs postes et points forts.', icon: 'briefcase' },
+      { title: 'Lecture rapide', description: 'Identifiez les activites et les localisations en un coup d oeil.', icon: 'search' },
+      { title: 'Navigation claire', description: 'Passez facilement de la liste a la fiche detaillee.', icon: 'check' }
+    ]"
+  ></app-page-hero>
+
+  <div class="directory-grid">
+    <article class="directory-card" *ngFor="let company of companies">
+      <div class="logo-box">{{ company.name.slice(0, 2).toUpperCase() }}</div>
+      <h2>{{ company.name }}</h2>
+      <span>{{ company.industry }} · {{ company.location }}</span>
+      <p>{{ company.summary }}</p>
+
+      <div class="pill-row">
+        <span class="pill">{{ company.openJobs }} postes</span>
+        <span class="pill">{{ company.size }}</span>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag" *ngFor="let item of company.highlights">{{ item }}</span>
+      </div>
+
+      <a [routerLink]="['/company-details', company.id]">Voir details</a>
+    </article>
+  </div>
+</div>

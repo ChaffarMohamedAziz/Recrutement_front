@@ -1,0 +1,468 @@
+<div class="post-job-shell">
+  <app-page-hero
+    badge="Recruteur"
+    title="Publier une offre"
+    subtitle="Attirez les meilleurs talents en publiant une offre claire, detaillee et attractive. Soignez chaque detail pour capter l attention des candidats ideaux."
+    theme="recruiter"
+    variant="publish"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Publier une offre' }]"
+    [highlights]="[
+      { title: 'Visibilite accrue', description: 'Mettez en avant votre besoin avec un cadre clair et attractif.', icon: 'briefcase' },
+      { title: 'Candidats qualifies', description: 'Structurez les competences et les criteres pour mieux cibler.', icon: 'users' },
+      { title: 'Recrutement rapide', description: 'Gagnez du temps des la publication grace a une offre complete.', icon: 'speed' }
+    ]"
+    [primaryActionLabel]="'Assistant IA'"
+    [primaryActionLink]="'/assistant'"
+    [secondaryActionLabel]="'Messagerie'"
+    [secondaryActionLink]="'/messages'"
+  ></app-page-hero>
+
+  <section class="editor-layout">
+    <article class="post-job-card post-job-card--editor">
+      <form [formGroup]="postJobForm" (ngSubmit)="publishJob()">
+        <div class="post-job-heading">
+          <div>
+            <span class="section-kicker">{{ isEditingOffer ? 'Edition d offre' : 'Creation d offre' }}</span>
+            <h2>{{ isEditingOffer ? "Modifier votre offre" : "Enregistrer votre offre" }}</h2>
+            <p>
+              {{ isEditingOffer
+                ? "Mettez a jour les informations du poste puis enregistrez les changements pour garder vos publications a jour."
+                : "Structurez le poste, ajoutez les competences attendues et enregistrez l'offre avant de preparer le Test IA." }}
+            </p>
+          </div>
+        </div>
+
+        <section class="editor-section">
+          <div class="section-inline-head">
+            <div>
+              <span class="section-kicker">Poste</span>
+              <h3>Informations principales</h3>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Titre du poste</label>
+              <input type="text" formControlName="title" placeholder="Ex: UX/UI Designer" />
+            </div>
+
+            <div class="form-group">
+              <label>Categorie</label>
+              <select formControlName="category">
+                <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+              </select>
+            </div>
+
+            <div class="form-group salary-group">
+              <label>Salaire propose</label>
+              <div class="salary-row">
+                <input type="text" formControlName="salary" placeholder="Ex: 2500" />
+                <select formControlName="currency">
+                  <option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Nombre de postes</label>
+              <input type="text" formControlName="vacancies" placeholder="Ex: 3" />
+            </div>
+
+            <div class="form-group">
+              <label>Localisation</label>
+              <input type="text" formControlName="location" placeholder="Ex: Tunis, Sfax, Remote" />
+            </div>
+
+            <div class="form-group">
+              <label>Experience requise</label>
+              <input type="text" formControlName="experience" placeholder="Ex: 2-4 ans" />
+            </div>
+
+            <div class="form-group">
+              <label>Date d expiration</label>
+              <input type="date" formControlName="expirationDate" />
+            </div>
+
+            <div class="form-group full-width">
+              <div class="job-type-area">
+                <span>Type de contrat</span>
+                <label *ngFor="let type of jobTypes">
+                  <input type="radio" formControlName="jobType" [value]="type" />
+                  {{ type }}
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <div class="field-head">
+                <label>Description du poste</label>
+                <button type="button" class="ghost-btn-inline" (click)="generateDescriptionWithAi()" [disabled]="aiDraftLoading">
+                  {{ aiDraftLoading ? 'Generation IA...' : 'Generer avec IA' }}
+                </button>
+              </div>
+              <textarea rows="8" formControlName="description" placeholder="Decrivez les missions, les competences demandees et le contexte du poste."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="skills-card" formArrayName="skills">
+          <div class="section-inline-head">
+            <div>
+              <span class="section-kicker">Matching</span>
+              <h3>Competences demandees</h3>
+            </div>
+            <button type="button" class="ghost-btn-inline" (click)="addSkill()">Ajouter une competence</button>
+          </div>
+
+          <div class="skills-grid">
+            <div class="skill-item" *ngFor="let skill of skillsArray.controls; let index = index" [formGroupName]="index">
+              <div class="form-group">
+                <label>Competence</label>
+                <select formControlName="competenceId" (change)="onCompetenceChange(index)">
+                  <option [ngValue]="null">Choisir une competence</option>
+                  <option *ngFor="let competence of availableCompetences" [ngValue]="competence.id">
+                    {{ competence.nom }} - {{ competence.type }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <div class="field-head field-head--compact">
+                  <label>Ou saisir manuellement</label>
+                  <span class="skill-hint" *ngIf="isManualSkill(index)">Sera creee automatiquement</span>
+                </div>
+                <input
+                  type="text"
+                  formControlName="nom"
+                  placeholder="Ex: Next.js, Scrum, Power BI"
+                  (input)="onCompetenceNameInput(index)"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Type</label>
+                <select formControlName="type">
+                  <option *ngFor="let type of skillTypes" [value]="type">{{ type }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Niveau vise</label>
+                <select formControlName="niveau">
+                  <option *ngFor="let level of skillLevels" [value]="level">{{ level }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Ponderation (%)</label>
+                <input type="number" formControlName="ponderation" min="0" max="100" />
+              </div>
+
+              <button type="button" class="danger-link" (click)="removeSkill(index)" [disabled]="skillsArray.length === 1">
+                Retirer
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="skills-card ai-test-section">
+          <div class="section-inline-head">
+            <div>
+              <span class="section-kicker">Test IA</span>
+              <h3>Test IA de présélection</h3>
+              <p class="section-helper">Configurez, générez puis validez le test qui sera proposé aux candidats après leur candidature.</p>
+            </div>
+          </div>
+
+          <div class="ai-test-switch-row">
+            <label class="ai-test-switch">
+              <input type="checkbox" [checked]="aiTestEnabled" (change)="aiTestEnabled = !aiTestEnabled; onAiTestToggle()" />
+              <span>Activer Test IA : {{ aiTestEnabled ? 'Oui' : 'Non' }}</span>
+            </label>
+            <span class="skill-hint" *ngIf="!hasPersistedOfferForAiTest">En création, enregistrez d’abord l’offre pour générer et valider le test.</span>
+          </div>
+
+          <div class="ai-test-config-grid" *ngIf="aiTestEnabled">
+            <div class="form-group">
+              <label>Nombre de questions</label>
+              <input type="number" min="1" max="20" [value]="aiTestDraft?.numberOfQuestions ?? 1" (input)="updateAiTestConfig('numberOfQuestions', +$any($event.target).value)" />
+            </div>
+            <div class="form-group">
+              <label>Score minimum de reussite (%)</label>
+              <input type="number" min="0" max="100" [value]="aiTestDraft?.passingScore ?? 70" (input)="updateAiTestConfig('passingScore', +$any($event.target).value)" />
+            </div>
+            <div class="form-group">
+              <label>Difficulte</label>
+              <select [value]="aiTestDraft?.difficulty ?? 'INTERMEDIAIRE'" (change)="updateAiTestConfig('difficulty', $any($event.target).value)">
+                <option value="DEBUTANT">Debutant</option>
+                <option value="INTERMEDIAIRE">Intermediaire</option>
+                <option value="EXPERT">Expert</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Autoriser retour aux questions précédentes</label>
+              <select [value]="aiTestDraft?.allowPreviousQuestion ? 'true' : 'false'" (change)="updateAiTestConfig('allowPreviousQuestion', $any($event.target).value === 'true')">
+                <option value="false">Non</option>
+                <option value="true">Oui</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group full-width" *ngIf="aiTestEnabled">
+            <label>Competences a evaluer</label>
+            <div class="ai-skill-selector">
+                <button
+                type="button"
+                class="ai-skill-chip"
+                *ngFor="let skillName of aiEvaluationSkillOptions"
+                [class.active]="isAiSkillSelected(skillName)"
+                (click)="toggleAiSkillSelection(skillName)"
+              >
+                {{ skillName }}
+              </button>
+            </div>
+          </div>
+
+          <div class="summary-grid ai-test-summary-grid" *ngIf="aiTestEnabled">
+            <div class="summary-pill">
+              <span>Statut</span>
+              <strong>{{ aiTestDraft?.status || 'BROUILLON' }}</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Duree totale</span>
+              <strong>{{ aiTestTotalDurationLabel }}</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Competences evaluees</span>
+              <strong>{{ (selectedAiEvaluationSkills.length || aiTestDraft?.evaluationSkills?.length || requiredSkillsCount || preferredSkillsCount) }}</strong>
+            </div>
+          </div>
+
+          <div class="action-row ai-test-actions-row" *ngIf="aiTestEnabled">
+            <button type="button" class="ghost-btn-inline action-secondary-btn" (click)="saveAiTestConfiguration()" [disabled]="aiTestSaving || saving">
+              {{ aiTestSaving ? 'Enregistrement...' : 'Enregistrer la configuration' }}
+            </button>
+            <button type="button" class="ghost-btn-inline" (click)="generateAiTest()" [disabled]="!canGenerateAiTest">
+              {{ aiTestGenerating ? 'Génération...' : 'Générer Test IA' }}
+            </button>
+            <button type="button" class="primary-btn" (click)="validateAiTest()" [disabled]="!canValidateAiTest">
+              {{ aiTestValidating ? 'Validation...' : 'Valider le Test IA' }}
+            </button>
+          </div>
+
+          <div class="mini-empty-state" *ngIf="aiTestEnabled && !aiTestDraft?.questions?.length">
+            {{ aiTestLoading ? 'Chargement du Test IA...' : 'Aucune question generee pour le moment.' }}
+          </div>
+
+          <div class="ai-test-questions" *ngIf="aiTestEnabled && aiTestDraft?.questions?.length">
+            <article class="ai-question-card" *ngFor="let question of aiTestDraft?.questions; let index = index">
+              <div class="ai-question-card__head">
+                <div class="ai-question-badges">
+                  <span class="question-type-badge">{{ getAiQuestionTypeLabel(question.questionType) }}</span>
+                  <span class="question-meta-badge">{{ question.points }} pts</span>
+                  <span class="question-meta-badge">{{ question.timeLimitSeconds || 180 }} sec</span>
+                </div>
+                <span class="skill-hint" *ngIf="question.acceptedByRecruiter">Acceptee</span>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Question</label>
+                <textarea rows="3" [value]="question.questionText" (input)="updateAiQuestionField(question, 'questionText', $any($event.target).value)"></textarea>
+              </div>
+
+              <div class="ai-test-config-grid">
+                <div class="form-group">
+                  <label>Type</label>
+                  <select [value]="getQuestionTypeValue(question)" (change)="onQuestionTypeChange(index, $any($event.target).value)">
+                    <option *ngFor="let type of aiTestQuestionTypeOptions" [value]="type.value">{{ type.label }}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Points</label>
+                  <input type="number" min="1" [value]="question.points" (input)="updateAiQuestionNumber(question, 'points', +$any($event.target).value)" />
+                </div>
+                <div class="form-group">
+                  <label>Temps de la question (sec)</label>
+                  <input
+                    type="number"
+                    min="30"
+                    [value]="question.timeLimitSeconds || 180"
+                    (input)="updateAiQuestionNumber(question, 'timeLimitSeconds', +$any($event.target).value)"
+                    (change)="saveAiQuestion(question)" />
+                </div>
+              </div>
+
+              <div class="form-group full-width" *ngIf="isMcqQuestion(question)">
+                <label>Options (une ligne par option)</label>
+                <textarea rows="4" [value]="questionOptionsValue(question)" (input)="updateAiQuestionOptions(question, $any($event.target).value)"></textarea>
+              </div>
+
+              <div class="ai-test-config-grid" *ngIf="isMcqQuestion(question)">
+                <div class="form-group full-width">
+                  <label>Bonne reponse</label>
+                  <input type="text" [value]="question.correctAnswer || ''" (input)="updateAiQuestionField(question, 'correctAnswer', $any($event.target).value)" />
+                </div>
+              </div>
+
+              <div class="ai-test-config-grid" *ngIf="isFreeTextQuestion(question)">
+                <div class="form-group full-width">
+                  <label>Reponse attendue / mots-cles</label>
+                  <input type="text" [value]="question.expectedAnswer || ''" (input)="updateAiQuestionField(question, 'expectedAnswer', $any($event.target).value)" />
+                </div>
+              </div>
+
+              <div class="action-row ai-question-actions">
+                <button type="button" class="ghost-btn-inline" (click)="saveAiQuestion(question)">Modifier</button>
+                <button type="button" class="ghost-btn-inline" (click)="acceptAiQuestion(question)">Accepter</button>
+                <button type="button" class="ghost-btn-inline" (click)="regenerateAiQuestion(question)">Régénérer</button>
+                <button type="button" class="danger-link offer-action-btn" (click)="deleteAiQuestion(question)">Supprimer</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+
+        <div class="action-row">
+          <button type="button" class="ghost-btn-inline action-secondary-btn" *ngIf="isEditingOffer" (click)="cancelEditing()" [disabled]="saving">
+            Annuler
+          </button>
+          <button type="submit" class="primary-btn" [disabled]="saving || loading">
+            {{ currentSubmitLabel }}
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <aside class="post-job-sidebar">
+      <article class="post-job-card post-job-card--summary">
+        <div class="sidebar-head">
+          <span class="section-kicker">Etat du formulaire</span>
+          <h3>Publication prete a partir</h3>
+        </div>
+
+        <div class="progress-card">
+          <div>
+            <span class="progress-label">Progression</span>
+            <strong>{{ publicationProgress }}%</strong>
+          </div>
+          <div class="progress-bar">
+            <span [style.width.%]="publicationProgress"></span>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-pill">
+            <span>Competences obligatoires</span>
+            <strong>{{ requiredSkillsCount }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Competences souhaitees</span>
+            <strong>{{ preferredSkillsCount }}</strong>
+          </div>
+        </div>
+
+        <div class="summary-checklist">
+          <article>
+            <strong>Titre et categorie</strong>
+            <p>Nom de poste clair et categorie bien choisie.</p>
+          </article>
+          <article>
+            <strong>Localisation et experience</strong>
+            <p>Indiquez precisement le contexte du poste.</p>
+          </article>
+          <article>
+            <strong>Competences ponderees</strong>
+            <p>Priorisez les criteres importants pour le matching.</p>
+          </article>
+        </div>
+      </article>
+
+      <article class="post-job-card post-job-card--summary">
+        <div class="sidebar-head">
+          <h3>Assistant intelligent</h3>
+        </div>
+
+        <div class="summary-checklist">
+          <article>
+            <strong>Description guidee</strong>
+            <p>Generez une base de description depuis le poste, le contrat et les competences demandees.</p>
+          </article>
+          <article>
+            <strong>Questions d entretien</strong>
+            <p>Preparez vos entretiens et trouvez des candidats en langage naturel depuis le hub IA.</p>
+          </article>
+        </div>
+
+        <div class="action-row action-row--stack">
+          <button type="button" class="primary-btn" (click)="generateDescriptionWithAi()" [disabled]="aiDraftLoading">
+            {{ aiDraftLoading ? 'Generation IA...' : 'Generer une description' }}
+          </button>
+          <a class="ghost-link" routerLink="/assistant">Ouvrir le hub IA complet</a>
+        </div>
+      </article>
+
+      <article class="post-job-card offers-list-card">
+        <div class="sidebar-head">
+          <span class="section-kicker">Vos publications</span>
+          <h3>Mes offres enregistrées</h3>
+        </div>
+
+        <p class="loading-message" *ngIf="loading">Chargement des offres...</p>
+
+        <div class="offer-list" *ngIf="!loading && recruiterOffers.length">
+          <article class="offer-row" *ngFor="let offer of recruiterOffers">
+            <div class="offer-content">
+              <div class="offer-title-row">
+                <strong>{{ offer.titre }}</strong>
+                <span class="offer-status-badge" [class.published]="(offer.statut || '').toUpperCase() === 'PUBLIEE'">
+                  {{ getOfferStatusLabel(offer) }}
+                </span>
+              </div>
+              <p>{{ offer.localisation }} - {{ offer.typeContrat }} - {{ offer.experienceRequise }}</p>
+              <div class="test-state-row">
+                <span class="test-state-badge" [class.validated]="hasValidatedAiTest(offer)">
+                  {{ getAiTestStateLabel(offer) }}
+                </span>
+                <small *ngIf="!hasValidatedAiTest(offer)">Commencer à préparer le Test IA</small>
+              </div>
+            </div>
+
+            <div class="offer-side">
+              <div class="offer-meta">
+                <span>{{ offer.salaire }} {{ offer.devise }}</span>
+                <small>{{ offer.competences.length }} competence(s)</small>
+              </div>
+
+              <div class="offer-actions">
+                <button type="button" class="ghost-btn-inline offer-action-btn" (click)="prepareAiTest(offer)" [disabled]="saving || isDeletingOffer(offer.id)">
+                  Préparer le Test IA
+                </button>
+                <button
+                  type="button"
+                  class="primary-btn offer-action-btn publish-action-btn"
+                  (click)="publishOffer(offer)"
+                  [disabled]="saving || isDeletingOffer(offer.id) || isPublishingOffer(offer.id) || !hasValidatedAiTest(offer) || (offer.statut || '').toUpperCase() === 'PUBLIEE'"
+                  [title]="hasValidatedAiTest(offer) ? '' : 'Vous devez préparer et valider le Test IA avant de publier cette offre.'"
+                >
+                  {{ isPublishingOffer(offer.id) ? 'Publication...' : 'Publier' }}
+                </button>
+                <button type="button" class="ghost-btn-inline offer-action-btn" (click)="startEditingOffer(offer)" [disabled]="saving || isDeletingOffer(offer.id)">
+                  Modifier
+                </button>
+                <button type="button" class="danger-link offer-action-btn" (click)="deleteOffer(offer)" [disabled]="saving || isDeletingOffer(offer.id)">
+                  {{ isDeletingOffer(offer.id) ? 'Suppression...' : 'Supprimer' }}
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="empty-message" *ngIf="!loading && !recruiterOffers.length">
+          Aucune offre enregistrée pour le moment.
+        </div>
+      </article>
+    </aside>
+  </section>
+</div>

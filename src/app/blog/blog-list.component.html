@@ -1,0 +1,25 @@
+<div class="page-shell">
+  <app-page-hero
+    badge="Smart Recruit"
+    title="Nos articles sur le recrutement"
+    subtitle="Conseils, tendances et bonnes pratiques pour les recruteurs et les candidats."
+    theme="public"
+    variant="communication"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Blog' }]"
+    [highlights]="[
+      { title: 'Tendances marche', description: 'Suivez les pratiques qui transforment le recrutement moderne.', icon: 'chart' },
+      { title: 'Conseils experts', description: 'Retrouvez des contenus utiles pour mieux recruter et mieux postuler.', icon: 'spark' },
+      { title: 'Lecture rapide', description: 'Accedez facilement aux sujets les plus utiles selon votre role.', icon: 'search' }
+    ]"
+  ></app-page-hero>
+
+  <section class="blog-grid">
+    <article class="blog-card" *ngFor="let post of posts">
+      <span>{{ post.date }}</span>
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.excerpt }}</p>
+      <small>{{ post.author }}</small>
+      <a [routerLink]="['/blog-details', post.id]">Lire l'article</a>
+    </article>
+  </section>
+</div>

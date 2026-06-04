@@ -1,0 +1,175 @@
+<div class="admin-shell app-page-layout">
+  <app-page-hero
+    badge="Admin"
+    title="Statistiques de la plateforme"
+    subtitle="Suivez les indicateurs globaux, les signaux IA, les tendances d’abonnement et la performance opérationnelle depuis un cockpit analytique Smart Recruit."
+    theme="admin"
+    variant="analytics"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Statistiques admin' }]"
+    [primaryActionLabel]="'Gérer les abonnements'"
+    [primaryActionLink]="'/admin/subscriptions'"
+    [secondaryActionLabel]="'Retour au dashboard'"
+    [secondaryActionLink]="'/admin-dashboard'"
+    [highlights]="[
+      { title: 'Vue globale', description: 'Utilisateurs, offres, candidatures et IA dans la même lecture.', icon: 'chart' },
+      { title: 'Analytics PFE', description: 'Des graphiques lisibles pour démontrer la valeur métier de la plateforme.', icon: 'shield' },
+      { title: 'Pilotage clair', description: 'Les tendances importantes restent visibles sans surcharger l’écran.', icon: 'speed' }
+    ]"
+  ></app-page-hero>
+
+  <p class="admin-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="admin-toolbar">
+    <button type="button" class="toolbar-btn primary" routerLink="/admin/subscriptions">Piloter les abonnements</button>
+    <button type="button" class="toolbar-btn" (click)="exportStatisticsCsv()">Exporter les statistiques CSV</button>
+    <button type="button" class="toolbar-btn" routerLink="/admin-dashboard">Retour au dashboard</button>
+  </section>
+
+  <section class="admin-kpi-grid">
+    <article class="admin-kpi-card" *ngFor="let card of kpis" [attr.data-tone]="card.tone">
+      <span>{{ card.label }}</span>
+      <strong>{{ card.value }}</strong>
+      <small>{{ card.detail }}</small>
+    </article>
+  </section>
+
+  <section class="admin-dashboard-grid admin-dashboard-grid--double">
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Insights IA</span>
+          <h2>Observations intelligentes</h2>
+          <p>Recommandations synthétiques générées à partir des données actuelles de la plateforme.</p>
+        </div>
+      </div>
+      <div class="distribution-list" *ngIf="insights.length; else emptyInsights">
+        <article class="distribution-row" *ngFor="let item of insights" [attr.data-tone]="item.tone">
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+          </div>
+        </article>
+      </div>
+    </article>
+
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Santé des services IA</span>
+          <h2>Disponibilité technique</h2>
+          <p>Contrôle simple des briques critiques utilisées dans Smart Recruit.</p>
+        </div>
+      </div>
+      <div class="distribution-list" *ngIf="serviceHealth.length; else emptyHealth">
+        <article class="distribution-row distribution-row--health" *ngFor="let row of serviceHealth" [attr.data-tone]="row.tone">
+          <div>
+            <h3>{{ row.service }}</h3>
+            <p>{{ row.detail }}</p>
+          </div>
+          <strong>{{ row.status }}</strong>
+        </article>
+      </div>
+    </article>
+  </section>
+
+  <section class="admin-dashboard-grid admin-dashboard-grid--triple">
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 1</span>
+          <h2>Candidatures par mois</h2>
+          <p>Évolution mensuelle du volume de candidatures reçues.</p>
+        </div>
+      </div>
+      <div class="chart-canvas" *ngIf="hasChartValues(applicationsByMonthChartData); else emptyChart">
+        <canvas baseChart [type]="'bar'" [data]="applicationsByMonthChartData" [options]="verticalBarOptions"></canvas>
+      </div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 2</span>
+          <h2>Offres publiées par mois</h2>
+          <p>Rythme de publication des offres dans le temps.</p>
+        </div>
+      </div>
+      <div class="chart-canvas" *ngIf="hasChartValues(offersByMonthChartData); else emptyChart">
+        <canvas baseChart [type]="'bar'" [data]="offersByMonthChartData" [options]="verticalBarOptions"></canvas>
+      </div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 3</span>
+          <h2>Répartition des candidatures par statut</h2>
+          <p>Vision instantanée du pipeline candidat.</p>
+        </div>
+      </div>
+      <div class="chart-canvas chart-canvas--doughnut" *ngIf="hasChartValues(applicationsByStatusChartData); else emptyChart">
+        <canvas baseChart [type]="'doughnut'" [data]="applicationsByStatusChartData" [options]="doughnutOptions"></canvas>
+      </div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 4</span>
+          <h2>Top compétences demandées</h2>
+          <p>Les compétences les plus présentes dans les offres.</p>
+        </div>
+      </div>
+      <div class="chart-canvas chart-canvas--horizontal" *ngIf="hasChartValues(topSkillsChartData); else emptyChart">
+        <canvas
+          baseChart
+          [type]="'bar'"
+          [data]="topSkillsChartData"
+          [options]="horizontalBarOptions"
+          [plugins]="horizontalBarPlugins">
+        </canvas>
+      </div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 5</span>
+          <h2>Tests IA</h2>
+          <p>Réussite, échec, expiration et suspicions de triche.</p>
+        </div>
+      </div>
+      <div class="chart-canvas chart-canvas--doughnut" *ngIf="hasChartValues(aiTestsChartData); else emptyChart">
+        <canvas baseChart [type]="'doughnut'" [data]="aiTestsChartData" [options]="doughnutOptions"></canvas>
+      </div>
+    </article>
+
+    <article class="admin-panel chart-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Graphique 6</span>
+          <h2>Évolution des abonnements</h2>
+          <p>Répartition actuelle des plans FREE, STANDARD et PREMIUM.</p>
+        </div>
+      </div>
+      <div class="chart-canvas" *ngIf="hasChartValues(subscriptionsChartData); else emptyChart">
+        <canvas baseChart [type]="'bar'" [data]="subscriptionsChartData" [options]="verticalBarOptions"></canvas>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #emptyInsights>
+    <div class="empty-state-card">
+      Aucun insight disponible pour le moment.
+    </div>
+  </ng-template>
+
+  <ng-template #emptyHealth>
+    <div class="empty-state-card">
+      Aucun signal technique à afficher actuellement.
+    </div>
+  </ng-template>
+  <ng-template #emptyChart>
+    <div class="chart-empty-state">Aucune donnée disponible</div>
+  </ng-template>
+</div>

@@ -1,0 +1,63 @@
+<div class="page-shell">
+  <app-page-hero
+    badge="Smart Recruit"
+    title="Parlons de votre besoin en recrutement"
+    subtitle="Une question, une demande de démonstration ou un besoin de support ? Notre équipe vous répond rapidement."
+    theme="public"
+    variant="support"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Contact' }]"
+    [highlights]="[
+      { title: 'Réponse rapide', description: 'Notre équipe revient vers vous sous 24 heures ouvrables.', icon: 'speed' },
+      { title: 'Accompagnement RH', description: 'Nous vous orientons sur le bon module ou le bon flux métier.', icon: 'users' },
+      { title: 'Support structuré', description: 'Gardez un point de contact clair pour vos besoins plateforme.', icon: 'shield' }
+    ]"
+  ></app-page-hero>
+
+  <section class="contact-grid">
+    <article class="info-panel">
+      <h2>Nos coordonnées</h2>
+      <div class="info-list">
+        <div class="info-card" *ngFor="let item of contactCards">
+          <strong>{{ item.title }}</strong>
+          <span>{{ item.value }}</span>
+          <p>{{ item.note }}</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="form-panel">
+      <h2>Envoyez-nous un message</h2>
+
+      <p class="success-box" *ngIf="successMessage">{{ successMessage }}</p>
+      <p class="error-box" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <form [formGroup]="contactForm" (ngSubmit)="envoyerMessage()" class="contact-form">
+        <div class="field-row">
+          <label class="field">
+            <span>Nom complet</span>
+            <input type="text" formControlName="fullName" placeholder="Votre nom complet" />
+          </label>
+
+          <label class="field">
+            <span>Adresse e-mail</span>
+            <input type="email" formControlName="email" placeholder="exemple@domaine.com" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Sujet</span>
+          <input type="text" formControlName="subject" placeholder="Objet de votre demande" />
+        </label>
+
+        <label class="field">
+          <span>Message</span>
+          <textarea formControlName="message" rows="6" placeholder="Décrivez votre besoin..."></textarea>
+        </label>
+
+        <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Envoi...' : 'Envoyer le message' }}
+        </button>
+      </form>
+    </article>
+  </section>
+</div>

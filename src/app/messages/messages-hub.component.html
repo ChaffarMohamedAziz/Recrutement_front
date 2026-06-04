@@ -1,0 +1,154 @@
+<div class="messages-shell app-page-layout">
+  <app-page-hero
+    [badge]="heroBadge"
+    [title]="heroTitle"
+    [subtitle]="heroSubtitle"
+    [theme]="heroTheme"
+    [variant]="heroVariant"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Messagerie' }
+    ]"
+    [primaryActionLabel]="role === 'RECRUITER' ? 'Assistant IA' : 'Explorer les offres'"
+    [primaryActionLink]="role === 'RECRUITER' ? '/assistant' : '/job-list'"
+    [secondaryActionLabel]="role === 'RECRUITER' ? 'Kanban ATS' : 'Mes candidatures'"
+    [secondaryActionLink]="role === 'RECRUITER' ? '/dashboard' : '/candidate-space'"
+    [highlights]="[
+      { title: 'Conversation contextuelle', description: 'Chaque echange reste rattache a une candidature precise.', icon: 'chart' },
+      { title: 'Alertes actives', description: 'Les nouveaux messages alimentent le centre de notifications.', icon: 'check' },
+      { title: 'Suivi clair', description: 'Gardez les discussions importantes visibles au bon moment.', icon: 'users' }
+    ]"
+  ></app-page-hero>
+
+  <p class="messages-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="messages-kpis">
+    <article class="messages-kpi">
+      <span>Conversations</span>
+      <strong>{{ conversations.length }}</strong>
+      <small>fils actifs lies a des candidatures</small>
+    </article>
+    <article class="messages-kpi">
+      <span>Non lus</span>
+      <strong>{{ unreadConversationCount }}</strong>
+      <small>messages a traiter en priorite</small>
+    </article>
+    <article class="messages-kpi" *ngIf="selectedConversation as current">
+      <span>Conversation active</span>
+      <strong>{{ current.offerTitle || 'Candidature' }}</strong>
+      <small>{{ current.counterpartName }} · {{ current.companyName || current.counterpartRole }}</small>
+    </article>
+  </section>
+
+  <section class="messages-workspace">
+    <aside class="conversation-panel">
+      <div class="panel-head">
+        <div>
+          <span class="panel-kicker">Conversations</span>
+          <h2>Boite de reception</h2>
+        </div>
+      </div>
+
+      <div class="conversation-list" *ngIf="conversations.length; else emptyConversations">
+        <button
+          type="button"
+          class="conversation-card"
+          *ngFor="let conversation of conversations"
+          [class.active]="conversation.applicationId === selectedApplicationId"
+          (click)="openConversation(conversation.applicationId)"
+        >
+          <div class="conversation-card__top">
+            <div>
+              <h3>{{ conversation.counterpartName }}</h3>
+              <p>{{ conversation.offerTitle }}</p>
+            </div>
+            <span class="unread-pill" *ngIf="conversation.unreadCount">{{ conversation.unreadCount }}</span>
+          </div>
+
+          <div class="conversation-card__meta">
+            <span>{{ conversation.companyName || conversation.counterpartRole }}</span>
+            <span>{{ conversation.score }}%</span>
+          </div>
+
+          <p class="conversation-card__message">{{ conversation.lastMessage }}</p>
+          <small>{{ conversation.lastMessageAt || 'A l instant' }}</small>
+        </button>
+      </div>
+    </aside>
+
+    <section class="thread-panel" *ngIf="selectedConversation as current; else noConversationSelected">
+      <header class="thread-head">
+        <div>
+          <span class="panel-kicker">Conversation active</span>
+          <h2>{{ current.counterpartName }}</h2>
+          <p>{{ current.offerTitle }} · {{ current.companyName || current.counterpartEmail }}</p>
+        </div>
+        <div class="thread-badges">
+          <span class="thread-badge status">{{ current.status || 'A_TRIER' }}</span>
+          <span class="thread-badge score">{{ current.score }}%</span>
+        </div>
+      </header>
+
+      <div class="thread-messages" *ngIf="messages.length; else emptyThread">
+        <article
+          class="message-bubble"
+          *ngFor="let message of messages"
+          [class.mine]="message.ownMessage"
+        >
+          <div class="message-bubble__meta">
+            <strong>{{ message.ownMessage ? 'Vous' : message.senderName }}</strong>
+            <span>{{ message.sentAt }}</span>
+          </div>
+          <p>{{ message.content }}</p>
+        </article>
+      </div>
+
+      <form class="thread-compose" (ngSubmit)="sendMessage()">
+        <textarea
+          name="draftMessage"
+          [(ngModel)]="draftMessage"
+          rows="4"
+          placeholder="Ecrivez votre message ici..."
+        ></textarea>
+
+        <div class="thread-compose__actions">
+          <a
+            *ngIf="current.offerId"
+            class="thread-link"
+            [routerLink]="role === 'RECRUITER' ? '/dashboard' : '/job-details/' + current.offerId"
+          >
+            {{ role === 'RECRUITER' ? 'Retour au kanban' : "Voir l'offre" }}
+          </a>
+          <button type="submit" [disabled]="sending || !draftMessage.trim()">
+            {{ sending ? 'Envoi...' : 'Envoyer le message' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </section>
+
+  <ng-template #emptyConversations>
+    <div class="messages-empty">
+      <h3>{{ loadingConversations ? 'Chargement des conversations...' : 'Aucune conversation disponible.' }}</h3>
+      <p>
+        {{ role === 'RECRUITER'
+          ? 'Les conversations apparaissent automatiquement lorsqu un candidat postule a une offre.'
+          : 'Les conversations apparaissent automatiquement apres une candidature a une offre.' }}
+      </p>
+    </div>
+  </ng-template>
+
+  <ng-template #emptyThread>
+    <div class="thread-empty">
+      <h3>{{ loadingMessages ? 'Chargement des messages...' : 'Aucun message pour le moment.' }}</h3>
+      <p>Lancez la conversation pour echanger directement sur cette candidature.</p>
+    </div>
+  </ng-template>
+
+  <ng-template #noConversationSelected>
+    <section class="messages-empty messages-empty--wide">
+      <h3>Selectionnez une conversation</h3>
+      <p>Choisissez un dossier a gauche pour ouvrir l historique et commencer a echanger.</p>
+    </section>
+  </ng-template>
+</div>

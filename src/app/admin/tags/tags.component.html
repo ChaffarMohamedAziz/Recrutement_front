@@ -1,0 +1,128 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <main class="workspace-main">
+    <div class="workspace-main-inner">
+      <app-page-hero
+        badge="Admin"
+        title="Bibliothèque des compétences"
+        subtitle="Centralisez les tags et uniformisez le vocabulaire métier utilisé dans les profils et les offres."
+        theme="admin"
+        variant="taxonomy"
+        [breadcrumbs]="[
+          { label: 'Accueil', link: '/home' },
+          { label: 'Admin', link: '/admin-dashboard' },
+          { label: 'Tags compétences' }
+        ]"
+        [highlights]="[
+          { title: 'Référentiel commun', description: 'Évitez les doublons et gardez une nomenclature stable.', icon: 'check' },
+          { title: 'Gestion rapide', description: 'Ajoutez, modifiez et filtrez les compétences depuis une seule vue.', icon: 'speed' },
+          { title: 'Qualité du matching', description: 'Des tags propres renforcent la pertinence des résultats.', icon: 'chart' }
+        ]"
+      ></app-page-hero>
+
+      <section class="workspace-page-header">
+        <button type="button" class="admin-ghost-btn" (click)="loadCompetences()" [disabled]="loading">
+          {{ loading ? 'Chargement...' : 'Actualiser' }}
+        </button>
+      </section>
+
+      <section class="tags-summary-grid">
+        <article class="tags-summary-card">
+          <span>Compétences visibles</span>
+          <strong>{{ competences.length }}</strong>
+          <small>Tags remontés selon votre filtre actuel</small>
+        </article>
+        <article class="tags-summary-card">
+          <span>Catégories actives</span>
+          <strong>{{ activeCategoriesCount }}</strong>
+          <small>Familles actuellement présentes dans la liste</small>
+        </article>
+        <article class="tags-summary-card">
+          <span>Filtre courant</span>
+          <strong>{{ selectedType }}</strong>
+          <small>Catégorie active : {{ selectedType }}</small>
+        </article>
+      </section>
+
+      <section class="tags-layout">
+        <article class="workspace-card tags-form-card">
+          <div class="tags-form-head">
+            <span class="tags-form-badge">{{ editingId ? 'Mode édition' : 'Nouveau tag' }}</span>
+            <h2>{{ editingId ? 'Modifier une compétence' : 'Ajouter une compétence' }}</h2>
+            <p class="tags-form-note">
+              Renseignez le nom, la catégorie et une courte description pour enrichir le référentiel commun.
+            </p>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="saveCompetence()" class="tags-form">
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" formControlName="nom" placeholder="Ex : Angular" />
+            </div>
+
+            <div class="form-group">
+              <label>Catégorie</label>
+              <select formControlName="type">
+                <option *ngFor="let type of filterTypes.slice(1)" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Description</label>
+              <textarea rows="4" formControlName="description" placeholder="Description courte de la compétence."></textarea>
+            </div>
+
+            <div class="actions-row">
+              <button type="submit" class="admin-action-btn primary" [disabled]="saving">
+                {{ saving ? 'Enregistrement...' : (editingId ? 'Mettre à jour' : 'Ajouter') }}
+              </button>
+              <button type="button" class="admin-action-btn delete" *ngIf="editingId" (click)="cancelEdit()">
+                Annuler
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article class="workspace-card tags-list-card">
+          <div class="tags-toolbar">
+            <label class="search-box">
+              <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher une compétence..." />
+            </label>
+
+            <label class="filter-box">
+              <select [(ngModel)]="selectedType">
+                <option *ngFor="let type of filterTypes" [value]="type">{{ type }}</option>
+              </select>
+            </label>
+
+            <button type="button" class="admin-action-btn primary" (click)="applyFilters()">Filtrer</button>
+          </div>
+
+          <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+          <p class="admin-status success" *ngIf="successMessage">{{ successMessage }}</p>
+
+          <div class="tag-list">
+            <article class="tag-row" *ngFor="let item of competences">
+              <div class="tag-copy">
+                <div class="tag-copy__head">
+                  <strong>{{ item.nom }}</strong>
+                  <span class="tag-type-badge" [attr.data-tone]="categoryBadge(item.type)">{{ item.type }}</span>
+                </div>
+                <p>{{ item.description || 'Aucune description.' }}</p>
+              </div>
+
+              <div class="tag-actions">
+                <button type="button" class="admin-action-btn primary" (click)="startEdit(item)">Modifier</button>
+                <button type="button" class="admin-action-btn danger" (click)="deleteCompetence(item)">Supprimer</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="admin-empty-state" *ngIf="!loading && !competences.length">
+            <strong>Aucune compétence disponible</strong>
+            <p>Ajoutez un premier tag ou ajustez vos filtres pour retrouver les compétences existantes.</p>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+</div>

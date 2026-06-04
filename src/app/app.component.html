@@ -1,0 +1,5 @@
+<app-navbar *ngIf="shouldShowNavbar"></app-navbar>
+
+<main class="app-shell" [class.with-navbar]="shouldShowNavbar">
+  <router-outlet />
+</main>

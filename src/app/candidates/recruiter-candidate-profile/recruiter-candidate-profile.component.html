@@ -1,0 +1,184 @@
+<div class="profile-shell">
+  <p class="profile-toast success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="profile-toast error" *ngIf="errorMessage && !loading">{{ errorMessage }}</p>
+
+  <app-page-hero
+    *ngIf="profile"
+    badge="Recruteur"
+    [title]="profile.fullName || 'Profil candidat'"
+    [subtitle]="(profile.jobTitle || profile.profession || 'Profil candidat') + ' · ' + (profile.address || 'Localisation non precisee')"
+    theme="recruiter"
+    variant="profile"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Assistant IA', link: '/assistant' },
+      { label: 'Profil candidat' }
+    ]"
+    [highlights]="[
+      { title: 'Vue profil', description: 'Consultez les experiences, competences et contacts du candidat recommande.', icon: 'users' },
+      { title: 'Lecture rapide', description: 'Le profil s ouvre meme si le candidat n a pas encore postule.', icon: 'spark' },
+      { title: 'Workflow propre', description: 'Le sourcing naturel renvoie maintenant vers une vraie fiche candidat.', icon: 'chart' }
+    ]"
+  ></app-page-hero>
+
+  <div class="profile-card" *ngIf="profile; else stateBlock">
+    <section class="content-card recruiter-actions-card">
+      <div class="recruiter-actions-card__head">
+        <div>
+          <span class="identity-kicker">Actions recruteur</span>
+          <h2>Agir depuis cette fiche</h2>
+          <p>Telechargez le CV du candidat ou envoyez-lui une invitation a postuler sur l une de vos offres.</p>
+        </div>
+      </div>
+
+      <div class="recruiter-actions-card__grid">
+        <button
+          type="button"
+          class="action-btn action-btn--secondary"
+          *ngIf="profile.cvFileUrl; else disabledCvAction"
+          (click)="downloadCv()"
+          [disabled]="downloadingCv"
+        >
+          {{ downloadingCv ? 'Telechargement...' : 'Telecharger le CV' }}
+        </button>
+        <ng-template #disabledCvAction>
+          <span class="action-btn action-btn--disabled">CV non disponible</span>
+        </ng-template>
+
+        <button
+          type="button"
+          class="action-btn"
+          (click)="inviteToApply()"
+          [disabled]="!canInvite || offersLoading || inviting"
+        >
+          {{ invitationSent ? 'Invitation envoyee' : (inviting ? 'Envoi...' : 'Inviter a postuler') }}
+        </button>
+      </div>
+
+      <small class="action-helper" *ngIf="selectedOfferTitle">
+        L invitation sera envoyee pour l offre : {{ selectedOfferTitle }}
+      </small>
+    </section>
+
+    <section class="profile-showcase">
+      <div class="cover-frame">
+        <img class="cover-image" [src]="coverPhotoUrl" [alt]="'Photo de couverture de ' + (profile.fullName || 'ce candidat')" />
+      </div>
+
+      <div class="identity-panel">
+        <div class="avatar-shell">
+          <img class="avatar-image" [src]="profilePhotoUrl" [alt]="'Photo de profil de ' + (profile.fullName || 'ce candidat')" />
+        </div>
+
+        <div class="identity-copy">
+          <span class="identity-kicker">Candidat suggere</span>
+          <h2>{{ profile.fullName || 'Profil candidat' }}</h2>
+          <p>{{ profile.jobTitle || profile.profession || 'Titre non renseigne' }}</p>
+          <div class="identity-meta">
+            <span>{{ profile.address || 'Localisation non precisee' }}</span>
+            <span>{{ profile.email || 'Email non disponible' }}</span>
+            <span>{{ profile.phone || 'Telephone non disponible' }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <section class="content-card">
+        <h2>Presentation</h2>
+        <p>{{ profile.description || 'Le candidat n a pas encore ajoute de presentation detaillee.' }}</p>
+      </section>
+
+      <section class="content-card">
+        <h2>Coordonnees et CV</h2>
+        <div class="meta-list">
+          <div>
+            <span>Email</span>
+            <strong>{{ profile.email || 'Non disponible' }}</strong>
+          </div>
+          <div>
+            <span>Telephone</span>
+            <strong>{{ profile.phone || 'Non disponible' }}</strong>
+          </div>
+          <div>
+            <span>Date de naissance</span>
+            <strong>{{ profile.birthDate || 'Non disponible' }}</strong>
+          </div>
+          <div>
+            <span>CV</span>
+            <a *ngIf="profile.cvFileUrl; else missingCv" [href]="profile.cvFileUrl" target="_blank" rel="noopener">
+              {{ profile.cvFileName || 'Ouvrir le CV' }}
+            </a>
+            <ng-template #missingCv>
+              <strong>{{ profile.cvFileName || 'CV non disponible' }}</strong>
+            </ng-template>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="content-card" *ngIf="skills.length">
+      <h2>Competences</h2>
+      <div class="tag-row">
+        <span class="tag" *ngFor="let skill of skills">
+          {{ skill.title || 'Competence' }}
+          <small *ngIf="skill.percentage !== undefined">· {{ skill.percentage }}%</small>
+          <small *ngIf="skill.level">· {{ skill.level }}</small>
+        </span>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <section class="content-card" *ngIf="experiences.length">
+        <h2>Experiences</h2>
+        <article class="timeline-item" *ngFor="let experience of experiences">
+          <h3>{{ experience.title || 'Experience' }}</h3>
+          <p>{{ experience.company || 'Entreprise non precisee' }} · {{ experience.location || 'Lieu non precise' }}</p>
+          <span>{{ experience.period || 'Periode non precisee' }}</span>
+          <p>{{ experience.description || 'Aucune description fournie.' }}</p>
+        </article>
+      </section>
+
+      <section class="content-card" *ngIf="education.length">
+        <h2>Formation</h2>
+        <article class="timeline-item" *ngFor="let item of education">
+          <h3>{{ item.title || item.degree || 'Formation' }}</h3>
+          <p>{{ item.institute || 'Etablissement non precise' }}</p>
+          <span>{{ item.year || 'Annee non precisee' }}</span>
+        </article>
+      </section>
+    </div>
+
+    <section class="content-card">
+      <h2>Liens publics</h2>
+      <div class="social-grid">
+        <ng-container *ngFor="let link of socialLinks">
+          <a
+            *ngIf="link.value; else missingLink"
+            class="social-card"
+            [attr.data-tone]="link.tone"
+            [href]="toExternalLink(link.value)"
+            target="_blank"
+            rel="noopener"
+          >
+            <span>{{ link.label }}</span>
+            <small>Ouvrir le profil</small>
+          </a>
+
+          <ng-template #missingLink>
+            <span class="social-card social-card--disabled" [attr.data-tone]="link.tone">
+              <span>{{ link.label }}</span>
+              <small>Non renseigne</small>
+            </span>
+          </ng-template>
+        </ng-container>
+      </div>
+    </section>
+  </div>
+
+  <ng-template #stateBlock>
+    <div class="profile-card profile-card--state">
+      <p>{{ loading ? 'Chargement du profil candidat...' : errorMessage }}</p>
+    </div>
+  </ng-template>
+</div>

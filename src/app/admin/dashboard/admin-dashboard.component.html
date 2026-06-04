@@ -1,0 +1,133 @@
+<div class="admin-dashboard-shell app-page-layout">
+  <app-page-hero
+    badge="Admin"
+    title="Centre de pilotage Smart Recruit"
+    subtitle="Bienvenue administrateur. Gardez une vue rapide sur la plateforme, les alertes critiques et les actions à forte valeur."
+    theme="admin"
+    variant="analytics"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Dashboard admin' }]"
+    [primaryActionLabel]="'Voir les statistiques'"
+    [primaryActionLink]="'/admin/statistics'"
+    [secondaryActionLabel]="'Gérer les abonnements'"
+    [secondaryActionLink]="'/admin/subscriptions'"
+    [highlights]="[
+      { title: 'Résumé exécutif', description: 'Les indicateurs clés sont visibles dès l’arrivée sur l’espace admin.', icon: 'chart' },
+      { title: 'Alertes intelligentes', description: 'Repérez les zones à traiter avant qu’elles ne deviennent bloquantes.', icon: 'shield' },
+      { title: 'Démo PFE prête', description: 'Un cockpit clair, premium et crédible pour piloter la plateforme.', icon: 'speed' }
+    ]"
+  ></app-page-hero>
+
+  <p class="admin-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="admin-toolbar">
+    <button type="button" class="toolbar-btn primary" routerLink="/admin/statistics">Ouvrir les analytics</button>
+    <button type="button" class="toolbar-btn" (click)="exportDashboardCsv()">Exporter le résumé CSV</button>
+    <button type="button" class="toolbar-btn" routerLink="/admin/recruiter-activation">Traiter les demandes</button>
+  </section>
+
+  <section class="admin-kpi-grid">
+    <article class="admin-kpi-card" *ngFor="let card of summaryCards" [attr.data-tone]="card.tone">
+      <span>{{ card.label }}</span>
+      <strong>{{ card.value }}</strong>
+      <small>{{ card.detail }}</small>
+    </article>
+  </section>
+
+  <section class="admin-dashboard-grid admin-dashboard-grid--top">
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Alertes intelligentes</span>
+          <h2>Points de vigilance</h2>
+          <p>Les éléments qui demandent une action rapide côté administration.</p>
+        </div>
+      </div>
+
+      <div class="alert-list">
+        <article class="alert-card" *ngFor="let alert of alerts" [attr.data-tone]="alert.tone">
+          <strong>{{ alert.title }}</strong>
+          <p>{{ alert.description }}</p>
+        </article>
+      </div>
+    </article>
+
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Raccourcis</span>
+          <h2>Modules prioritaires</h2>
+          <p>Accès directs vers les écrans essentiels de l’espace administrateur.</p>
+        </div>
+      </div>
+
+      <div class="quick-link-list">
+        <article class="quick-link-card" *ngFor="let link of shortcuts">
+          <div>
+            <h3>{{ link.title }}</h3>
+            <p>{{ link.description }}</p>
+          </div>
+          <a [routerLink]="link.link">{{ link.label }}</a>
+        </article>
+      </div>
+    </article>
+  </section>
+
+  <section class="admin-dashboard-grid admin-dashboard-grid--bottom">
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Insights IA</span>
+          <h2>Recommandations automatiques</h2>
+          <p>Observations utiles calculées à partir des données actuelles de la plateforme.</p>
+        </div>
+      </div>
+
+      <div class="insight-list">
+        <article class="insight-card" *ngFor="let insight of insights" [attr.data-tone]="insight.tone">
+          <strong>{{ insight.title }}</strong>
+          <p>{{ insight.description }}</p>
+        </article>
+      </div>
+    </article>
+
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Santé des services IA</span>
+          <h2>État des connecteurs</h2>
+          <p>Vision rapide sur les modules techniques qui soutiennent l’expérience Smart Recruit.</p>
+        </div>
+      </div>
+
+      <div class="service-health-list">
+        <article class="service-health-row" *ngFor="let item of serviceHealth" [attr.data-tone]="item.tone">
+          <div>
+            <strong>{{ item.service }}</strong>
+            <p>{{ item.detail }}</p>
+          </div>
+          <span>{{ item.status }}</span>
+        </article>
+      </div>
+    </article>
+
+    <article class="admin-panel">
+      <div class="admin-panel__head">
+        <div>
+          <span class="panel-kicker">Activité récente</span>
+          <h2>Derniers événements</h2>
+          <p>Une chronologie compacte des mouvements récents sur la plateforme.</p>
+        </div>
+      </div>
+
+      <div class="activity-list">
+        <article class="activity-row" *ngFor="let item of recentActivity" [attr.data-tone]="item.tone">
+          <div class="activity-copy">
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.description }}</p>
+          </div>
+          <small>{{ formatActivityDate(item.timestamp) }}</small>
+        </article>
+      </div>
+    </article>
+  </section>
+</div>

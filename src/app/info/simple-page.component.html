@@ -1,0 +1,28 @@
+<div class="page-shell">
+  <app-page-hero
+    badge="Smart Recruit"
+    [title]="pageData.title"
+    [subtitle]="pageData.description"
+    theme="public"
+    variant="settings"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: pageData.badge }]"
+    [primaryActionLabel]="pageData.primaryLabel"
+    [primaryActionLink]="pageData.primaryLink"
+    [secondaryActionLabel]="pageData.secondaryLabel"
+    [secondaryActionLink]="pageData.secondaryLink"
+  ></app-page-hero>
+
+  <section class="content-grid">
+    <article class="content-card">
+      <h2>Page prete a evoluer</h2>
+      <p>
+        Cette page est maintenant disponible dans la navigation et reprend le style professionnel du site.
+        Vous pouvez y brancher vos vraies donnees ou vos formulaires metier dans une prochaine etape.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item" *ngFor="let feature of pageData.features">{{ feature }}</div>
+      </div>
+    </article>
+  </section>
+</div>

@@ -1,0 +1,35 @@
+<div class="resume-shell">
+  <app-page-hero
+    badge="Candidat"
+    title="Deposer votre CV"
+    subtitle="Ajoutez une version recente de votre CV pour accelerer la lecture de votre profil et vos futures candidatures."
+    theme="candidate"
+    variant="upload"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Deposer votre CV' }]"
+    [highlights]="[
+      { title: 'Upload rapide', description: 'Ajoutez votre document en quelques secondes depuis cette page.', icon: 'briefcase' },
+      { title: 'Profil a jour', description: 'Gardez vos informations synchronisees avec la version recente de votre CV.', icon: 'check' },
+      { title: 'Meilleure visibilite', description: 'Facilitez la lecture de votre dossier par les recruteurs.', icon: 'users' }
+    ]"
+  ></app-page-hero>
+
+  <section class="resume-card">
+    <div class="upload-panel single-upload">
+      <span class="section-badge">Televersement</span>
+      <h2>Ajoutez uniquement votre CV</h2>
+      <p>Choisissez votre fichier puis cliquez sur le bouton pour le deposer.</p>
+
+      <label class="upload-drop">
+        <input type="file" accept=".pdf,.doc,.docx" (change)="onFileSelected($event)" />
+        <div class="upload-icon">+</div>
+        <strong>Choisir un fichier CV</strong>
+        <span>Formats acceptes : PDF, DOC, DOCX</span>
+        <small *ngIf="selectedFileName">{{ selectedFileName }}</small>
+      </label>
+
+      <button type="button" class="primary-btn large-btn" (click)="submitResume()">Deposer un CV</button>
+
+      <p class="upload-feedback" *ngIf="uploadMessage">{{ uploadMessage }}</p>
+    </div>
+  </section>
+</div>

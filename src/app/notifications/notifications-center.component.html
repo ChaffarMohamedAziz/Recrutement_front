@@ -1,0 +1,108 @@
+<section class="notifications-page app-page-layout">
+  <div class="notifications-page__hero">
+    <div class="notifications-page__copy">
+      <span class="notifications-page__eyebrow">Centre de notifications</span>
+      <h1>Gardez la main sur toutes vos alertes</h1>
+      <p>
+        Retrouvez vos notifications importantes
+    </div>
+
+    <div class="notifications-page__stats">
+      <article class="hero-stat">
+        <span>Total</span>
+        <strong>{{ notifications.length }}</strong>
+        <small>notifications chargées</small>
+      </article>
+
+      <article class="hero-stat hero-stat--accent">
+        <span>Non lues</span>
+        <strong>{{ unreadCount }}</strong>
+        <small>alertes à traiter</small>
+      </article>
+    </div>
+  </div>
+
+  <div class="notifications-toolbar">
+    <a class="toolbar-link" routerLink="/dashboard">Retour</a>
+    <button type="button" class="toolbar-btn" (click)="markAllAsRead()" [disabled]="!unreadCount">
+      Tout lire
+    </button>
+  </div>
+
+  <p class="notifications-state" *ngIf="loading">Chargement des notifications...</p>
+  <p class="notifications-state notifications-state--error" *ngIf="!loading && errorMessage">{{ errorMessage }}</p>
+
+  <section class="notifications-workspace" *ngIf="!loading && !errorMessage">
+    <div class="notifications-list-card">
+      <div class="list-card__head">
+        <h2>Historique</h2>
+        <span>{{ notifications.length }} élément(s)</span>
+      </div>
+
+      <div class="notifications-empty" *ngIf="!notifications.length">
+        Aucune notification pour le moment.
+      </div>
+
+      <div class="notifications-list" *ngIf="notifications.length">
+        <button
+          type="button"
+          class="notification-row"
+          *ngFor="let notification of notifications"
+          [class.notification-row--selected]="notification.id === selectedNotificationId"
+          [class.notification-row--unread]="!notification.lue"
+          (click)="selectNotification(notification)"
+        >
+          <span class="notification-row__dot" *ngIf="!notification.lue"></span>
+          <div class="notification-row__copy">
+            <strong>{{ notification.message }}</strong>
+            <small>{{ notification.dateEnvoi | date:'dd/MM/yyyy HH:mm' }}</small>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <article class="notifications-detail-card" *ngIf="selectedNotification as notification; else emptySelection">
+      <div class="detail-card__head">
+        <div>
+          <span class="detail-card__eyebrow">Détail</span>
+          <h2>Notification sélectionnée</h2>
+        </div>
+        <span class="detail-status" [class.detail-status--unread]="!notification.lue">
+          {{ notification.lue ? 'Lue' : 'Non lue' }}
+        </span>
+      </div>
+
+      <p class="detail-message">{{ notification.message }}</p>
+
+      <div class="detail-meta">
+        <div class="detail-meta__item">
+          <span>Date</span>
+          <strong>{{ notification.dateEnvoi | date:'dd/MM/yyyy' }}</strong>
+        </div>
+
+        <div class="detail-meta__item">
+          <span>Heure</span>
+          <strong>{{ notification.dateEnvoi | date:'HH:mm' }}</strong>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button
+          type="button"
+          class="detail-btn"
+          *ngIf="!notification.lue"
+          (click)="markAsRead(notification)"
+        >
+          Marquer comme lue
+        </button>
+      </div>
+    </article>
+  </section>
+</section>
+
+<ng-template #emptySelection>
+  <article class="notifications-detail-card notifications-detail-card--empty">
+    <h2>Aucune notification sélectionnée</h2>
+    <p>Sélectionnez une notification dans la liste pour afficher son détail.</p>
+  </article>
+</ng-template>

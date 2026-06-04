@@ -1,0 +1,210 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <main class="workspace-main">
+    <div class="workspace-main-inner">
+      <app-page-hero
+        badge="Admin"
+        title="Gérer les utilisateurs"
+        subtitle="Recherchez les comptes, filtrez par rôle et ouvrez une fiche détail claire sans quitter l’écran."
+        theme="admin"
+        variant="management"
+        [breadcrumbs]="[
+          { label: 'Accueil', link: '/home' },
+          { label: 'Admin', link: '/admin-dashboard' },
+          { label: 'Utilisateurs' }
+        ]"
+        [highlights]="[
+          { title: 'Vue centralisée', description: 'Gardez candidats, recruteurs et admins accessibles depuis la même page.', icon: 'users' },
+          { title: 'Recherche rapide', description: 'Filtrez les comptes importants sans perdre de temps.', icon: 'search' },
+          { title: 'Gestion claire', description: 'Ouvrez les détails utiles avant toute suppression.', icon: 'shield' }
+        ]"
+      ></app-page-hero>
+
+      <section class="workspace-page-header admin-user-header">
+        <div class="admin-search-field">
+          <input
+            type="text"
+            placeholder="Rechercher un nom ou un email..."
+            [ngModel]="searchQuery"
+            (ngModelChange)="onSearchChange($event)"
+          />
+        </div>
+        <button type="button" class="admin-action-btn secondary" (click)="exportUsersCsv()">Exporter CSV</button>
+      </section>
+
+      <section class="admin-summary-grid">
+        <article class="admin-summary-card">
+          <span>Tous les comptes</span>
+          <strong>{{ visibleUsers.length }}</strong>
+          <small>Vue globale des utilisateurs disponibles</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Candidats</span>
+          <strong>{{ candidateCount }}</strong>
+          <small>Profils candidats actifs</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Recruteurs</span>
+          <strong>{{ recruiterCount }}</strong>
+          <small>Comptes recruteurs visibles</small>
+        </article>
+      </section>
+
+      <section class="admin-filter-row">
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+          Tous
+          <strong>{{ visibleUsers.length }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'CANDIDATE'" (click)="setFilter('CANDIDATE')">
+          Candidats
+          <strong>{{ candidateCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'RECRUITER'" (click)="setFilter('RECRUITER')">
+          Recruteurs
+          <strong>{{ recruiterCount }}</strong>
+        </button>
+      </section>
+
+      <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="admin-status success" *ngIf="successMessage">{{ successMessage }}</p>
+
+      <section class="workspace-card admin-table-card">
+        <div class="admin-table-head user-grid">
+          <span>Nom</span>
+          <span>Email</span>
+          <span>Rôle</span>
+          <span>Statut</span>
+          <span>Actions</span>
+        </div>
+
+        <div class="admin-table-row user-grid" *ngFor="let userItem of filteredUsers">
+          <div class="admin-identity-cell">
+            <span class="admin-avatar">{{ (userItem.nom || 'U').charAt(0) }}</span>
+            <div>
+              <strong>{{ userItem.nom }}</strong>
+              <small>ID {{ userItem.id }}</small>
+            </div>
+          </div>
+
+          <span class="admin-email-cell">{{ userItem.email }}</span>
+
+          <span class="workspace-chip" [ngClass]="userItem.role === 'RECRUITER' ? 'warning' : (userItem.role === 'ADMIN' ? 'primary' : 'success')">
+            {{ getRoleLabel(userItem.role) }}
+          </span>
+
+          <span class="workspace-chip" [ngClass]="getAccountStatusClass(userItem)">
+            {{ getAccountStatusLabel(userItem) }}
+          </span>
+
+          <div class="admin-actions-cell">
+            <button type="button" class="admin-action-btn secondary" (click)="openDetails(userItem)">
+              Voir détails
+            </button>
+
+            <button
+              *ngIf="!isUserActive(userItem)"
+              type="button"
+              class="admin-action-btn secondary"
+              (click)="activateUser(userItem)"
+              [disabled]="isActivating(userItem.id)"
+              title="Activer"
+            >
+              {{ isActivating(userItem.id) ? 'Activation...' : 'Activer' }}
+            </button>
+
+            <button
+              *ngIf="isUserActive(userItem)"
+              type="button"
+              class="admin-action-btn danger"
+              (click)="deactivateUser(userItem)"
+              [disabled]="isDeactivating(userItem.id)"
+              title="Desactiver"
+            >
+              {{ isDeactivating(userItem.id) ? 'Desactivation...' : 'Desactiver' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-empty-state" *ngIf="!loading && !filteredUsers.length">
+          <strong>Aucun utilisateur trouvé</strong>
+          <p>Essayez une autre recherche ou changez le filtre actif.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="admin-modal-backdrop" *ngIf="showUserModal" (click)="closeDetails()">
+    <div class="admin-modal" (click)="$event.stopPropagation()">
+      <div class="admin-modal__head">
+        <div>
+          <span class="admin-modal__badge">Détail utilisateur</span>
+          <h2>{{ selectedSummary?.nom || 'Utilisateur' }}</h2>
+          <p>{{ selectedSummary?.email || 'Non disponible' }}</p>
+        </div>
+        <button type="button" class="admin-modal__close" (click)="closeDetails()">Fermer</button>
+      </div>
+
+      <div class="admin-modal__body" *ngIf="!loadingProfile; else loadingProfileState">
+        <div class="detail-grid">
+          <article class="detail-card">
+            <span>Rôle</span>
+            <strong>{{ getRoleLabel(selectedProfile?.role || selectedSummary?.role || '') }}</strong>
+          </article>
+          <article class="detail-card">
+            <span>Compte actif</span>
+            <strong>{{ profileValue(selectedProfile?.statutCompte) }}</strong>
+          </article>
+          <article class="detail-card">
+            <span>Email vérifié</span>
+            <strong>{{ profileValue(selectedProfile?.emailVerified) }}</strong>
+          </article>
+          <article class="detail-card">
+            <span>Profil détaillé</span>
+            <strong>{{ profileValue(selectedProfile?.profileExists) }}</strong>
+          </article>
+        </div>
+
+        <div class="detail-stack">
+          <article class="detail-panel">
+            <h3>Informations générales</h3>
+            <p><strong>Nom :</strong> {{ profileValue(selectedProfile?.nom) }}</p>
+            <p><strong>Email :</strong> {{ profileValue(selectedProfile?.email) }}</p>
+            <p *ngIf="isSelectedCandidate()"><strong>Téléphone :</strong> {{ profileValue(selectedProfile?.numTelephone) }}</p>
+          </article>
+
+          <article class="detail-panel candidate-panel" *ngIf="isSelectedCandidate()">
+            <div class="detail-panel__head">
+              <span class="role-pill candidate">Candidat</span>
+              <h3>Profil candidat</h3>
+            </div>
+            <p><strong>Poste recherché :</strong> {{ profileValue(selectedProfile?.posteRecherche) }}</p>
+            <p><strong>Localisation :</strong> {{ profileValue(selectedProfile?.localisation) }}</p>
+            <p><strong>Expérience :</strong> {{ profileValue(selectedProfile?.experience) }}</p>
+          </article>
+
+          <article class="detail-panel recruiter-panel" *ngIf="isSelectedRecruiter()">
+            <div class="detail-panel__head">
+              <span class="role-pill recruiter">Recruteur</span>
+              <h3>Profil recruteur</h3>
+            </div>
+            <p><strong>Fonction :</strong> {{ profileValue(selectedProfile?.fonction) }}</p>
+            <p><strong>Poste :</strong> {{ profileValue(selectedProfile?.poste) }}</p>
+            <p><strong>Département :</strong> {{ profileValue(selectedProfile?.departement) }}</p>
+            <p><strong>Entreprise :</strong> {{ profileValue(selectedProfile?.entreprise) }}</p>
+          </article>
+
+          <article class="detail-panel" *ngIf="!isSelectedCandidate() && !isSelectedRecruiter()">
+            <h3>Données métier</h3>
+            <p>{{ selectedProfile?.profileMessage || 'Aucune information métier disponible pour ce compte.' }}</p>
+          </article>
+        </div>
+      </div>
+
+      <ng-template #loadingProfileState>
+        <div class="admin-empty-state">
+          <strong>Chargement du profil...</strong>
+          <p>Nous récupérons les informations détaillées de cet utilisateur.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

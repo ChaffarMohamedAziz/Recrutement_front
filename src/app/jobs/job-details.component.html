@@ -1,0 +1,126 @@
+<div class="details-shell">
+  <app-page-hero
+    *ngIf="offer"
+    badge="Candidat"
+    [title]="offer.titre"
+    [subtitle]="(offer.nomEntreprise || 'Entreprise') + ' · ' + (offer.localisation || 'Non precisee') + ' · ' + (offer.typeContrat || 'CDI')"
+    theme="candidate"
+    variant="opportunities"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Emplois', link: '/job-list' },
+      { label: 'Details' }
+    ]"
+    [highlights]="[
+      { title: 'Compatibilite', description: (compatibilityScore + '% estime pour votre profil.'), icon: 'chart' },
+      { title: 'Competences lues', description: 'Les competences obligatoires et souhaitees sont comparees a votre profil.', icon: 'briefcase' },
+      { title: 'Action rapide', description: 'Postulez en enregistrant le score final de compatibilite.', icon: 'speed' }
+    ]"
+  ></app-page-hero>
+
+  <div class="details-card" *ngIf="offer; else stateBlock">
+    <section class="summary-grid">
+      <article class="summary-card main">
+        <span class="section-badge">Description du poste</span>
+        <h2>{{ offer.titre }}</h2>
+        <p>{{ offer.description }}</p>
+      </article>
+
+      <article class="summary-card score-card">
+        <span class="section-badge">Score global</span>
+        <strong>{{ compatibilityScore }}%</strong>
+        <p>Score global de compatibilite entre votre profil et cette offre.</p>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="content-card">
+        <h2>Informations relatives au poste</h2>
+        <div class="meta-list">
+          <span>Entreprise : {{ offer.nomEntreprise || 'Entreprise' }}</span>
+          <span>Localisation : {{ offer.localisation || 'Non precisee' }}</span>
+          <span>Type de contrat : {{ offer.typeContrat || 'CDI' }}</span>
+          <span>Experience requise : {{ offer.experienceRequise }}</span>
+          <span>Salaire : {{ offer.salaire }} {{ offer.devise }}</span>
+          <span>Nombre de postes : {{ offer.nombrePostes }}</span>
+          <span>Date de publication : {{ offer.datePublication | date:'dd/MM/yyyy' }}</span>
+          <span>Date d expiration : {{ offer.dateExpiration | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="skills-grid">
+      <article class="content-card skills-card">
+        <div class="skills-card__head">
+          <div>
+            <h2>Competences obligatoires</h2>
+            <p>Affichees en vert si elles sont presentes dans votre profil, en rouge sinon.</p>
+          </div>
+          <span class="skills-counter required">{{ matchedRequiredCount }}/{{ requiredSkills.length }}</span>
+        </div>
+
+        <div class="skills-list" *ngIf="requiredSkills.length; else noRequiredSkills">
+          <div class="skill-item" *ngFor="let skill of requiredSkills" [class.matched]="skill.matched" [class.missing]="!skill.matched">
+            <div class="skill-item__copy">
+              <strong>{{ skill.nom }}</strong>
+              <small>{{ skill.niveau }} · {{ skill.ponderation }}%</small>
+            </div>
+            <span class="skill-status">{{ skill.matched ? 'Presente' : 'Absente' }}</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="content-card skills-card">
+        <div class="skills-card__head">
+          <div>
+            <h2>Competences souhaitees</h2>
+            <p>Affichees en vert si elles sont presentes dans votre profil, en rouge sinon.</p>
+          </div>
+          <span class="skills-counter desired">{{ matchedDesiredCount }}/{{ desiredSkills.length }}</span>
+        </div>
+
+        <div class="skills-list" *ngIf="desiredSkills.length; else noDesiredSkills">
+          <div class="skill-item" *ngFor="let skill of desiredSkills" [class.matched]="skill.matched" [class.missing]="!skill.matched">
+            <div class="skill-item__copy">
+              <strong>{{ skill.nom }}</strong>
+              <small>{{ skill.niveau }} · {{ skill.ponderation }}%</small>
+            </div>
+            <span class="skill-status">{{ skill.matched ? 'Presente' : 'Absente' }}</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <ng-template #noRequiredSkills>
+      <div class="empty-skill-state">
+        Aucune competence obligatoire n a ete definie pour cette offre.
+      </div>
+    </ng-template>
+
+    <ng-template #noDesiredSkills>
+      <div class="empty-skill-state">
+        Aucune competence souhaitee n a ete definie pour cette offre.
+      </div>
+    </ng-template>
+
+    <p class="success-banner" *ngIf="applyMessage">{{ applyMessage }}</p>
+    <p class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <div class="action-row">
+      <a routerLink="/job-list" class="secondary-action">Retour aux offres</a>
+      <button type="button" class="primary-action" [disabled]="offer.alreadyApplied || applying" (click)="apply()">
+        {{
+          offer.alreadyApplied
+            ? 'Deja postule'
+            : (applying ? 'Envoi...' : 'Postuler')
+        }}
+      </button>
+    </div>
+  </div>
+
+  <ng-template #stateBlock>
+    <div class="details-card state-card">
+      <p>{{ loading ? 'Chargement du detail de l offre...' : errorMessage }}</p>
+    </div>
+  </ng-template>
+</div>

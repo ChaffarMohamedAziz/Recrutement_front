@@ -1,0 +1,212 @@
+<div class="landing-shell">
+  <section class="hero-section">
+    <div class="hero-glow hero-glow-one"></div>
+    <div class="hero-glow hero-glow-two"></div>
+
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Plateforme RH intelligente</span>
+
+        <h1>
+          Le recrutement devient plus
+          <span>fluide</span>, plus <span>précis</span>
+          et plus convaincant.
+        </h1>
+
+        <p>
+          Smart-Recruit aide les recruteurs à piloter leurs offres, leurs candidatures
+          et leurs tests IA dans une expérience claire, moderne et orientée décision.
+        </p>
+
+        <div class="hero-actions">
+          <a routerLink="/job-list" class="cta cta-primary">Trouver un emploi</a>
+          <a routerLink="/post-a-job" class="cta cta-secondary">Publier une offre</a>
+        </div>
+
+        <div class="hero-badges" aria-label="Points forts Smart-Recruit">
+          <span>Matching intelligent</span>
+          <span>Pilotage centralisé</span>
+          <span>Parcours candidat clair</span>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="Aperçu Smart-Recruit">
+        <div class="visual-panel">
+          <div class="visual-header">
+            <div>
+              <span>Tableau de bord</span>
+              <strong>Smart-Recruit</strong>
+            </div>
+            <div class="visual-status">Live</div>
+          </div>
+
+          <div class="visual-main-card">
+            <div class="score-ring">
+              <strong>87%</strong>
+              <span>Match</span>
+            </div>
+            <div>
+              <span class="card-label">Score de matching</span>
+              <h3>Candidat fortement compatible</h3>
+              <p>Compétences clés détectées et classées automatiquement.</p>
+            </div>
+          </div>
+
+          <div class="visual-card-grid">
+            <article class="visual-card">
+              <span>Entreprise active</span>
+              <strong>+24%</strong>
+              <small>Candidatures qualifiées</small>
+            </article>
+
+            <article class="visual-card">
+              <span>Offre du moment</span>
+              <strong>Full Stack</strong>
+              <small>Angular · Spring Boot</small>
+            </article>
+
+            <article class="visual-card">
+              <span>Lecture immédiate</span>
+              <strong>12 min</strong>
+              <small>Préqualification moyenne</small>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="search-section" id="search-section">
+    <form class="search-card" (ngSubmit)="searchJobs()">
+      <label>
+        <span>Titre du poste</span>
+        <input
+          type="text"
+          [(ngModel)]="jobTitleQuery"
+          name="jobTitleQuery"
+          placeholder="Ex : Développeur Angular"
+        />
+      </label>
+
+      <label>
+        <span>Ville ou région</span>
+        <input
+          type="text"
+          [(ngModel)]="locationQuery"
+          name="locationQuery"
+          placeholder="Ex : Tunis, Sfax, Paris"
+        />
+      </label>
+
+      <label>
+        <span>Catégorie</span>
+        <select [(ngModel)]="selectedCategory" name="selectedCategory">
+          <option>Toutes les categories</option>
+          <option *ngFor="let category of categories">{{ category }}</option>
+        </select>
+      </label>
+
+      <button type="submit">Rechercher</button>
+    </form>
+
+    <div class="popular-searches">
+      <span>Recherches populaires</span>
+      <button type="button" *ngFor="let search of popularSearches" (click)="jobTitleQuery = search; searchJobs()">
+        {{ search }}
+      </button>
+    </div>
+  </section>
+
+  <section class="value-section">
+    <div class="section-intro">
+      <span class="section-kicker">Pourquoi Smart-Recruit ?</span>
+      <h2>Une plateforme claire pour recruter, suivre et décider plus vite.</h2>
+      <p>
+        Une expérience pensée pour les démonstrations professionnelles : beaucoup d’espace,
+        des indicateurs lisibles et un parcours candidat/recruteur plus cohérent.
+      </p>
+    </div>
+
+    <div class="value-grid">
+      <article class="value-card" *ngFor="let pillar of platformPillars">
+        <div class="value-icon"></div>
+        <span>{{ pillar.tag }}</span>
+        <h3>{{ pillar.title }}</h3>
+        <p>{{ pillar.description }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="stats-strip">
+    <article>
+      <strong>10k+</strong>
+      <span>Candidats actifs</span>
+    </article>
+    <article>
+      <strong>2.5k+</strong>
+      <span>Entreprises partenaires</span>
+    </article>
+    <article>
+      <strong>15k+</strong>
+      <span>Offres publiées</span>
+    </article>
+    <article>
+      <strong>98%</strong>
+      <span>Satisfaction démonstration</span>
+    </article>
+  </section>
+
+  <section class="jobs-section" id="jobs-section">
+    <div class="section-intro compact">
+      <span class="section-kicker">Offres en avant</span>
+      <h2>Des opportunités présentées avec une lecture plus nette.</h2>
+      <p *ngIf="loadingJobs">Chargement des offres depuis la base de données...</p>
+      <p *ngIf="!loadingJobs && !jobsError">{{ filteredJobsList.length }} résultat(s) selon vos critères de recherche.</p>
+    </div>
+
+    <div class="empty-state error" *ngIf="jobsError">
+      <strong>Chargement des offres impossible.</strong>
+      <p>{{ jobsError }}</p>
+    </div>
+
+    <div class="empty-state" *ngIf="!loadingJobs && !jobsError && !featuredJobs.length">
+      <strong>Aucune offre trouvée</strong>
+      <p>Essayez une autre localisation, une autre catégorie ou réinitialisez les filtres.</p>
+      <button type="button" (click)="resetSearch()">Effacer les filtres</button>
+    </div>
+
+    <div class="job-grid" *ngIf="!loadingJobs && !jobsError && featuredJobs.length">
+      <article class="job-card" *ngFor="let job of featuredJobs">
+        <div class="job-top">
+          <span>{{ job.category }}</span>
+          <em>{{ job.contractType }}</em>
+        </div>
+        <h3>{{ job.title }}</h3>
+        <p class="job-company">{{ job.companyName }} · {{ job.location }}</p>
+        <p class="job-summary">{{ job.summary }}</p>
+        <div class="job-meta">
+          <span>{{ job.salary }}</span>
+          <span>{{ job.location }}</span>
+        </div>
+        <button type="button" (click)="openJobAction(job.id)">Voir l’offre</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="closing-section">
+    <div>
+      <span class="section-kicker">Smart-Recruit</span>
+      <h2>Une vitrine moderne pour une plateforme RH intelligente.</h2>
+      <p>
+        Centralisez vos offres, valorisez les profils, automatisez la lecture des compétences
+        et donnez une impression SaaS solide dès la première page.
+      </p>
+    </div>
+    <a routerLink="/register" class="cta cta-primary">Démarrer maintenant</a>
+  </section>
+
+  <section class="registration-flash" *ngIf="registration">
+    <strong>Inscription récente :</strong>
+    {{ registration.nom }} · {{ registration.message }}
+  </section>
+</div>

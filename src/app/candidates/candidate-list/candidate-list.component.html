@@ -1,0 +1,72 @@
+<div class="directory-shell">
+  <app-page-hero
+    badge="Recruteur"
+    title="Liste des candidats classes par pertinence"
+    subtitle="Consultez les candidatures triees par score et appliquez un filtre minimum pour vous concentrer sur les meilleurs profils."
+    theme="recruiter"
+    variant="talent"
+    [breadcrumbs]="[
+      { label: 'Accueil', link: '/home' },
+      { label: 'Recruteur', link: '/recruiter-space' },
+      { label: 'Candidats' }
+    ]"
+    [highlights]="[
+      { title: 'Tri intelligent', description: 'Affichez les profils les plus pertinents en premier.', icon: 'chart' },
+      { title: 'Filtre score', description: 'Conservez votre attention sur les candidats au-dessus du seuil voulu.', icon: 'search' },
+      { title: 'Comparaison rapide', description: 'Visualisez les competences correspondantes ou manquantes.', icon: 'users' }
+    ]"
+  ></app-page-hero>
+
+  <div class="toolbar-card">
+    <label class="filter-box">
+      <span>Offre</span>
+      <select [(ngModel)]="selectedOfferId">
+        <option *ngFor="let offer of offerOptions" [value]="offer.value">{{ offer.label }}</option>
+      </select>
+    </label>
+
+    <label class="filter-box score-box">
+      <span>Score minimum</span>
+      <div class="score-input">
+        <input type="range" min="0" max="100" [value]="minScore" (input)="setMinScore($event)" />
+        <strong>{{ minScore }}%</strong>
+      </div>
+    </label>
+  </div>
+
+  <p class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <div class="directory-grid" *ngIf="filteredApplications.length; else emptyState">
+    <article class="directory-card" *ngFor="let application of filteredApplications">
+      <div class="card-top">
+        <div class="avatar-box">{{ application.candidateName.slice(0, 1) }}</div>
+        <div class="score-pill">{{ application.score }}%</div>
+      </div>
+
+      <h2>{{ application.candidateName }}</h2>
+      <span>{{ application.candidateJobTitle }} · {{ application.candidateLocation }}</span>
+      <p>{{ application.offerTitle }} · {{ application.companyName }}</p>
+
+      <div class="pill-row">
+        <span class="pill">{{ application.candidateExperience }} ans</span>
+        <span class="pill status-pill" [attr.data-status]="application.status">{{ application.status }}</span>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag tag-match" *ngFor="let skill of application.matchingSkills.slice(0, 4)">{{ skill }}</span>
+      </div>
+
+      <div class="tag-row" *ngIf="application.missingSkills.length">
+        <span class="tag tag-miss" *ngFor="let skill of application.missingSkills.slice(0, 3)">{{ skill }}</span>
+      </div>
+
+      <a [routerLink]="['/candidate-details', application.id]">Voir profil</a>
+    </article>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      {{ loading ? 'Chargement des candidats...' : 'Aucun candidat ne correspond aux filtres actuels.' }}
+    </div>
+  </ng-template>
+</div>

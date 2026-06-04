@@ -1,0 +1,357 @@
+<div class="job-list-shell">
+  <app-page-hero
+    badge="Candidat"
+    title="Liste des emplois"
+    subtitle="Parcourez les offres disponibles, filtrez rapidement vos resultats et ciblez les postes les plus pertinents."
+    theme="candidate"
+    variant="opportunities"
+    [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Emplois' }]"
+    [highlights]="[
+      { title: 'Recherche multicritere', description: 'Affinez les offres par localisation, type de contrat et experience.', icon: 'search' },
+      { title: 'Matching visible', description: 'Reperez rapidement les offres les plus adaptees a votre profil.', icon: 'chart' },
+      { title: 'Candidature simple', description: 'Passez de la recherche a la postulation sans friction.', icon: 'check' }
+    ]"
+  ></app-page-hero>
+
+  <section class="job-overview-panel">
+    <div class="job-overview-chip">
+      <span>Offres visibles</span>
+      <strong>{{ totalResults }}</strong>
+    </div>
+    <div class="job-overview-chip">
+      <span>Offres sauvegardees</span>
+      <strong>{{ savedJobsCount }}</strong>
+    </div>
+    <div class="job-overview-copy">
+      <h2>Opportunites ciblees</h2>
+      <p>Utilisez les filtres, comparez le matching et priorisez les offres avec le meilleur alignement.</p>
+    </div>
+  </section>
+
+  <section class="saved-offers-panel">
+    <div class="saved-offers-panel__head">
+      <div>
+        <span class="saved-offers-panel__eyebrow">Offres enregistrees</span>
+        <h2>Vos offres sauvegardees</h2>
+        <p>Retrouvez rapidement les opportunites que vous souhaitez suivre de plus pres.</p>
+      </div>
+      <strong>{{ savedJobsCount }}</strong>
+    </div>
+
+    <div class="saved-offers-grid" *ngIf="savedJobs.length; else emptySavedOffers">
+      <article class="saved-offer-card" *ngFor="let job of savedJobs; trackBy: trackByJobId">
+        <div class="saved-offer-card__top">
+          <div>
+            <h3>{{ job.title }}</h3>
+            <p>{{ job.companyName }} · {{ job.location }}</p>
+          </div>
+          <span class="saved-offer-card__score">{{ job.compatibilityScore ?? 0 }}%</span>
+        </div>
+
+        <div class="saved-offer-card__meta">
+          <span>Publiee le {{ job.postedAt | date:'dd/MM/yyyy' }}</span>
+          <span>Expire le {{ job.expiresAt | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div class="saved-offer-card__actions">
+          <a [routerLink]="['/job-details', job.id]" class="saved-offer-link">Voir l offre</a>
+          <button type="button" class="saved-offer-remove" (click)="toggleSaved(job)">Retirer</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <ng-template #emptySavedOffers>
+    <div class="saved-offers-empty">
+      <strong>Aucune offre enregistree pour le moment.</strong>
+      <p>Utilisez l icone de sauvegarde sur une carte offre pour la retrouver ici.</p>
+    </div>
+  </ng-template>
+
+  <section class="score-filter-card">
+    <div class="score-filter-card__copy">
+      <span class="score-filter-card__eyebrow">Score minimum</span>
+      <h2>Score minimum</h2>
+      <p>Affiche uniquement les offres avec un matching supérieur ou égal au score sélectionné.</p>
+    </div>
+
+    <div class="score-filter-card__control">
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        [ngModel]="scoreMinimum"
+        (ngModelChange)="onScoreMinimumChange($event)"
+        aria-label="Score minimum"
+      />
+      <strong>{{ scoreMinimum }}%</strong>
+    </div>
+  </section>
+
+  <section class="filter-panel">
+    <div class="filter-grid">
+      <label class="filter-field search-field">
+        <span class="filter-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10.5 4.5a6 6 0 1 0 0 12a6 6 0 0 0 0-12Z"></path>
+            <path d="m15 15 4.5 4.5"></path>
+          </svg>
+        </span>
+        <input
+          type="text"
+          [(ngModel)]="draftSearchTerm"
+          placeholder="Titre, entreprise, mot-cle, competence..."
+        />
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-icon static-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 20s-5-4.9-5-9a5 5 0 1 1 10 0c0 4.1-5 9-5 9Z"></path>
+            <circle cx="12" cy="11" r="1.5"></circle>
+          </svg>
+        </span>
+        <span class="field-label">Localisation</span>
+        <select [(ngModel)]="draftLocation">
+          <option *ngFor="let location of locations" [value]="location">{{ location }}</option>
+        </select>
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-icon static-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 4.5v3"></path>
+            <path d="M17 4.5v3"></path>
+            <path d="M4.5 9h15"></path>
+            <rect x="4.5" y="6.5" width="15" height="13" rx="2"></rect>
+          </svg>
+        </span>
+        <span class="field-label">Type de contrat</span>
+        <select [(ngModel)]="draftContractType">
+          <option *ngFor="let contractType of contractTypes" [value]="contractType">{{ contractType }}</option>
+        </select>
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-icon static-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.5 18V10"></path>
+            <path d="M12 18V6"></path>
+            <path d="M17.5 18v-4"></path>
+          </svg>
+        </span>
+        <span class="field-label">Experience</span>
+        <select [(ngModel)]="draftExperience">
+          <option *ngFor="let experience of experienceOptions" [value]="experience">{{ experience }}</option>
+        </select>
+      </label>
+
+      <button type="button" class="search-btn" (click)="applyFilters()">Rechercher</button>
+    </div>
+
+    <button type="button" class="reset-btn" (click)="resetFilters()">Reinitialiser les filtres</button>
+  </section>
+
+  <section class="jobs-toolbar">
+    <div class="toolbar-copy">
+      <h2>{{ totalResults }} offres trouvees</h2>
+      <p>Cartes optimisees pour comparer rapidement le matching, les competences et le type de contrat.</p>
+      <p class="toolbar-success" *ngIf="applyMessage">{{ applyMessage }}</p>
+      <p class="toolbar-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </div>
+
+    <label class="sort-box">
+      <span>Trier par</span>
+      <select [(ngModel)]="selectedSort">
+        <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </label>
+  </section>
+
+  <section class="jobs-grid loading-grid" *ngIf="loading">
+    <article class="job-card skeleton-card" *ngFor="let item of [1, 2, 3, 4, 5, 6]">
+      <div class="skeleton-line large"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-pill-row">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="skeleton-block"></div>
+    </article>
+  </section>
+
+  <section class="jobs-grid" *ngIf="!loading && paginatedJobs.length; else emptyState">
+    <article class="job-card" *ngFor="let job of paginatedJobs; trackBy: trackByJobId">
+      <div class="job-card-head">
+        <div class="brand-wrap">
+          <span class="company-mark" [ngClass]="'tone-' + job.logoTone">{{ job.logoText }}</span>
+          <div class="job-copy">
+            <div class="job-copy__top">
+              <h3>{{ job.title }}</h3>
+              <span class="job-badge" *ngIf="job.badge">{{ job.badge }}</span>
+            </div>
+            <p class="company-name">
+              {{ job.companyName }}
+              <span class="verified-badge" *ngIf="job.companyVerified" aria-label="Entreprise verifiee">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m8.5 12 2.4 2.4 4.6-5.1"></path>
+                  <circle cx="12" cy="12" r="8"></circle>
+                </svg>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="bookmark-btn"
+          [class.active]="job.saved"
+          (click)="toggleSaved(job)"
+          [attr.aria-label]="job.saved ? 'Retirer des sauvegardes' : 'Sauvegarder cette offre'"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 5.5h10a1 1 0 0 1 1 1v12l-6-3.5-6 3.5v-12a1 1 0 0 1 1-1Z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="job-meta">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 20s-5-4.9-5-9a5 5 0 1 1 10 0c0 4.1-5 9-5 9Z"></path>
+            <circle cx="12" cy="11" r="1.5"></circle>
+          </svg>
+          {{ job.location }}
+        </span>
+        <span class="contract-pill" [class.cdd]="job.contractType === 'CDD'" [class.stage]="job.contractType === 'Stage'">
+          {{ job.contractType }}
+        </span>
+        <span class="experience-pill">{{ job.experience }}</span>
+      </div>
+
+      <div class="job-match-panel" [attr.data-tone]="job.matchTone">
+        <div class="job-match-panel__score">
+          <strong>{{ job.compatibilityScore ?? 0 }}%</strong>
+          <span>{{ job.matchLabel }}</span>
+        </div>
+        <p>{{ job.aiTip }}</p>
+      </div>
+
+      <div class="job-stats">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4.5" y="7" width="15" height="10" rx="2"></rect>
+            <path d="M9 12h6"></path>
+          </svg>
+          {{ job.salaryLabel }}
+        </span>
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 18h12"></path>
+            <path d="M8 14h8"></path>
+            <path d="M10 10h4"></path>
+          </svg>
+          {{ job.offerSkills.length }} competence(s)
+        </span>
+        <span class="meta-item publication-meta">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 4.5v3"></path>
+            <path d="M17 4.5v3"></path>
+            <path d="M4.5 9h15"></path>
+            <rect x="4.5" y="6.5" width="15" height="13" rx="2"></rect>
+          </svg>
+          Publiee le {{ job.postedAt | date:'dd/MM/yyyy' }}
+        </span>
+        <span class="meta-item expiration-meta">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 8v4l2.5 2.5"></path>
+            <circle cx="12" cy="12" r="8"></circle>
+          </svg>
+          Expire le {{ job.expiresAt | date:'dd/MM/yyyy' }}
+        </span>
+      </div>
+
+      <p class="job-summary">{{ job.summary }}</p>
+
+      <div class="job-skill-panel">
+        <div class="skill-column">
+          <span class="skill-column__label">Compatibles</span>
+          <div class="skill-cloud">
+            <span class="skill-tag success" *ngFor="let skill of job.matchingSkills.slice(0, 4)">{{ skill }}</span>
+            <span class="skill-tag neutral" *ngIf="!job.matchingSkills.length">Aucune correspondance forte</span>
+          </div>
+        </div>
+
+        <div class="skill-column">
+          <span class="skill-column__label">Manquantes</span>
+          <div class="skill-cloud">
+            <span class="skill-tag danger" *ngFor="let skill of job.missingSkills.slice(0, 4)">{{ skill }}</span>
+            <span class="skill-tag neutral" *ngIf="!job.missingSkills.length">Aucune competence bloquante</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-actions">
+        <a [routerLink]="['/job-details', job.id]" class="primary-action">Voir details</a>
+        <button
+          type="button"
+          class="secondary-action"
+          *ngIf="!canPassAiTest(job) && !isAiTestInProgress(job) && !isAiTestCompleted(job)"
+          [class.applied-action]="job.alreadyApplied"
+          [disabled]="job.alreadyApplied || applyingJobId === job.id"
+          (click)="applyToJob(job)"
+        >
+          {{ getOfferActionLabel(job) }}
+        </button>
+        <a
+          *ngIf="canPassAiTest(job) || isAiTestInProgress(job)"
+          class="secondary-action ai-test-action"
+          [routerLink]="['/candidate-ai-tests/application', job.applicationId]"
+        >
+          {{ getOfferActionLabel(job) }}
+        </a>
+        <span
+          *ngIf="isAiTestCompleted(job)"
+          class="secondary-action applied-action completed-action"
+        >
+          {{ getOfferActionLabel(job) }}
+        </span>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      <h3>Aucune offre ne correspond a votre recherche.</h3>
+      <p>Essayez de modifier les filtres ou relancez une recherche plus large.</p>
+      <button type="button" (click)="resetFilters()">Effacer les filtres</button>
+    </section>
+  </ng-template>
+
+  <nav class="pagination" *ngIf="pageCount > 1">
+    <button type="button" class="page-nav" (click)="previousPage()" [disabled]="currentPage === 1">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m14.5 6.5-5 5 5 5"></path>
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="page-number"
+      *ngFor="let page of pageNumbers"
+      [class.active]="page === currentPage"
+      (click)="goToPage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button type="button" class="page-nav" (click)="nextPage()" [disabled]="currentPage === pageCount">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m9.5 6.5 5 5-5 5"></path>
+      </svg>
+    </button>
+  </nav>
+</div>

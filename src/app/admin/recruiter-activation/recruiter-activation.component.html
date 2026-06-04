@@ -1,0 +1,180 @@
+<div class="role-workspace theme-admin admin-top-layout admin-detail-page">
+  <main class="workspace-main">
+    <div class="workspace-main-inner">
+      <app-page-hero
+        badge="Admin"
+        title="Gérer les demandes recruteurs"
+        subtitle="Examinez les comptes en attente, les activations validées et les refus depuis un espace clair et rapide."
+        theme="admin"
+        variant="approval"
+        [breadcrumbs]="[
+          { label: 'Accueil', link: '/home' },
+          { label: 'Admin', link: '/admin-dashboard' },
+          { label: 'Demandes recruteurs' }
+        ]"
+        [highlights]="[
+          { title: 'Validation rapide', description: 'Approuvez ou refusez les comptes recruteurs avec une vue centralisée.', icon: 'shield' },
+          { title: 'Liste claire', description: 'Gardez les statuts visibles sans changer d’écran.', icon: 'chart' },
+          { title: 'Suivi fiable', description: 'Conservez un historique clair entre attente, actif et refusé.', icon: 'check' }
+        ]"
+      ></app-page-hero>
+
+      <section class="workspace-page-header">
+        <button type="button" class="admin-ghost-btn" (click)="loadRecruiters()" [disabled]="loading">
+          {{ loading ? 'Chargement...' : 'Actualiser' }}
+        </button>
+      </section>
+
+      <section class="admin-summary-grid">
+        <article class="admin-summary-card">
+          <span>Demandes en attente</span>
+          <strong>{{ pendingCount }}</strong>
+          <small>Comptes à vérifier en priorité</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Comptes approuvés</span>
+          <strong>{{ approvedCount }}</strong>
+          <small>Recruteurs autorisés à publier</small>
+        </article>
+        <article class="admin-summary-card">
+          <span>Comptes refusés</span>
+          <strong>{{ refusedCount }}</strong>
+          <small>Historique des validations refusées</small>
+        </article>
+      </section>
+
+      <section class="admin-filter-row">
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'PENDING'" (click)="setFilter('PENDING')">
+          En attente
+          <strong>{{ pendingCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'APPROVED'" (click)="setFilter('APPROVED')">
+          Approuvés
+          <strong>{{ approvedCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'REFUSED'" (click)="setFilter('REFUSED')">
+          Refusés
+          <strong>{{ refusedCount }}</strong>
+        </button>
+        <button type="button" class="admin-filter-btn" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+          Tous
+          <strong>{{ recruiters.length }}</strong>
+        </button>
+      </section>
+
+      <p class="admin-status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="admin-status success" *ngIf="actionMessage">{{ actionMessage }}</p>
+
+      <section class="workspace-card admin-table-card">
+        <div class="admin-table-head recruiter-grid" [class.with-offers]="showPublishedOffersColumn">
+          <span>Nom</span>
+          <span>Entreprise</span>
+          <span>Date d'inscription</span>
+          <span>Statut</span>
+          <span *ngIf="showPublishedOffersColumn">Offres publiees</span>
+          <span>Actions</span>
+        </div>
+
+        <div class="admin-table-row recruiter-grid" [class.with-offers]="showPublishedOffersColumn" *ngFor="let recruiter of filteredRecruiters">
+          <div class="admin-identity-cell">
+            <span class="admin-avatar">{{ (recruiter.nom || 'R').charAt(0) }}</span>
+            <div>
+              <strong>{{ recruiter.nom || 'Compte recruteur' }}</strong>
+              <small>{{ recruiter.email }}</small>
+            </div>
+          </div>
+
+          <div class="recruiter-company-cell">
+            <strong>{{ getRecruiterCompany(recruiter) }}</strong>
+            <small>{{ getRecruiterSector(recruiter) }}</small>
+          </div>
+
+          <span class="admin-email-cell">{{ getRecruiterRegistrationDate(recruiter) }}</span>
+
+          <span class="workspace-chip" [ngClass]="getRecruiterUiStatusClass(recruiter)">
+            {{ getRecruiterUiStatusLabel(recruiter) }}
+          </span>
+
+          <span class="offers-count-pill" *ngIf="showPublishedOffersColumn">{{ getPublishedOffersCount(recruiter) }}</span>
+
+          <div class="admin-actions-cell" [class.single-action]="isDeleteOnlyAction(recruiter)">
+            <button type="button" class="admin-action-btn delete" (click)="openDetails(recruiter)">Voir détails</button>
+
+            <button
+              *ngIf="shouldShowApproveButton(recruiter)"
+              type="button"
+              class="admin-action-btn primary"
+              (click)="approveRecruiter(recruiter)"
+              [disabled]="getApprovalStatus(recruiter) === 'APPROVED' || isApproving(recruiter.id) || isDeleting(recruiter.id) || isRejecting(recruiter.id)"
+            >
+              {{ isApproving(recruiter.id) ? 'Activation...' : 'Activer' }}
+            </button>
+
+            <button
+              *ngIf="shouldShowRejectButton(recruiter)"
+              type="button"
+              class="admin-action-btn danger"
+              (click)="rejectRecruiter(recruiter)"
+              [disabled]="getApprovalStatus(recruiter) === 'REFUSED' || isRejecting(recruiter.id) || isApproving(recruiter.id) || isDeleting(recruiter.id)"
+            >
+              {{ isRejecting(recruiter.id) ? 'Refus...' : 'Refuser' }}
+            </button>
+
+            <button
+              *ngIf="shouldShowSuspendButton(recruiter)"
+              type="button"
+              class="admin-action-btn delete"
+              (click)="suspendRecruiter(recruiter)"
+              [disabled]="isDeleting(recruiter.id) || isApproving(recruiter.id) || isRejecting(recruiter.id)"
+              title="Suspendre"
+            >
+              {{ isDeleting(recruiter.id) ? 'Suspension...' : 'Suspendre' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-empty-state" *ngIf="!loading && !filteredRecruiters.length">
+          <strong>Aucun compte recruteur à afficher</strong>
+          <p>Cette vue est vide pour le filtre sélectionné. Changez de liste ou rechargez les demandes.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="admin-modal-backdrop" *ngIf="selectedRecruiter" (click)="closeDetails()">
+    <div class="admin-modal" (click)="$event.stopPropagation()">
+      <div class="admin-modal__head">
+        <div>
+          <span class="admin-modal__badge">Détail recruteur</span>
+          <h2>{{ selectedRecruiter.nom || 'Compte recruteur' }}</h2>
+          <p>{{ selectedRecruiter.email || 'Non disponible' }}</p>
+        </div>
+        <button type="button" class="admin-modal__close" (click)="closeDetails()">Fermer</button>
+      </div>
+
+      <div class="detail-grid">
+        <article class="detail-card">
+          <span>Statut</span>
+          <strong>{{ getRecruiterUiStatusLabel(selectedRecruiter!) }}</strong>
+        </article>
+        <article class="detail-card">
+          <span>Entreprise</span>
+          <strong>{{ getRecruiterCompany(selectedRecruiter!) }}</strong>
+        </article>
+        <article class="detail-card">
+          <span>Date d'inscription</span>
+          <strong>{{ getRecruiterRegistrationDate(selectedRecruiter!) }}</strong>
+        </article>
+      </div>
+
+      <article class="detail-panel">
+        <h3>Informations disponibles</h3>
+        <p><strong>Nom :</strong> {{ recruiterValue(selectedRecruiter.nom) }}</p>
+        <p><strong>Email :</strong> {{ recruiterValue(selectedRecruiter.email) }}</p>
+        <p><strong>Entreprise :</strong> {{ getRecruiterCompany(selectedRecruiter!) }}</p>
+        <p><strong>Secteur :</strong> {{ getRecruiterSector(selectedRecruiter!) }}</p>
+        <p><strong>Statut :</strong> {{ getRecruiterUiStatusLabel(selectedRecruiter!) }}</p>
+      </article>
+    </div>
+  </div>
+</div>
