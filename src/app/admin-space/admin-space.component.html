@@ -2,12 +2,12 @@
   <app-page-hero
     badge="Admin"
     title="Statistiques de la plateforme"
-    subtitle="Suivez les indicateurs globaux, les signaux IA, les tendances d’abonnement et la performance opérationnelle depuis un cockpit analytique Smart Recruit."
+    subtitle="Suivez les indicateurs globaux, les signaux IA et la performance opérationnelle depuis un cockpit analytique Smart Recruit."
     theme="admin"
     variant="analytics"
     [breadcrumbs]="[{ label: 'Accueil', link: '/home' }, { label: 'Statistiques admin' }]"
-    [primaryActionLabel]="'Gérer les abonnements'"
-    [primaryActionLink]="'/admin/subscriptions'"
+    [primaryActionLabel]="'Retour au dashboard'"
+    [primaryActionLink]="'/admin-dashboard'"
     [secondaryActionLabel]="'Retour au dashboard'"
     [secondaryActionLink]="'/admin-dashboard'"
     [highlights]="[
@@ -20,7 +20,6 @@
   <p class="admin-toast error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
   <section class="admin-toolbar">
-    <button type="button" class="toolbar-btn primary" routerLink="/admin/subscriptions">Piloter les abonnements</button>
     <button type="button" class="toolbar-btn" (click)="exportStatisticsCsv()">Exporter les statistiques CSV</button>
     <button type="button" class="toolbar-btn" routerLink="/admin-dashboard">Retour au dashboard</button>
   </section>
@@ -144,18 +143,6 @@
       </div>
     </article>
 
-    <article class="admin-panel chart-panel">
-      <div class="admin-panel__head">
-        <div>
-          <span class="panel-kicker">Graphique 6</span>
-          <h2>Évolution des abonnements</h2>
-          <p>Répartition actuelle des plans FREE, STANDARD et PREMIUM.</p>
-        </div>
-      </div>
-      <div class="chart-canvas" *ngIf="hasChartValues(subscriptionsChartData); else emptyChart">
-        <canvas baseChart [type]="'bar'" [data]="subscriptionsChartData" [options]="verticalBarOptions"></canvas>
-      </div>
-    </article>
   </section>
 
   <ng-template #emptyInsights>

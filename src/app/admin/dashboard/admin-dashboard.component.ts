@@ -6,7 +6,6 @@ import {
   AdminActivityItem,
   AdminOverviewStatsResponse,
   AdminPlatformService,
-  AdminSubscriptionResponse,
   AiInsightItem,
   AiTestStatsResponse,
   ServiceHealthItem
@@ -52,7 +51,6 @@ export class AdminDashboardComponent implements OnInit {
   overview: AdminOverviewStatsResponse | null = null;
   aiStats: AiTestStatsResponse | null = null;
   pendingRecruiters = 0;
-  subscriptions: AdminSubscriptionResponse[] = [];
   insights: AiInsightItem[] = [];
   serviceHealth: ServiceHealthItem[] = [];
   recentActivity: AdminActivityItem[] = [];
@@ -82,12 +80,6 @@ export class AdminDashboardComponent implements OnInit {
       description: 'Accédez aux analytics détaillés, aux tendances et aux signaux IA.',
       link: '/admin/statistics',
       label: 'Analyser'
-    },
-    {
-      title: 'Abonnements',
-      description: 'Pilotez les plans SaaS FREE, STANDARD et PREMIUM des recruteurs.',
-      link: '/admin/subscriptions',
-      label: 'Piloter'
     }
   ];
 
@@ -163,21 +155,19 @@ export class AdminDashboardComponent implements OnInit {
     forkJoin({
       overview: this.adminPlatformService.getOverviewStats(),
       aiStats: this.adminPlatformService.getAiTestStats(),
-      subscriptions: this.adminPlatformService.getSubscriptions(),
       insights: this.adminPlatformService.getInsights(),
       serviceHealth: this.adminPlatformService.getSystemHealth(),
       recentActivity: this.adminPlatformService.getRecentActivity(),
       recruiters: this.authService.getRecruiterAccounts()
     }).subscribe({
-      next: ({ overview, aiStats, subscriptions, insights, serviceHealth, recentActivity, recruiters }) => {
+      next: ({ overview, aiStats, insights, serviceHealth, recentActivity, recruiters }) => {
         this.overview = overview;
         this.aiStats = aiStats;
-        this.subscriptions = subscriptions;
         this.insights = insights;
         this.serviceHealth = serviceHealth;
         this.recentActivity = recentActivity;
         this.pendingRecruiters = this.countPendingRecruiters(recruiters);
-        this.alerts = this.buildAlerts(aiStats, subscriptions);
+        this.alerts = this.buildAlerts(aiStats);
         this.loading = false;
       },
       error: (error: { message?: string }) => {
@@ -187,22 +177,13 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  private buildAlerts(aiStats: AiTestStatsResponse, subscriptions: AdminSubscriptionResponse[]): AlertItem[] {
+  private buildAlerts(aiStats: AiTestStatsResponse): AlertItem[] {
     const alerts: AlertItem[] = [];
-    const expiringSoonCount = subscriptions.filter((item) => this.isExpiringSoon(item.endDate)).length;
 
     if (this.pendingRecruiters > 0) {
       alerts.push({
         title: `${this.pendingRecruiters} recruteur(s) en attente`,
         description: 'Des comptes recruteurs attendent une validation pour publier leurs offres.',
-        tone: 'warning'
-      });
-    }
-
-    if (expiringSoonCount > 0) {
-      alerts.push({
-        title: `${expiringSoonCount} abonnement(s) à renouveler`,
-        description: 'Certains plans arrivent bientôt à expiration et méritent un suivi.',
         tone: 'warning'
       });
     }
@@ -236,21 +217,6 @@ export class AdminDashboardComponent implements OnInit {
 
   private countPendingRecruiters(recruiters: RegisterResult[]): number {
     return (recruiters || []).filter((item) => item?.approvalStatus === 'PENDING').length;
-  }
-
-  private isExpiringSoon(endDate: string): boolean {
-    if (!endDate) {
-      return false;
-    }
-
-    const date = new Date(endDate);
-    if (Number.isNaN(date.getTime())) {
-      return false;
-    }
-
-    const now = new Date();
-    const diffDays = (date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-    return diffDays >= 0 && diffDays <= 14;
   }
 
 }

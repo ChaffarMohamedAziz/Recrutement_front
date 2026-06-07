@@ -7,7 +7,6 @@ import { ChartConfiguration, ChartData, Plugin } from 'chart.js';
 import {
   AdminOverviewStatsResponse,
   AdminPlatformService,
-  AdminSubscriptionResponse,
   AiInsightItem,
   AiTestStatsResponse,
   ChartDataResponse,
@@ -54,12 +53,6 @@ export class AdminSpaceComponent implements OnInit {
 
   readonly quickLinks = [
     {
-      title: 'Abonnements',
-      description: 'Pilotez les plans des recruteurs et ajustez leurs droits métier.',
-      link: '/admin/subscriptions',
-      label: 'Ouvrir'
-    },
-    {
       title: 'Demandes recruteurs',
       description: 'Validez ou refusez les comptes en attente depuis une vue dédiée.',
       link: '/admin/recruiter-activation',
@@ -85,7 +78,6 @@ export class AdminSpaceComponent implements OnInit {
   aiTestStats: AiTestStatsResponse | null = null;
   insights: AiInsightItem[] = [];
   serviceHealth: ServiceHealthItem[] = [];
-  subscriptions: AdminSubscriptionResponse[] = [];
   kpis: AdminKpiCard[] = [];
 
   applicationsByMonthChartData: ChartData<'bar'> = { labels: [], datasets: [] };
@@ -93,7 +85,6 @@ export class AdminSpaceComponent implements OnInit {
   applicationsByStatusChartData: ChartData<'doughnut'> = { labels: [], datasets: [] };
   topSkillsChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   aiTestsChartData: ChartData<'doughnut'> = { labels: [], datasets: [] };
-  subscriptionsChartData: ChartData<'bar'> = { labels: [], datasets: [] };
 
   lineChartOptions: ChartConfiguration<'line'>['options'] = {};
   verticalBarOptions: ChartConfiguration<'bar'>['options'] = {};
@@ -115,8 +106,7 @@ export class AdminSpaceComponent implements OnInit {
           this.lastOffersByMonth,
           this.lastApplicationsByStatus,
           this.lastTopSkills,
-          this.aiTestStats,
-          this.subscriptions
+          this.aiTestStats
         );
       }
     });
@@ -160,21 +150,19 @@ export class AdminSpaceComponent implements OnInit {
       applicationsByMonth: this.adminPlatformService.getApplicationsByMonth(),
       topSkills: this.adminPlatformService.getTopSkills(),
       insights: this.adminPlatformService.getInsights(),
-      serviceHealth: this.adminPlatformService.getSystemHealth(),
-      subscriptions: this.adminPlatformService.getSubscriptions()
+      serviceHealth: this.adminPlatformService.getSystemHealth()
     }).subscribe({
-      next: ({ overview, aiTests, applicationsByStatus, offersByMonth, applicationsByMonth, topSkills, insights, serviceHealth, subscriptions }) => {
+      next: ({ overview, aiTests, applicationsByStatus, offersByMonth, applicationsByMonth, topSkills, insights, serviceHealth }) => {
         this.overview = overview;
         this.aiTestStats = aiTests;
         this.insights = insights;
         this.serviceHealth = serviceHealth;
-        this.subscriptions = subscriptions;
         this.lastApplicationsByMonth = applicationsByMonth;
         this.lastOffersByMonth = offersByMonth;
         this.lastApplicationsByStatus = applicationsByStatus;
         this.lastTopSkills = topSkills;
         this.kpis = this.buildKpis(overview, aiTests);
-        this.buildCharts(applicationsByMonth, offersByMonth, applicationsByStatus, topSkills, aiTests, subscriptions);
+        this.buildCharts(applicationsByMonth, offersByMonth, applicationsByStatus, topSkills, aiTests);
         this.loading = false;
       },
       error: (error: { message?: string }) => {
@@ -218,8 +206,7 @@ export class AdminSpaceComponent implements OnInit {
     offersByMonth: ChartDataResponse,
     applicationsByStatus: ChartDataResponse,
     topSkills: { name: string; count: number }[],
-    aiStats: AiTestStatsResponse,
-    subscriptions: AdminSubscriptionResponse[]
+    aiStats: AiTestStatsResponse
   ): void {
     const palette = this.resolveChartPalette();
     const applicationsMonthly = this.normalizeChartData(applicationsByMonth);
@@ -232,7 +219,6 @@ export class AdminSpaceComponent implements OnInit {
       this.toSafeNumber(aiStats.expiredTests),
       this.toSafeNumber(aiStats.cheatingSuspicions)
     ];
-    const subscriptionDistribution = this.buildSubscriptionDistribution(subscriptions);
 
     this.applicationsByMonthChartData = {
       labels: applicationsMonthly.labels,
@@ -286,16 +272,6 @@ export class AdminSpaceComponent implements OnInit {
       }]
     };
 
-    this.subscriptionsChartData = {
-      labels: ['FREE', 'STANDARD', 'PREMIUM'],
-      datasets: [{
-        data: subscriptionDistribution,
-        label: 'Abonnements',
-        backgroundColor: [palette.mutedBar, palette.info, palette.accent],
-        borderRadius: 12,
-        borderSkipped: false
-      }]
-    };
   }
 
   private applyChartTheme(): void {
@@ -450,13 +426,6 @@ export class AdminSpaceComponent implements OnInit {
       labels: skills.map((skill) => skill.label),
       values: skills.map((skill) => skill.count)
     };
-  }
-
-  private buildSubscriptionDistribution(subscriptions: AdminSubscriptionResponse[]): number[] {
-    const countPlan = (planType: string) =>
-      (subscriptions || []).filter((item) => `${item.planType || ''}`.toUpperCase() === planType).length;
-
-    return [countPlan('FREE'), countPlan('STANDARD'), countPlan('PREMIUM')];
   }
 
   private toSafeNumber(value: unknown): number {

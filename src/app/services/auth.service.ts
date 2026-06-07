@@ -100,41 +100,9 @@ export interface UserProfile {
   entreprise?: string;
 }
 
-export interface NotificationItem {
-  id: number;
-  message: string;
-  dateEnvoi: string;
-  lue: boolean;
-}
-
 export interface MessageResult {
   success: boolean;
   message: string;
-}
-
-export type SocialProvider = 'FACEBOOK' | 'GMAIL' | 'LINKEDIN';
-
-export interface SocialAuthPayload {
-  provider: SocialProvider;
-  mode: 'LOGIN' | 'REGISTER';
-  email: string;
-  username?: string;
-  role?: 'CANDIDATE' | 'RECRUITER';
-  phoneNumber?: string;
-  fonction?: string;
-  poste?: string;
-  departement?: string;
-}
-
-export interface SocialAuthResult {
-  id: number;
-  email: string;
-  username: string;
-  role: string;
-  message: string;
-  success: boolean;
-  statutCompte: boolean;
-  token: string | null;
 }
 
 @Injectable({
@@ -152,24 +120,6 @@ export class AuthService {
     return this.http.post<AuthUser>(`${this.apiUrl}/login`, payload).pipe(
       tap((response) => this.persistSession(response)),
       catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, 'Connexion impossible.'))))
-    );
-  }
-
-  socialAuth(payload: SocialAuthPayload): Observable<SocialAuthResult> {
-    return this.http.post<SocialAuthResult>(`${this.apiUrl}/social`, payload).pipe(
-      tap((response) => {
-        if (response?.token) {
-          this.persistSession({
-            id: response.id,
-            email: response.email,
-            username: response.username,
-            role: response.role,
-            message: response.message,
-            token: response.token
-          });
-        }
-      }),
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, 'Connexion sociale impossible.'))))
     );
   }
 

@@ -71,7 +71,7 @@ export class HomeComponent implements OnInit {
     {
       tag: 'Pilotage SaaS',
       title: 'Donnez une vraie lecture business a votre recrutement',
-      description: 'Statistiques, abonnements, tags et activites pour une plateforme qui inspire confiance.'
+      description: 'Statistiques, tags et activités pour une plateforme qui inspire confiance.'
     }
   ];
   readonly journeySteps = [

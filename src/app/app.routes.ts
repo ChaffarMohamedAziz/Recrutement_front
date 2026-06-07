@@ -1,6 +1,5 @@
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
 import { AdminSpaceComponent } from './admin-space/admin-space.component';
-import { AdminSubscriptionsComponent } from './admin/subscriptions/admin-subscriptions.component';
 import { AssistantHubComponent } from './assistant/assistant-hub.component';
 import { RecruiterActivationComponent } from './admin/recruiter-activation/recruiter-activation.component';
 import { UserDetailComponent } from './admin/user-detail/user-detail.component';
@@ -60,7 +59,6 @@ export const routes: Routes = [
   { path: 'candidate-ai-tests/:id', component: CandidateAiTestComponent, canActivate: [candidateGuard], canDeactivate: [candidateAiTestExitGuard] },
   { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
   { path: 'admin/statistics', component: AdminSpaceComponent, canActivate: [adminGuard] },
-  { path: 'admin/subscriptions', component: AdminSubscriptionsComponent, canActivate: [adminGuard] },
   { path: 'admin/recruiter-activation', component: RecruiterActivationComponent, canActivate: [adminGuard] },
   { path: 'admin/users', component: UserListComponent, canActivate: [adminGuard] },
   { path: 'admin/tags', component: TagsComponent, canActivate: [adminGuard] },

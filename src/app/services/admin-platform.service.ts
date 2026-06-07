@@ -67,38 +67,6 @@ export interface AdminActivityItem {
   tone: 'primary' | 'success' | 'warning' | 'danger' | 'neutral' | string;
 }
 
-export interface AdminSubscriptionResponse {
-  id: number;
-  recruiterId: number | null;
-  recruiterName: string;
-  recruiterEmail: string;
-  entrepriseId: number | null;
-  entrepriseName: string;
-  planType: 'FREE' | 'STANDARD' | 'PREMIUM' | string;
-  status: 'ACTIVE' | 'EXPIRED' | 'SUSPENDED' | string;
-  startDate: string;
-  endDate: string;
-  maxJobOffers: number | null;
-  maxCandidateViews: number | null;
-  aiFeaturesEnabled: boolean;
-  createdAt: string;
-  updatedAt: string;
-  abonnementActif: string;
-}
-
-export interface AdminSubscriptionPayload {
-  recruiterId?: number | null;
-  entrepriseId?: number | null;
-  planType?: string | null;
-  status?: string | null;
-  startDate?: string | null;
-  endDate?: string | null;
-  maxJobOffers?: number | null;
-  maxCandidateViews?: number | null;
-  aiFeaturesEnabled?: boolean | null;
-  additionalDays?: number | null;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -157,49 +125,6 @@ export class AdminPlatformService {
   getRecentActivity(): Observable<AdminActivityItem[]> {
     return this.http.get<AdminActivityItem[]>(`${this.adminApiUrl}/activity/recent`).pipe(
       catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, 'Chargement de l’activité récente impossible.'))))
-    );
-  }
-
-  getSubscriptions(status?: string): Observable<AdminSubscriptionResponse[]> {
-    const suffix = status ? `?status=${encodeURIComponent(status)}` : '';
-    return this.http.get<AdminSubscriptionResponse[]>(`${this.adminApiUrl}/subscriptions${suffix}`).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, 'Chargement des abonnements impossible.'))))
-    );
-  }
-
-  getSubscription(id: number): Observable<AdminSubscriptionResponse> {
-    return this.http.get<AdminSubscriptionResponse>(`${this.adminApiUrl}/subscriptions/${id}`).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, "Chargement de l'abonnement impossible."))))
-    );
-  }
-
-  createSubscription(payload: AdminSubscriptionPayload): Observable<AdminSubscriptionResponse> {
-    return this.http.post<AdminSubscriptionResponse>(`${this.adminApiUrl}/subscriptions`, payload).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, "Creation de l'abonnement impossible."))))
-    );
-  }
-
-  updateSubscription(id: number, payload: AdminSubscriptionPayload): Observable<AdminSubscriptionResponse> {
-    return this.http.put<AdminSubscriptionResponse>(`${this.adminApiUrl}/subscriptions/${id}`, payload).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, "Mise a jour de l'abonnement impossible."))))
-    );
-  }
-
-  activateSubscription(id: number): Observable<AdminSubscriptionResponse> {
-    return this.http.put<AdminSubscriptionResponse>(`${this.adminApiUrl}/subscriptions/${id}/activate`, {}).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, "Activation de l'abonnement impossible."))))
-    );
-  }
-
-  suspendSubscription(id: number): Observable<AdminSubscriptionResponse> {
-    return this.http.put<AdminSubscriptionResponse>(`${this.adminApiUrl}/subscriptions/${id}/suspend`, {}).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, "Suspension de l'abonnement impossible."))))
-    );
-  }
-
-  renewSubscription(id: number, additionalDays = 30): Observable<AdminSubscriptionResponse> {
-    return this.http.put<AdminSubscriptionResponse>(`${this.adminApiUrl}/subscriptions/${id}/renew`, { additionalDays }).pipe(
-      catchError((error: HttpErrorResponse) => throwError(() => new Error(this.extractErrorMessage(error, "Renouvellement de l'abonnement impossible."))))
     );
   }
 
