@@ -15,8 +15,6 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { VerifyEmailComponent } from './auth/verify-email/verify-email.component';
-import { BlogDetailsComponent } from './blog/blog-details.component';
-import { BlogListComponent } from './blog/blog-list.component';
 import { CandidateSpaceComponent } from './candidate-space/candidate-space.component';
 import { CandidateAiTestComponent } from './ai-tests/candidate-ai-test.component';
 import { candidateAiTestExitGuard } from './ai-tests/candidate-ai-test-exit.guard';
@@ -149,8 +147,6 @@ export const routes: Routes = [
       features: ['Protection des donnees', 'Usage des informations', 'Consentement']
     }
   },
-  { path: 'blog', component: BlogListComponent },
-  { path: 'blog-details/:id', component: BlogDetailsComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [recruiterGuard] },
   { path: '**', redirectTo: '', pathMatch: 'full' }

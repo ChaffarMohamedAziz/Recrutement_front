@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService, RegisterResult } from '../services/auth.service';
-import { BLOG_POSTS, CANDIDATES, COMPANIES, JOB_CATEGORIES } from '../data/mock-market-data';
+import { CANDIDATES, COMPANIES, JOB_CATEGORIES } from '../data/mock-market-data';
 import { OfferResponse, OfferService } from '../services/offer.service';
 
 interface HomeJobItem {
@@ -45,7 +45,6 @@ export class HomeComponent implements OnInit {
   categories = JOB_CATEGORIES.map((category) => category.title);
   readonly companies = COMPANIES;
   readonly candidates = CANDIDATES;
-  readonly blogs = BLOG_POSTS;
   readonly heroStats = [
     { value: '12 min', label: 'pour qualifier une candidature avec un parcours plus clair' },
     { value: '87%', label: 'de matching moyen sur les profils les mieux alignes' },

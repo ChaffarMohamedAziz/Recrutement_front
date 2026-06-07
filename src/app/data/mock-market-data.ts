@@ -41,14 +41,6 @@ export interface CandidateProfile {
   score: number;
 }
 
-export interface BlogPost {
-  id: number;
-  title: string;
-  date: string;
-  author: string;
-  excerpt: string;
-}
-
 export const JOB_CATEGORIES: JobCategory[] = [
   { id: 1, title: 'Support technique', subtitle: 'Hotline, helpdesk, support client', accent: 'blue' },
   { id: 2, title: 'Developpement commercial', subtitle: 'Vente, croissance, partenariats', accent: 'violet' },
@@ -103,7 +95,7 @@ export const COMPANIES: CompanyProfile[] = [
     size: '65-90 employes',
     summary: 'Cabinet de conseil en transformation digitale pour retail, banque et industrie.',
     highlights: ['Consulting', 'Data', 'Transformation'],
-    benefits: ['Plan de carrière', 'Coaching', 'Mobilité interne']
+    benefits: ['Plan de carriere', 'Coaching', 'Mobilite interne']
   }
 ];
 
@@ -150,7 +142,7 @@ export const JOBS: JobPosting[] = [
     salary: '18k - 24k',
     contractType: 'Temps partiel',
     category: 'Analyse de marche',
-    summary: 'Structurer la discovery produit et creer des parcours centrés utilisateur.'
+    summary: 'Structurer la discovery produit et creer des parcours centres utilisateur.'
   },
   {
     id: 5,
@@ -172,7 +164,7 @@ export const JOBS: JobPosting[] = [
     salary: '15k - 21k',
     contractType: 'Temps partiel',
     category: 'Developpement commercial',
-    summary: 'Optimiser le référencement organique et améliorer la visibilité des marques.'
+    summary: 'Optimiser le referencement organique et ameliorer la visibilite des marques.'
   }
 ];
 
@@ -184,7 +176,7 @@ export const CANDIDATES: CandidateProfile[] = [
     location: 'Tunis',
     experience: 6,
     availability: 'Disponible sous 15 jours',
-    summary: 'Consultant orienté structuration commerciale, excellence opérationnelle et growth.',
+    summary: 'Consultant oriente structuration commerciale, excellence operationnelle et growth.',
     skills: ['Business Strategy', 'CRM', 'Negotiation', 'Analytics'],
     score: 92
   },
@@ -194,7 +186,7 @@ export const CANDIDATES: CandidateProfile[] = [
     title: 'Consultant web',
     location: 'Sfax',
     experience: 4,
-    availability: 'Disponible immédiatement',
+    availability: 'Disponible immediatement',
     summary: 'Profil web transverse avec expertise front, CMS et optimisation parcours client.',
     skills: ['Angular', 'SEO', 'WordPress', 'UX'],
     score: 84
@@ -206,7 +198,7 @@ export const CANDIDATES: CandidateProfile[] = [
     location: 'Sousse',
     experience: 5,
     availability: 'Disponible sous 30 jours',
-    summary: 'Designer produit focalisé sur la recherche utilisateur, prototypage et design systems.',
+    summary: 'Designer produit focalise sur la recherche utilisateur, prototypage et design systems.',
     skills: ['Figma', 'Design System', 'User Research', 'Wireframing'],
     score: 89
   },
@@ -217,32 +209,8 @@ export const CANDIDATES: CandidateProfile[] = [
     location: 'Nabeul',
     experience: 3,
     availability: 'Freelance / mission',
-    summary: 'Consultant SEO orienté acquisition organique, audit technique et contenu.',
+    summary: 'Consultant SEO oriente acquisition organique, audit technique et contenu.',
     skills: ['SEO', 'Google Analytics', 'Content', 'Technical Audit'],
     score: 78
-  }
-];
-
-export const BLOG_POSTS: BlogPost[] = [
-  {
-    id: 1,
-    title: 'Comment structurer un pipeline de recrutement moderne',
-    date: '25 Mars 2026',
-    author: 'Equipe Smart Recruit',
-    excerpt: 'Mettez en place une vue claire des candidatures, des entretiens et du matching.'
-  },
-  {
-    id: 2,
-    title: 'Les 5 signaux d’un excellent profil produit',
-    date: '18 Mars 2026',
-    author: 'Equipe Design & Hiring',
-    excerpt: 'Identifier rapidement les profils qui combinent vision produit et execution.'
-  },
-  {
-    id: 3,
-    title: 'Pourquoi l’ATS doit aussi servir les candidats',
-    date: '12 Mars 2026',
-    author: 'Equipe Candidate Experience',
-    excerpt: 'Un bon recrutement optimise a la fois le suivi recruteur et l’experience candidat.'
   }
 ];
