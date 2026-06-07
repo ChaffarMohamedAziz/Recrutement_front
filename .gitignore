@@ -19,7 +19,6 @@ frontend-run.out.log
 ngserve.err
 ngserve.out
 structure_front.txt
-.codex-logs/
 
 # IDEs and editors
 .idea/
